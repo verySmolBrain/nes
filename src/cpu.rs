@@ -25,6 +25,18 @@ Processor Status Flags
 - Z - Zero Flag - Set if last operation result was 0 
 - C - Carry Flag - Carryover for bigger than 8-bit numbers
 - 1 - Unused flag that is always set to 1
+
+7  bit  0
+---- ----
+NVss DIZC
+|||| ||||
+|||| |||+- Carry
+|||| ||+-- Zero
+|||| |+--- Interrupt Disable
+|||| +---- Decimal
+||++------ No CPU effect, see: the B flag
+|+-------- Overflow
++--------- Negative
 */
 
 pub struct CPU {
@@ -38,11 +50,42 @@ impl CPU {
         CPU {
             register_a: 0, 
             status: 0, 
-            program_counter:0
+            program_counter: 0 // Potentially change into iter
         }
     }
 
     pub fn interpret(&mut self, program: Vec<u8>) {
-        todo!("Implement CPU interpreter");
+        self.program_counter = 0;
+
+        loop {
+            let opscode = program[self.program_counter as usize];
+            self.program_counter += 1; // Fetch next execution instruction
+
+            match opscode {
+                0xA9 => { //LDA
+                    let value = program[self.program_counter as usize];
+                    self.program_counter += 1;
+                    
+                    self.register_a = value;
+
+                    // Set flags
+                    if self.register_a == 0 {
+                        self.status |= 0b0000_0010;
+                    } else {
+                        self.status &= 0b1111_1101;
+                    }
+
+                    if self.register_a & 0b1000_0000 != 0 {
+                        self.status |= 0b1000_0000;
+                    } else {
+                        self.status &= 0b0111_1111;
+                    }
+                },
+                0x00 => { // BRK
+                    return;
+                }
+                _ => todo!()
+            }
+        }
     }
 }
