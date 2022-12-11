@@ -41,6 +41,7 @@ NVss DIZC
 
 pub struct CPU {
     pub register_a: u8, 
+    pub register_x: u8,
     pub status: u8,
     pub program_counter: u16,
 }
@@ -49,6 +50,7 @@ impl CPU {
     pub fn new() -> Self {
         CPU {
             register_a: 0, 
+            register_x: 0,
             status: 0, 
             program_counter: 0 // Potentially change into iter
         }
@@ -62,30 +64,44 @@ impl CPU {
             self.program_counter += 1; // Fetch next execution instruction
 
             match opscode {
-                0xA9 => { //LDA
+                0xA9 => {
                     let value = program[self.program_counter as usize];
-                    self.program_counter += 1;
-                    
-                    self.register_a = value;
+                    self.program_counter += 1; // increment to get param
 
-                    // Set flags
-                    if self.register_a == 0 {
-                        self.status |= 0b0000_0010;
-                    } else {
-                        self.status &= 0b1111_1101;
-                    }
-
-                    if self.register_a & 0b1000_0000 != 0 {
-                        self.status |= 0b1000_0000;
-                    } else {
-                        self.status &= 0b0111_1111;
-                    }
+                    self.lda(value);
                 },
-                0x00 => { // BRK
-                    return;
-                }
+                0xAA => self.tax(),
+                0x00 => return,
                 _ => todo!()
             }
+        }
+    }
+
+    fn lda(&mut self, value: u8) {
+        self.register_a = value;
+        self.update_zero_flag(self.register_a);
+        self.update_negative_flag(self.register_a);
+    }
+
+    fn tax(&mut self) {
+        self.register_x = self.register_a;
+        self.update_zero_flag(self.register_x);
+        self.update_negative_flag(self.register_x);
+    }
+
+    fn update_zero_flag(&mut self, value: u8) {
+        if value == 0 {
+            self.status |= 0b0000_0010;
+        } else {
+            self.status &= 0b1111_1101;
+        }
+    }
+
+    fn update_negative_flag(&mut self, value: u8) {
+        if value & 0b1000_0000 != 0 {
+            self.status |= 0b1000_0000;
+        } else {
+            self.status &= 0b0111_1111;
         }
     }
 }
