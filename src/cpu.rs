@@ -60,21 +60,25 @@ impl CPU {
         self.program_counter = 0;
 
         loop {
-            let opscode = program[self.program_counter as usize];
-            self.program_counter += 1; // Fetch next execution instruction
+            let opscode = self.next(&program);
 
             match opscode {
                 0xA9 => {
-                    let value = program[self.program_counter as usize];
-                    self.program_counter += 1; // increment to get param
-
+                    let value = self.next(&program);
                     self.lda(value);
                 },
+                0xE8 => self.inx(),
                 0xAA => self.tax(),
                 0x00 => return,
                 _ => todo!()
             }
         }
+    }
+
+    fn inx(&mut self) {
+        self.register_x = self.register_x.wrapping_add(1);
+        self.update_zero_flag(self.register_x);
+        self.update_negative_flag(self.register_x);
     }
 
     fn lda(&mut self, value: u8) {
@@ -87,6 +91,12 @@ impl CPU {
         self.register_x = self.register_a;
         self.update_zero_flag(self.register_x);
         self.update_negative_flag(self.register_x);
+    }
+
+    fn next(&mut self, program: &Vec<u8>) -> u8 {
+        let value = program[self.program_counter as usize];
+        self.program_counter += 1;
+        value
     }
 
     fn update_zero_flag(&mut self, value: u8) {
