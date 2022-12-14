@@ -44,6 +44,7 @@ pub struct CPU {
     pub register_x: u8,
     pub status: u8,
     pub program_counter: u16,
+    memory: [u8; 0xFFFF]
 }
 
 impl CPU {
@@ -52,19 +53,38 @@ impl CPU {
             register_a: 0, 
             register_x: 0,
             status: 0, 
-            program_counter: 0 // Potentially change into iter
+            program_counter: 0,
+            memory: [0; 0xFFFF]
         }
     }
 
-    pub fn interpret(&mut self, program: Vec<u8>) {
+    fn mem_read(&self, addr: u16) -> u8 {
+        self.memory[addr as usize]
+    }
+
+    fn mem_write(&mut self, addr: u16, value: u8) {
+        self.memory[addr as usize] = value;
+    }
+
+    pub fn load_and_run(&mut self, program: Vec<u8>) {
+        self.load(program);
+        self.run();
+    }
+
+    pub fn load(&mut self, program: Vec<u8>) {
+        self.memory[0x8000 .. (0x8000 + program.len())].copy_from_slice(&program[..]);
+        self.program_counter = 0x8000;
+    }
+
+    pub fn run(&mut self) {
         self.program_counter = 0;
 
         loop {
-            let opscode = self.next(&program);
+            let opscode = self.next();
 
             match opscode {
                 0xA9 => {
-                    let value = self.next(&program);
+                    let value = self.next();
                     self.lda(value);
                 },
                 0xE8 => self.inx(),
@@ -77,26 +97,22 @@ impl CPU {
 
     fn inx(&mut self) {
         self.register_x = self.register_x.wrapping_add(1);
-        self.update_zero_flag(self.register_x);
-        self.update_negative_flag(self.register_x);
+        self.update_zero_and_negative_flag(self.register_x);
     }
 
     fn lda(&mut self, value: u8) {
         self.register_a = value;
-        self.update_zero_flag(self.register_a);
-        self.update_negative_flag(self.register_a);
+        self.update_zero_and_negative_flag(self.register_a);
     }
 
     fn tax(&mut self) {
         self.register_x = self.register_a;
-        self.update_zero_flag(self.register_x);
-        self.update_negative_flag(self.register_x);
+        self.update_zero_and_negative_flag(self.register_x);
     }
 
-    fn next(&mut self, program: &Vec<u8>) -> u8 {
-        let value = program[self.program_counter as usize];
+    fn next(&mut self) -> u8 {
         self.program_counter += 1;
-        value
+        self.mem_read(self.program_counter)
     }
 
     fn update_zero_flag(&mut self, value: u8) {
@@ -113,5 +129,10 @@ impl CPU {
         } else {
             self.status &= 0b0111_1111;
         }
+    }
+
+    fn update_zero_and_negative_flag(&mut self, value: u8) {
+        self.update_zero_flag(value);
+        self.update_negative_flag(value);
     }
 }
