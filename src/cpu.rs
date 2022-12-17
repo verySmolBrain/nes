@@ -39,12 +39,28 @@ NVss DIZC
 +--------- Negative
 */
 
+/*
+Important Notes
+- Address is stored in 2 bytes
+- Little endian is used for addresses
+ */
+
+const ADDRESS_SPACE: usize = 0xFFFF;
+const ROM_START: usize = 0x8000;
+const RESET_VECTOR: usize = 0xFFFC;
+/*
+Reset vector is located in ROM since:
+1. You don't want to conflict with RAM space
+2. NES ROM cartridges are probably not going to be big enough to cover the
+address space anyways so the top of ROM is good place for instructions
+ */
+
 pub struct CPU {
     pub register_a: u8, 
     pub register_x: u8,
     pub status: u8,
     pub program_counter: u16,
-    memory: [u8; 0xFFFF]
+    memory: [u8; ADDRESS_SPACE]
 }
 
 impl CPU {
@@ -54,8 +70,21 @@ impl CPU {
             register_x: 0,
             status: 0, 
             program_counter: 0,
-            memory: [0; 0xFFFF]
+            memory: [0; ADDRESS_SPACE]
         }
+    }
+
+    fn mem_read_u16(&self, addr: u16) -> u16 {
+        u16::from_le_bytes([
+            self.mem_read(addr),
+            self.mem_read(addr + 1)
+        ])
+    }
+
+    fn mem_write_u16(&mut self, addr: u16, value: u16) {
+        value.to_le_bytes().iter().enumerate().for_each(|(i, v)| {
+            self.mem_write(addr + i as u16, *v)
+        })
     }
 
     fn mem_read(&self, addr: u16) -> u8 {
@@ -66,21 +95,30 @@ impl CPU {
         self.memory[addr as usize] = value;
     }
 
+    pub fn reset(&mut self) {
+        self.register_a = 0;
+        self.register_x = 0;
+        self.status = 0;
+
+        self.program_counter = self.mem_read_u16(RESET_VECTOR as u16);
+    }
+
     pub fn load_and_run(&mut self, program: Vec<u8>) {
         self.load(program);
+        self.reset();
         self.run();
     }
 
     pub fn load(&mut self, program: Vec<u8>) {
-        self.memory[0x8000 .. (0x8000 + program.len())].copy_from_slice(&program[..]);
-        self.program_counter = 0x8000;
+        self.memory[ROM_START .. (ROM_START + program.len())]
+            .copy_from_slice(&program[..]);
+        self.mem_write_u16(RESET_VECTOR as u16, ROM_START as u16)
     }
 
     pub fn run(&mut self) {
-        self.program_counter = 0;
-
         loop {
             let opscode = self.next();
+            println!("Register x: {}", self.register_x);
 
             match opscode {
                 0xA9 => {
@@ -111,8 +149,10 @@ impl CPU {
     }
 
     fn next(&mut self) -> u8 {
+        let val = self.mem_read(self.program_counter);
         self.program_counter += 1;
-        self.mem_read(self.program_counter)
+
+        return val;
     }
 
     fn update_zero_flag(&mut self, value: u8) {
