@@ -1,63 +1,26 @@
-/*
-Overview of Emulator
-CPU 
-- 16-bit for memory addressing
-CPU Memory Map
-    RAM - [0x0000 … 0x2000]
-    NES hardware modules: PPU, APU, GamePads - [0x2000 … 0x4020]
-    Mappers - [0x4020 .. 0x6000]
-    Cartridge RAM - [0x6000 .. 0x8000]
-    Program ROM on Cartridge - [0x8000 … 0x10000]
-CPU Registers
-Program Counter is 16 bits. Others are 8 bits.
-- Program Counter (PC) - holds address for next machine language instruction
-- Stack Pointer - Memory space [0x0100 .. 0x1FF]. Holds the address of the top (Grows from top to bottom)
-- Accumulator (A) - stores results of arithmetic, logic and memory access operations 
-- Index Register X (X) - used as an offset in specific memory addressing modes. Can be used for auxiliary storage needs (Temp values etc.)
-- Index Register Y (Y) - same as X 
-- Processor Status (P) - represents 7 status flags that can be set or unset
-Processor Status Flags
-- N - Negative Flag - Set after any operation
-- V - Overflow Flag
-- B - Break Flag - Distinguish hardware interrupts from software interrupts
-- D - Decimal Flag - Select Decimal mode 
-- I - Interrupt Disable Flag - Disable CPU interrupts
-- Z - Zero Flag - Set if last operation result was 0 
-- C - Carry Flag - Carryover for bigger than 8-bit numbers
-- 1 - Unused flag that is always set to 1
-
-7  bit  0
----- ----
-NVss DIZC
-|||| ||||
-|||| |||+- Carry
-|||| ||+-- Zero
-|||| |+--- Interrupt Disable
-|||| +---- Decimal
-||++------ No CPU effect, see: the B flag
-|+-------- Overflow
-+--------- Negative
-*/
-
-/*
-Important Notes
-- Address is stored in 2 bytes
-- Little endian is used for addresses
- */
-
 const ADDRESS_SPACE: usize = 0xFFFF;
 const ROM_START: usize = 0x8000;
 const RESET_VECTOR: usize = 0xFFFC;
-/*
-Reset vector is located in ROM since:
-1. You don't want to conflict with RAM space
-2. NES ROM cartridges are probably not going to be big enough to cover the
-address space anyways so the top of ROM is good place for instructions
- */
+
+#[derive(Debug)]
+#[allow(non_camel_case_types)]
+pub enum AddressingMode {
+    Immediate,
+    ZeroPage,
+    ZeroPage_X,
+    ZeroPage_Y,
+    Absolute,
+    Absolute_X,
+    Absolute_Y,
+    Indirect_X, // Change name since this is meant to be Indexed Indirect
+    Indirect_Y,
+    NoneAddressing,
+}
 
 pub struct CPU {
     pub register_a: u8, 
     pub register_x: u8,
+    pub register_y: u8,
     pub status: u8,
     pub program_counter: u16,
     memory: [u8; ADDRESS_SPACE]
@@ -68,6 +31,7 @@ impl CPU {
         CPU {
             register_a: 0, 
             register_x: 0,
+            register_y: 0,
             status: 0, 
             program_counter: 0,
             memory: [0; ADDRESS_SPACE]
@@ -75,7 +39,7 @@ impl CPU {
     }
 
     fn mem_read_u16(&self, addr: u16) -> u16 {
-        u16::from_le_bytes([
+        u16::from_le_bytes([ // LE
             self.mem_read(addr),
             self.mem_read(addr + 1)
         ])
@@ -83,7 +47,7 @@ impl CPU {
 
     fn mem_write_u16(&mut self, addr: u16, value: u16) {
         value.to_le_bytes().iter().enumerate().for_each(|(i, v)| {
-            self.mem_write(addr + i as u16, *v)
+            self.mem_write(addr + i as u16, *v) // LE
         })
     }
 
@@ -98,6 +62,7 @@ impl CPU {
     pub fn reset(&mut self) {
         self.register_a = 0;
         self.register_x = 0;
+        self.register_y = 0;
         self.status = 0;
 
         self.program_counter = self.mem_read_u16(RESET_VECTOR as u16);
@@ -115,10 +80,59 @@ impl CPU {
         self.mem_write_u16(RESET_VECTOR as u16, ROM_START as u16)
     }
 
+    fn get_operand_address(&self, mode: &AddressingMode) -> u16 {
+        match mode {
+            AddressingMode::Immediate => self.program_counter,
+            AddressingMode::ZeroPage => self.mem_read(self.program_counter) as u16,
+            AddressingMode::Absolute => self.mem_read_u16(self.program_counter),
+            AddressingMode::ZeroPage_X => {
+                let pos = self.mem_read(self.program_counter);
+                let addr = pos.wrapping_add(self.register_x);
+                addr as u16
+            },
+            AddressingMode::ZeroPage_Y => {
+                let pos = self.mem_read(self.program_counter);
+                let addr = pos.wrapping_add(self.register_y);
+                addr as u16
+            },
+            AddressingMode::Absolute_X => {
+                let pos = self.mem_read_u16(self.program_counter);
+                let addr = pos.wrapping_add(self.register_x as u16);
+                addr
+            },
+            AddressingMode::Absolute_Y => {
+                let pos = self.mem_read_u16(self.program_counter);
+                let addr = pos.wrapping_add(self.register_y as u16);
+                addr
+            },
+            AddressingMode::Indirect_X => {
+                let pos = self.mem_read(self.program_counter);
+                let ptr = pos.wrapping_add(self.register_x);
+
+                u16::from_le_bytes([ // Indexed Indirect adding before lookup
+                    self.mem_read(ptr as u16),
+                    self.mem_read(ptr.wrapping_add(1) as u16)
+                ])
+            },
+            AddressingMode::Indirect_Y => {
+                let pos = self.mem_read(self.program_counter);
+                let ptr = u16::from_le_bytes([
+                    self.mem_read(pos as u16),
+                    self.mem_read(pos.wrapping_add(1) as u16)
+                ]); // Indirect Index adding after lookup
+
+                let addr = ptr.wrapping_add(self.register_y as u16);
+                addr
+            },
+            AddressingMode::NoneAddressing => {
+                panic!("Invalid mode: {:?}", mode);
+            }
+        }
+    }
+
     pub fn run(&mut self) {
         loop {
             let opscode = self.next();
-            println!("Register x: {}", self.register_x);
 
             match opscode {
                 0xA9 => {
