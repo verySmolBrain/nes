@@ -29,5 +29,12 @@ lazy_static! {
         0xa1_u8 => OPCode { opcode: 0xa1, name: "LDA", bytes: 2, cycles: 6, mode: Indirect_X },
         0xb1_u8 => OPCode { opcode: 0xb1, name: "LDA", bytes: 2, cycles: 5, mode: Indirect_Y },
 
+        0x85_u8 => OPCode { opcode: 0x85, name: "STA", bytes: 2, cycles: 3, mode: ZeroPage },
+        0x95_u8 => OPCode { opcode: 0x95, name: "STA", bytes: 2, cycles: 4, mode: ZeroPage_X },
+        0x8d_u8 => OPCode { opcode: 0x8d, name: "STA", bytes: 3, cycles: 4, mode: Absolute },
+        0x9d_u8 => OPCode { opcode: 0x9d, name: "STA", bytes: 3, cycles: 5, mode: Absolute_X },
+        0x99_u8 => OPCode { opcode: 0x99, name: "STA", bytes: 3, cycles: 5, mode: Absolute_Y },
+        0x81_u8 => OPCode { opcode: 0x81, name: "STA", bytes: 2, cycles: 6, mode: Indirect_X },
+        0x91_u8 => OPCode { opcode: 0x91, name: "STA", bytes: 2, cycles: 6, mode: Indirect_Y },
     };
 }

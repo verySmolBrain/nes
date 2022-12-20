@@ -31,7 +31,7 @@ pub struct CPU {
 impl CPU {
     pub fn new() -> Self {
         CPU {
-            register_a: 0, 
+            register_a: 0, // accumulator
             register_x: 0,
             register_y: 0,
             status: 0, 
@@ -40,24 +40,24 @@ impl CPU {
         }
     }
 
-    fn mem_read_u16(&self, addr: u16) -> u16 {
+    pub fn mem_read_u16(&self, addr: u16) -> u16 {
         u16::from_le_bytes([ // LE
             self.mem_read(addr),
             self.mem_read(addr + 1)
         ])
     }
 
-    fn mem_write_u16(&mut self, addr: u16, value: u16) {
+    pub fn mem_write_u16(&mut self, addr: u16, value: u16) {
         value.to_le_bytes().iter().enumerate().for_each(|(i, v)| {
             self.mem_write(addr + i as u16, *v) // LE
         })
     }
 
-    fn mem_read(&self, addr: u16) -> u8 {
+    pub fn mem_read(&self, addr: u16) -> u8 {
         self.memory[addr as usize]
     }
 
-    fn mem_write(&mut self, addr: u16, value: u8) {
+    pub fn mem_write(&mut self, addr: u16, value: u8) {
         self.memory[addr as usize] = value;
     }
 
@@ -138,10 +138,15 @@ impl CPU {
             let opcode = OPCODES.get(&code).expect("Invalid opcode");
 
             match opcode.opcode {
-                0xA9 => { /* LDA */
+                0xA9 | 0xa5 | 0xb5 | 0xad | 0xbd |0xb9 | 0xa1 | 0xb1 => { /* LDA */
                     self.lda(
                         self.get_operand_address(&opcode.mode)
                     );
+                },
+                0x85 | 0x95 | 0x8d | 0x9d | 0x99 | 0x81 | 0x91 => { /* STA */
+                    self.sta(
+                        self.get_operand_address(&opcode.mode)
+                    )
                 },
                 0xE8 => self.inx(), /* INX */
                 0xAA => self.tax(), /* TAX */
@@ -151,6 +156,10 @@ impl CPU {
 
             self.program_counter += opcode.bytes - 1;
         }
+    }
+
+    fn sta(&mut self, addr: u16) {
+        self.mem_write(addr, self.register_a)
     }
 
     fn inx(&mut self) {
