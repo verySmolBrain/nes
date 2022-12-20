@@ -36,5 +36,58 @@ lazy_static! {
         0x99_u8 => OPCode { opcode: 0x99, name: "STA", bytes: 3, cycles: 5, mode: Absolute_Y },
         0x81_u8 => OPCode { opcode: 0x81, name: "STA", bytes: 2, cycles: 6, mode: Indirect_X },
         0x91_u8 => OPCode { opcode: 0x91, name: "STA", bytes: 2, cycles: 6, mode: Indirect_Y },
+
+        // ADC
+        // AND
+        // ASL
+        // BCC
+        // BCS
+        // BEQ
+        // BIT
+        // BMI
+        // BNE
+        // BPL
+        // BVC
+        // BVS
+        // CLC
+        // CLD
+        // CLI
+        // CLV
+        // CMP
+        // CPX
+        // CPY
+        // DEC
+        // DEX
+        // DEY
+        // EOR
+        // INC
+        // INX
+        // INY
+        // JMP
+        // JSR
+        // LDX
+        // LDY
+        // LSR
+        // NOP
+        // ORA
+        // PHA
+        // PHP
+        // PLA
+        // PLP
+        // ROL
+        // ROR
+        // RTI
+        // RTS
+        // SBC
+        // SEC
+        // SED
+        // SEI
+        // STX
+        // STY
+        // TAY
+        // TSX
+        // TXA
+        // TXS
+        // TYA
     };
 }
