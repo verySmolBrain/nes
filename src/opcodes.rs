@@ -9,7 +9,7 @@ use lazy_static::lazy_static;
 pub struct OPCode {
     pub opcode: u8,
     pub name: &'static str,
-    pub bytes: u8,
+    pub bytes: u16,
     pub cycles: u8,
     pub mode: AddressingMode,
 }

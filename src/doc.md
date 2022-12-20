@@ -53,7 +53,7 @@ NVss DIZC
 - Zero Page -> Absolute but smol (Only 1 byte for first page)
 - Zero Page X -> Zero page but we also add value in register x and if the 
 result is more than 1 byte, we wrap around (Offset to jump to memory location
-can be quite efficient)
+can be quite efficient eg. Arrays)
 - Zero Page Y -> Zero Page X but we use register y instead
 - Immediate -> Data is directly given as byte
 - Indirect -> Data is accessed using a pointer. (Makes implementation of 

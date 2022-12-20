@@ -1,3 +1,5 @@
+use crate::opcodes::OPCODES;
+
 const ADDRESS_SPACE: usize = 0xFFFF;
 const ROM_START: usize = 0x8000;
 const RESET_VECTOR: usize = 0xFFFC;
@@ -59,27 +61,6 @@ impl CPU {
         self.memory[addr as usize] = value;
     }
 
-    pub fn reset(&mut self) {
-        self.register_a = 0;
-        self.register_x = 0;
-        self.register_y = 0;
-        self.status = 0;
-
-        self.program_counter = self.mem_read_u16(RESET_VECTOR as u16);
-    }
-
-    pub fn load_and_run(&mut self, program: Vec<u8>) {
-        self.load(program);
-        self.reset();
-        self.run();
-    }
-
-    pub fn load(&mut self, program: Vec<u8>) {
-        self.memory[ROM_START .. (ROM_START + program.len())]
-            .copy_from_slice(&program[..]);
-        self.mem_write_u16(RESET_VECTOR as u16, ROM_START as u16)
-    }
-
     fn get_operand_address(&self, mode: &AddressingMode) -> u16 {
         match mode {
             AddressingMode::Immediate => self.program_counter,
@@ -130,20 +111,45 @@ impl CPU {
         }
     }
 
+    pub fn reset(&mut self) {
+        self.register_a = 0;
+        self.register_x = 0;
+        self.register_y = 0;
+        self.status = 0;
+
+        self.program_counter = self.mem_read_u16(RESET_VECTOR as u16);
+    }
+
+    pub fn load_and_run(&mut self, program: Vec<u8>) {
+        self.load(program);
+        self.reset();
+        self.run();
+    }
+
+    pub fn load(&mut self, program: Vec<u8>) {
+        self.memory[ROM_START .. (ROM_START + program.len())]
+            .copy_from_slice(&program[..]);
+        self.mem_write_u16(RESET_VECTOR as u16, ROM_START as u16)
+    }
+
     pub fn run(&mut self) {
         loop {
-            let opscode = self.next();
+            let code = self.next();
+            let opcode = OPCODES.get(&code).expect("Invalid opcode");
 
-            match opscode {
-                0xA9 => {
-                    let value = self.next();
-                    self.lda(value);
+            match opcode.opcode {
+                0xA9 => { /* LDA */
+                    self.lda(
+                        self.get_operand_address(&opcode.mode)
+                    );
                 },
-                0xE8 => self.inx(),
-                0xAA => self.tax(),
-                0x00 => return,
+                0xE8 => self.inx(), /* INX */
+                0xAA => self.tax(), /* TAX */
+                0x00 => return, /* BRK */
                 _ => todo!()
             }
+
+            self.program_counter += opcode.bytes - 1;
         }
     }
 
@@ -152,7 +158,9 @@ impl CPU {
         self.update_zero_and_negative_flag(self.register_x);
     }
 
-    fn lda(&mut self, value: u8) {
+    fn lda(&mut self, addr: u16) {
+        let value = self.mem_read(addr);
+
         self.register_a = value;
         self.update_zero_and_negative_flag(self.register_a);
     }
@@ -163,10 +171,9 @@ impl CPU {
     }
 
     fn next(&mut self) -> u8 {
-        let val = self.mem_read(self.program_counter);
+        let value = self.mem_read(self.program_counter);
         self.program_counter += 1;
-
-        return val;
+        value
     }
 
     fn update_zero_flag(&mut self, value: u8) {
