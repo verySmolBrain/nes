@@ -37,10 +37,13 @@ lazy_static! {
         0x81_u8 => OPCode { opcode: 0x81, name: "STA", bytes: 2, cycles: 6, mode: Indirect_X },
         0x91_u8 => OPCode { opcode: 0x91, name: "STA", bytes: 2, cycles: 6, mode: Indirect_Y },
 
-        // STY -- Doing
         0x84_u8 => OPCode { opcode: 0x84, name: "STY", bytes: 2, cycles: 3, mode: ZeroPage },
         0x94_u8 => OPCode { opcode: 0x94, name: "STY", bytes: 2, cycles: 4, mode: ZeroPage_X },
         0x8c_u8 => OPCode { opcode: 0x8c, name: "STY", bytes: 3, cycles: 4, mode: Absolute },
+
+        0x86_u8 => OPCode { opcode: 0x86, name: "STX", bytes: 2, cycles: 3, mode: ZeroPage },
+        0x96_u8 => OPCode { opcode: 0x96, name: "STX", bytes: 2, cycles: 4, mode: ZeroPage_Y },
+        0x8e_u8 => OPCode { opcode: 0x8e, name: "STX", bytes: 3, cycles: 4, mode: Absolute },
 
         // ADC
         // AND
@@ -87,7 +90,6 @@ lazy_static! {
         // SEC
         // SED
         // SEI
-        // STX
         // TAY
         // TSX
         // TXA
