@@ -148,6 +148,11 @@ impl CPU {
                         self.get_operand_address(&opcode.mode)
                     )
                 },
+                0x84 | 0x94 | 0x8c => { /* STY */
+                    self.sty(
+                        self.get_operand_address(&opcode.mode)
+                    )
+                }
                 0xE8 => self.inx(), /* INX */
                 0xAA => self.tax(), /* TAX */
                 0x00 => return, /* BRK */
@@ -160,6 +165,10 @@ impl CPU {
 
     fn sta(&mut self, addr: u16) {
         self.mem_write(addr, self.register_a)
+    }
+
+    fn sty(&mut self, addr: u16) {
+        self.mem_write(addr, self.register_y)
     }
 
     fn inx(&mut self) {
