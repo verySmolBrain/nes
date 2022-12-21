@@ -152,6 +152,11 @@ impl CPU {
                     self.sty(
                         self.get_operand_address(&opcode.mode)
                     )
+                },
+                0x86 | 0x96 | 0x8e => { /* STX */
+                    self.stx(
+                        self.get_operand_address(&opcode.mode)
+                    )
                 }
                 0xE8 => self.inx(), /* INX */
                 0xAA => self.tax(), /* TAX */
@@ -161,6 +166,10 @@ impl CPU {
 
             self.program_counter += opcode.bytes - 1;
         }
+    }
+
+    fn stx(&mut self, addr: u16) {
+        self.mem_write(addr, self.register_x)
     }
 
     fn sta(&mut self, addr: u16) {
