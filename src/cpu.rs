@@ -1,4 +1,5 @@
 use crate::opcodes::OPCODES;
+use bitflags::bitflags;
 
 const ADDRESS_SPACE: usize = 0xFFFF;
 const ROM_START: usize = 0x8000;
@@ -19,11 +20,38 @@ pub enum AddressingMode {
     NoneAddressing,
 }
 
+/*
+7  bit  0
+---- ----
+NVss DIZC
+|||| ||||
+|||| |||+- Carry
+|||| ||+-- Zero
+|||| |+--- Interrupt Disable
+|||| +---- Decimal
+||++------ No CPU effect, see: the B flag
+|+-------- Overflow
++--------- Negative
+ */
+
+bitflags! {
+    pub struct Status: u8 {
+        const NEGATIVE = 0b1000_0000;
+        const OVERFLOW = 0b0100_0000;
+        const BREAKONE = 0b0010_0000;
+        const BREAKTWO = 0b0001_0000;
+        const DECIMAL  = 0b0000_1000;
+        const INTERDIS = 0b0000_0100;
+        const ZERO     = 0b0000_0010;
+        const CARRY    = 0b0000_0001;
+    }
+}
+
 pub struct CPU {
     pub register_a: u8, 
     pub register_x: u8,
     pub register_y: u8,
-    pub status: u8,
+    pub status: Status,
     pub program_counter: u16,
     memory: [u8; ADDRESS_SPACE]
 }
@@ -34,7 +62,7 @@ impl CPU {
             register_a: 0, // accumulator
             register_x: 0,
             register_y: 0,
-            status: 0, 
+            status: Status::empty(), 
             program_counter: 0,
             memory: [0; ADDRESS_SPACE]
         }
@@ -115,7 +143,7 @@ impl CPU {
         self.register_a = 0;
         self.register_x = 0;
         self.register_y = 0;
-        self.status = 0;
+        self.status = Status::empty();
 
         self.program_counter = self.mem_read_u16(RESET_VECTOR as u16);
     }
@@ -205,17 +233,17 @@ impl CPU {
 
     fn update_zero_flag(&mut self, value: u8) {
         if value == 0 {
-            self.status |= 0b0000_0010;
+            self.status.insert(Status::ZERO)
         } else {
-            self.status &= 0b1111_1101;
+            self.status.remove(Status::ZERO)
         }
     }
 
     fn update_negative_flag(&mut self, value: u8) {
         if value & 0b1000_0000 != 0 {
-            self.status |= 0b1000_0000;
+            self.status.insert(Status::NEGATIVE)
         } else {
-            self.status &= 0b0111_1111;
+            self.status.remove(Status::NEGATIVE)
         }
     }
 
