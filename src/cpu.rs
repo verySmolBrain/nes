@@ -240,9 +240,10 @@ impl CPU {
     }
 
     fn update_negative_flag(&mut self, value: u8) {
-        if value & 0b1000_0000 != 0 {
+        if value & 0b1000_0000 != 0 { 
             self.status.insert(Status::NEGATIVE)
-        } else {
+        } else { // 6502 Integers are neither signed or unsigned. 
+            // Neg depends on the most significant bit.
             self.status.remove(Status::NEGATIVE)
         }
     }
