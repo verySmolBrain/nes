@@ -6,7 +6,7 @@ const ROM_START: usize = 0x8000;
 const RESET_VECTOR: usize = 0xFFFC;
 
 const STACK: u16 = 0x0100;
-const STACK_RESET: u8 = 0xff;
+const STACK_RESET: u8 = 0xff; // 256 Byte offset from STACK
 
 #[derive(Debug)]
 #[allow(non_camel_case_types)]
@@ -50,6 +50,12 @@ bitflags! {
     }
 }
 
+impl Default for Status {
+    fn default() -> Self {
+        Status::BREAKONE | Status:: INTERDIS
+    }
+}
+
 pub struct CPU {
     pub register_a: u8, 
     pub register_x: u8,
@@ -67,7 +73,7 @@ impl CPU {
             register_x: 0,
             register_y: 0,
             stack_pointer: STACK_RESET,
-            status: Status::empty(), 
+            status: Default::default(), 
             program_counter: 0,
             memory: [0; ADDRESS_SPACE]
         }
@@ -149,7 +155,7 @@ impl CPU {
         self.register_x = 0;
         self.register_y = 0;
         self.stack_pointer = STACK_RESET;
-        self.status = Status::empty();
+        self.status = Default::default();
 
         self.program_counter = self.mem_read_u16(RESET_VECTOR as u16);
     }

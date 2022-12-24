@@ -45,6 +45,15 @@ lazy_static! {
         0x96_u8 => OPCode { opcode: 0x96, name: "STX", bytes: 2, cycles: 4, mode: ZeroPage_Y },
         0x8e_u8 => OPCode { opcode: 0x8e, name: "STX", bytes: 3, cycles: 4, mode: Absolute },
 
+        // SEC
+        // SED
+        // SEI
+        // TAY
+        // TSX
+        // TXA
+        // TXS
+        // TYA
+
         // ADC
         // AND
         // ASL
@@ -87,13 +96,5 @@ lazy_static! {
         // RTI
         // RTS
         // SBC
-        // SEC
-        // SED
-        // SEI
-        // TAY
-        // TSX
-        // TXA
-        // TXS
-        // TYA
     };
 }

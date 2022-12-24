@@ -16,7 +16,7 @@
 
 Program Counter is 16 bits. Others are 8 bits.
 - Program Counter (PC) - holds address for next machine language instruction
-- Stack Pointer - Memory space [0x0100 .. 0x1FF]. Holds the address of the top (Grows from top to bottom) -> Doesn't overflow only wraps around
+- Stack Pointer - Memory space [0x0100 .. 0x01FF]. Holds the address of the top (Grows from top to bottom) -> Doesn't overflow only wraps around
 - Accumulator (A) - stores results of arithmetic, logic and memory access operations 
 - Index Register X (X) - used as an offset in specific memory addressing modes. Can be used for auxiliary storage needs (Temp values etc.)
 - Index Register Y (Y) - same as X 
