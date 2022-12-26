@@ -197,7 +197,16 @@ impl CPU {
                     self.stx(
                         self.get_operand_address(&opcode.mode)
                     )
-                }
+                },
+                0x38 => { /* SEC */
+                    self.sec();
+                },
+                0xf8 => { /* SED */
+                    self.sed();
+                },
+                0x78 => { /* SEI */
+                    self.sei();
+                },
                 0xE8 => self.inx(), /* INX */
                 0xAA => self.tax(), /* TAX */
                 0x00 => return, /* BRK */
@@ -206,6 +215,18 @@ impl CPU {
 
             self.program_counter += opcode.bytes - 1;
         }
+    }
+
+    fn sed(&mut self) {
+        self.status.insert(Status::DECIMAL);
+    }
+
+    fn sei(&mut self) {
+        self.status.insert(Status::INTERDIS);
+    }
+
+    fn sec(&mut self) {
+        self.status.insert(Status::CARRY);
     }
 
     fn stx(&mut self, addr: u16) {

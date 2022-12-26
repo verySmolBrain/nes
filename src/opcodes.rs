@@ -45,7 +45,6 @@ lazy_static! {
         0x96_u8 => OPCode { opcode: 0x96, name: "STX", bytes: 2, cycles: 4, mode: ZeroPage_Y },
         0x8e_u8 => OPCode { opcode: 0x8e, name: "STX", bytes: 3, cycles: 4, mode: Absolute },
 
-        // SEC
         0x38_u8 => OPCode { opcode: 0x38, name: "SEC", bytes: 1, cycles: 2, mode: NoneAddressing },
         // SED
         0xf8_u8 => OPCode { opcode: 0xf8, name: "SED", bytes: 1, cycles: 2, mode: NoneAddressing },

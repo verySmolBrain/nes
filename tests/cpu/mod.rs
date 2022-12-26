@@ -3,4 +3,7 @@ pub mod test_tax;
 pub mod test_sta;
 pub mod test_sty;
 pub mod test_stx;
+pub mod test_sec;
+pub mod test_sed;
+pub mod test_sei;
 pub mod test_flags;
