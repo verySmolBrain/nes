@@ -3,7 +3,7 @@ mod test {
     use nes::cpu::CPU;
 
     #[test]
-    fn test_0x85_sta_zero_page() {
+    fn test_0x86_stx_zero_page() {
         let mut cpu = CPU::new();
         // Load accumulator into memory 0xa1
         cpu.load(vec![0x86, 0xa1, 0x00]);

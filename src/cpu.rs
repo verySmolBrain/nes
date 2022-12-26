@@ -198,15 +198,14 @@ impl CPU {
                         self.get_operand_address(&opcode.mode)
                     )
                 },
-                0x38 => { /* SEC */
-                    self.sec();
-                },
-                0xf8 => { /* SED */
-                    self.sed();
-                },
-                0x78 => { /* SEI */
-                    self.sei();
-                },
+                0xa8 => self.tay(), /* TAY */
+                0xba => self.tsx(), /* TSX */
+                0x8a => self.txa(), /* TXA */
+                0x9a => self.txs(), /* TXS */
+                0x98 => self.tya(), /* TYA */
+                0x38 => self.sec(), /* SEC */
+                0xf8 => self.sed(), /* SED */
+                0x78 => self.sei(), /* SEI */
                 0xE8 => self.inx(), /* INX */
                 0xAA => self.tax(), /* TAX */
                 0x00 => return, /* BRK */
@@ -215,6 +214,31 @@ impl CPU {
 
             self.program_counter += opcode.bytes - 1;
         }
+    }
+
+    fn tay(&mut self) {
+        self.register_y = self.register_a;
+        self.update_zero_and_negative_flag(self.register_y);
+    }
+
+    fn tsx(&mut self) {
+        self.register_x = self.stack_pointer;
+        self.update_zero_and_negative_flag(self.register_x);
+    }
+
+    fn txa(&mut self) {
+        self.register_a = self.register_x;
+        self.update_zero_and_negative_flag(self.register_a);
+    }
+
+    fn txs(&mut self) {
+        self.stack_pointer = self.register_x;
+        self.update_zero_and_negative_flag(self.stack_pointer);
+    }
+
+    fn tya(&mut self) {
+        self.register_a = self.register_y;
+        self.update_zero_and_negative_flag(self.register_a);
     }
 
     fn sed(&mut self) {

@@ -6,4 +6,8 @@ pub mod test_stx;
 pub mod test_sec;
 pub mod test_sed;
 pub mod test_sei;
+pub mod test_tay;
+pub mod test_tsx;
+pub mod test_txa;
+pub mod test_tya;
 pub mod test_flags;
