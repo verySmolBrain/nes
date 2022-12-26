@@ -46,13 +46,21 @@ lazy_static! {
         0x8e_u8 => OPCode { opcode: 0x8e, name: "STX", bytes: 3, cycles: 4, mode: Absolute },
 
         // SEC
+        0x38_u8 => OPCode { opcode: 0x38, name: "SEC", bytes: 1, cycles: 2, mode: NoneAddressing },
         // SED
+        0xf8_u8 => OPCode { opcode: 0xf8, name: "SED", bytes: 1, cycles: 2, mode: NoneAddressing },
         // SEI
+        0x78_u8 => OPCode { opcode: 0x78, name: "SEI", bytes: 1, cycles: 2, mode: NoneAddressing },
         // TAY
+        0xa8_u8 => OPCode { opcode: 0xa8, name: "TAY", bytes: 1, cycles: 2, mode: NoneAddressing },
         // TSX
+        0xba_u8 => OPCode { opcode: 0xba, name: "TSX", bytes: 1, cycles: 2, mode: NoneAddressing },
         // TXA
+        0x8a_u8 => OPCode { opcode: 0x8a, name: "TXA", bytes: 1, cycles: 2, mode: NoneAddressing },
         // TXS
+        0x9a_u8 => OPCode { opcode: 0x9a, name: "TXS", bytes: 1, cycles: 2, mode: NoneAddressing },
         // TYA
+        0x98_u8 => OPCode { opcode: 0x98, name: "TYA", bytes: 1, cycles: 2, mode: NoneAddressing },
 
         // ADC
         // AND
