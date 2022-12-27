@@ -15,4 +15,6 @@ pub mod test_cld;
 pub mod test_cli;
 pub mod test_clv;
 pub mod test_cmp;
+pub mod test_cpy;
+pub mod test_cpx;
 pub mod test_flags;

@@ -18,7 +18,7 @@ pub enum AddressingMode {
     Absolute,
     Absolute_X,
     Absolute_Y,
-    Indirect_X, // Change name since this is meant to be Indexed Indirect
+    Indirect_X,
     Indirect_Y,
     NoneAddressing,
 }
@@ -52,7 +52,7 @@ bitflags! {
 
 impl Default for Status {
     fn default() -> Self {
-        Status::BREAKONE | Status:: INTERDIS
+        Status::BREAKONE | Status::INTERDIS
     }
 }
 
@@ -203,6 +203,16 @@ impl CPU {
                         self.get_operand_address(&opcode.mode)
                     )
                 },
+                0xe0 | 0xe4 | 0xec => { /* CPX */
+                    self.cpx(
+                        self.get_operand_address(&opcode.mode)
+                    )
+                },
+                0xc0 | 0xc4 | 0xcc => { /* CPY */
+                    self.cpy(
+                        self.get_operand_address(&opcode.mode)    
+                    )
+                },
                 0xa8 => self.tay(), /* TAY */
                 0xba => self.tsx(), /* TSX */
                 0x8a => self.txa(), /* TXA */
@@ -301,6 +311,22 @@ impl CPU {
 
         self.update_zero_and_negative_flag(result);
         self.update_carry_flag(self.register_a, value);
+    }
+
+    fn cpx(&mut self, addr: u16) {
+        let value = self.mem_read(addr);
+        let result = self.register_x.wrapping_sub(value);
+
+        self.update_zero_and_negative_flag(result);
+        self.update_carry_flag(self.register_x, value);
+    }
+
+    fn cpy(&mut self, addr: u16) {
+        let value = self.mem_read(addr);
+        let result = self.register_y.wrapping_sub(value);
+
+        self.update_zero_and_negative_flag(result);
+        self.update_carry_flag(self.register_y, value);
     }
 
     fn lda(&mut self, addr: u16) {

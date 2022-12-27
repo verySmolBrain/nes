@@ -45,7 +45,6 @@ lazy_static! {
         0x96_u8 => OPCode { opcode: 0x96, name: "STX", bytes: 2, cycles: 4, mode: ZeroPage_Y },
         0x8e_u8 => OPCode { opcode: 0x8e, name: "STX", bytes: 3, cycles: 4, mode: Absolute },
 
-        // CMP
         0xc9_u8 => OPCode { opcode: 0xc9, name: "CMP", bytes: 2, cycles: 2, mode: Immediate },
         0xc5_u8 => OPCode { opcode: 0xc5, name: "CMP", bytes: 2, cycles: 3, mode: ZeroPage },
         0xd5_u8 => OPCode { opcode: 0xd5, name: "CMP", bytes: 2, cycles: 4, mode: ZeroPage_X },
@@ -54,6 +53,14 @@ lazy_static! {
         0xd9_u8 => OPCode { opcode: 0xd9, name: "CMP", bytes: 3, cycles: 4, mode: Absolute_Y },
         0xc1_u8 => OPCode { opcode: 0xc1, name: "CMP", bytes: 2, cycles: 6, mode: Indirect_X },
         0xd1_u8 => OPCode { opcode: 0xd1, name: "CMP", bytes: 2, cycles: 5, mode: Indirect_Y },
+        // CPX
+        0xe0_u8 => OPCode { opcode: 0xe0, name: "CPX", bytes: 2, cycles: 2, mode: Immediate },
+        0xe4_u8 => OPCode { opcode: 0xe4, name: "CPX", bytes: 2, cycles: 3, mode: ZeroPage },
+        0xec_u8 => OPCode { opcode: 0xec, name: "CPX", bytes: 3, cycles: 4, mode: Absolute },
+        // CPY
+        0xc0_u8 => OPCode { opcode: 0xc0, name: "CPY", bytes: 2, cycles: 2, mode: Immediate },
+        0xc4_u8 => OPCode { opcode: 0xc4, name: "CPY", bytes: 2, cycles: 3, mode: ZeroPage },
+        0xcc_u8 => OPCode { opcode: 0xcc, name: "CPY", bytes: 3, cycles: 4, mode: Absolute },
 
         0x38_u8 => OPCode { opcode: 0x38, name: "SEC", bytes: 1, cycles: 2, mode: NoneAddressing },
         0xf8_u8 => OPCode { opcode: 0xf8, name: "SED", bytes: 1, cycles: 2, mode: NoneAddressing },
@@ -68,6 +75,14 @@ lazy_static! {
         0x58_u8 => OPCode { opcode: 0x58, name: "CLI", bytes: 1, cycles: 2, mode: NoneAddressing },
         0xb8_u8 => OPCode { opcode: 0xb8, name: "CLV", bytes: 1, cycles: 2, mode: NoneAddressing },
         
+        // DEX
+        // DEY
+        // INC
+        // INX
+        // INY
+
+        // LDX
+        // LDY
         
 
         // ADC
@@ -83,19 +98,10 @@ lazy_static! {
         // BPL
         // BVC
         // BVS
-        // CPX
-        // CPY
         // DEC
-        // DEX
-        // DEY
         // EOR
-        // INC
-        // INX
-        // INY
         // JMP
         // JSR
-        // LDX
-        // LDY
         // LSR
         // NOP
         // ORA
