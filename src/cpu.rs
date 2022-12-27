@@ -223,6 +223,18 @@ impl CPU {
                         self.get_operand_address(&opcode.mode)
                     )
                 },
+                0xa2 | 0xa6 | 0xb6 | 0xae | 0xbe => { /* LDX */
+                    self.ldx(
+                        self.get_operand_address(&opcode.mode)
+
+                    )
+                },
+                0xa0 | 0xa4 | 0xb4 | 0xac | 0xbc => { /* LDY */
+                    self.ldy(
+                        self.get_operand_address(&opcode.mode)
+                    )
+                },
+                0xea => (), /* NOP */
                 0xc8 => self.iny(), /* INY */
                 0xca => self.dex(), /* DEX */
                 0x88 => self.dey(), /* DEY */
@@ -299,6 +311,18 @@ impl CPU {
 
     fn sec(&mut self) {
         self.status.insert(Status::CARRY);
+    }
+
+    fn ldx(&mut self, addr: u16) {
+        let value = self.mem_read(addr);
+        self.register_x = value;
+        self.update_zero_and_negative_flag(self.register_x);
+    }
+
+    fn ldy(&mut self, addr: u16) {
+        let value = self.mem_read(addr);
+        self.register_y = value;
+        self.update_zero_and_negative_flag(self.register_y);
     }
 
     fn stx(&mut self, addr: u16) {

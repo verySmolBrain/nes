@@ -23,4 +23,7 @@ pub mod test_dey;
 pub mod test_inc;
 pub mod test_iny;
 pub mod test_inx;
+pub mod test_nop;
+pub mod test_ldx;
+pub mod test_ldy;
 pub mod test_flags;

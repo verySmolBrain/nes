@@ -84,18 +84,27 @@ lazy_static! {
 
         0x88_u8 => OPCode { opcode: 0x88, name: "DEY", bytes: 1, cycles: 2, mode: NoneAddressing },
         
-        // INC
         0xe6_u8 => OPCode { opcode: 0xe6, name: "INC", bytes: 2, cycles: 5, mode: ZeroPage },
         0xf6_u8 => OPCode { opcode: 0xf6, name: "INC", bytes: 2, cycles: 6, mode: ZeroPage_X },
         0xee_u8 => OPCode { opcode: 0xee, name: "INC", bytes: 3, cycles: 6, mode: Absolute },
         0xfe_u8 => OPCode { opcode: 0xfe, name: "INC", bytes: 3, cycles: 7, mode: Absolute_X },
   
-        // INY
         0xc8_u8 => OPCode { opcode: 0xc8, name: "INY", bytes: 1, cycles: 2, mode: NoneAddressing },
 
         // LDX
+        0xa2_u8 => OPCode { opcode: 0xa2, name: "LDX", bytes: 2, cycles: 2, mode: Immediate },
+        0xa6_u8 => OPCode { opcode: 0xa6, name: "LDX", bytes: 2, cycles: 3, mode: ZeroPage },
+        0xb6_u8 => OPCode { opcode: 0xb6, name: "LDX", bytes: 2, cycles: 4, mode: ZeroPage_Y },
+        0xae_u8 => OPCode { opcode: 0xae, name: "LDX", bytes: 3, cycles: 4, mode: Absolute },
+        0xbe_u8 => OPCode { opcode: 0xbe, name: "LDX", bytes: 3, cycles: 4, mode: Absolute_Y },
         // LDY
-        
+        0xa0_u8 => OPCode { opcode: 0xa0, name: "LDY", bytes: 2, cycles: 2, mode: Immediate },
+        0xa4_u8 => OPCode { opcode: 0xa4, name: "LDY", bytes: 2, cycles: 3, mode: ZeroPage },
+        0xb4_u8 => OPCode { opcode: 0xb4, name: "LDY", bytes: 2, cycles: 4, mode: ZeroPage_X },
+        0xac_u8 => OPCode { opcode: 0xac, name: "LDY", bytes: 3, cycles: 4, mode: Absolute },
+        0xbc_u8 => OPCode { opcode: 0xbc, name: "LDY", bytes: 3, cycles: 4, mode: Absolute_X },
+
+        0xea_u8 => OPCode { opcode: 0xea, name: "NOP", bytes: 1, cycles: 2, mode: NoneAddressing },
 
         // ADC
         // SBC
@@ -115,7 +124,6 @@ lazy_static! {
         // JMP
         // JSR
         // LSR
-        // NOP
         // ORA
         // PHA
         // PHP
