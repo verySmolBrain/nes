@@ -208,12 +208,32 @@ impl CPU {
                 0x78 => self.sei(), /* SEI */
                 0xE8 => self.inx(), /* INX */
                 0xAA => self.tax(), /* TAX */
+                0x18 => self.clc(), /* CLC */
+                0xd8 => self.cld(), /* CLD */
+                0x58 => self.cli(), /* CLI */
+                0xb8 => self.clv(), /* CLV */
                 0x00 => return, /* BRK */
                 _ => todo!()
             }
 
             self.program_counter += opcode.bytes - 1;
         }
+    }
+
+    fn clc(&mut self) {
+        self.status.remove(Status::CARRY)
+    }
+
+    fn cld(&mut self) {
+        self.status.remove(Status::DECIMAL)
+    }
+
+    fn cli(&mut self) {
+        self.status.remove(Status::INTERDIS)
+    }
+
+    fn clv(&mut self) {
+        self.status.remove(Status::OVERFLOW)
     }
 
     fn tay(&mut self) {

@@ -10,4 +10,8 @@ pub mod test_tay;
 pub mod test_tsx;
 pub mod test_txa;
 pub mod test_tya;
+pub mod test_clc;
+pub mod test_cld;
+pub mod test_cli;
+pub mod test_clv;
 pub mod test_flags;

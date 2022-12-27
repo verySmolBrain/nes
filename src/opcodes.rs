@@ -54,7 +54,19 @@ lazy_static! {
         0x9a_u8 => OPCode { opcode: 0x9a, name: "TXS", bytes: 1, cycles: 2, mode: NoneAddressing },
         0x98_u8 => OPCode { opcode: 0x98, name: "TYA", bytes: 1, cycles: 2, mode: NoneAddressing },
 
+        // CLC
+        0x18_u8 => OPCode { opcode: 0x18, name: "CLC", bytes: 1, cycles: 2, mode: NoneAddressing },
+        // CLD
+        0xd8_u8 => OPCode { opcode: 0xd8, name: "CLD", bytes: 1, cycles: 2, mode: NoneAddressing },
+        // CLI
+        0x58_u8 => OPCode { opcode: 0x58, name: "CLI", bytes: 1, cycles: 2, mode: NoneAddressing },
+        // CLV
+        0xb8_u8 => OPCode { opcode: 0xb8, name: "CLV", bytes: 1, cycles: 2, mode: NoneAddressing },
+        // CMP
+        
+
         // ADC
+        // SBC
         // AND
         // ASL
         // BCC
@@ -66,11 +78,6 @@ lazy_static! {
         // BPL
         // BVC
         // BVS
-        // CLC
-        // CLD
-        // CLI
-        // CLV
-        // CMP
         // CPX
         // CPY
         // DEC
@@ -95,6 +102,5 @@ lazy_static! {
         // ROR
         // RTI
         // RTS
-        // SBC
     };
 }
