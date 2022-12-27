@@ -213,6 +213,19 @@ impl CPU {
                         self.get_operand_address(&opcode.mode)    
                     )
                 },
+                0xc6 | 0xd6 | 0xce | 0xde => { /* DEC */
+                    self.dec(
+                        self.get_operand_address(&opcode.mode)
+                    );
+                },
+                0xe6 | 0xf6 | 0xee | 0xfe => { /* INC */
+                    self.inc(
+                        self.get_operand_address(&opcode.mode)
+                    )
+                },
+                0xc8 => self.iny(), /* INY */
+                0xca => self.dex(), /* DEX */
+                0x88 => self.dey(), /* DEY */
                 0xa8 => self.tay(), /* TAY */
                 0xba => self.tsx(), /* TSX */
                 0x8a => self.txa(), /* TXA */
@@ -300,9 +313,37 @@ impl CPU {
         self.mem_write(addr, self.register_y)
     }
 
+    fn inc(&mut self, addr: u16) {
+        let value = self.mem_read(addr).wrapping_add(1);
+        self.mem_write(addr, value);
+
+        self.update_zero_and_negative_flag(value);
+    }
+
     fn inx(&mut self) {
         self.register_x = self.register_x.wrapping_add(1);
         self.update_zero_and_negative_flag(self.register_x);
+    }
+
+    fn iny(&mut self) {
+        self.register_y = self.register_y.wrapping_add(1);
+        self.update_zero_and_negative_flag(self.register_y);
+    }
+
+    fn dex(&mut self) {
+        self.register_x = self.register_x.wrapping_sub(1);
+        self.update_zero_and_negative_flag(self.register_x);
+    }
+
+    fn dey(&mut self) {
+        self.register_y = self.register_y.wrapping_sub(1);
+        self.update_zero_and_negative_flag(self.register_y);
+    }
+
+    fn dec(&mut self, addr: u16) {
+        let value = self.mem_read(addr).wrapping_sub(1);
+        self.mem_write(addr, value);
+        self.update_zero_and_negative_flag(value);
     }
 
     fn cmp(&mut self, addr: u16) {

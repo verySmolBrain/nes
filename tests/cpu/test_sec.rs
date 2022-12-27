@@ -4,7 +4,7 @@ mod test {
     use nes::cpu::Status;
 
     #[test]
-    fn test_0x38_sec() {
+    fn test_0x38_none_set() {
         let mut cpu = CPU::new();
         cpu.load(vec![0x38, 0x00]);
         cpu.reset();

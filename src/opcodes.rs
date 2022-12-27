@@ -53,11 +53,11 @@ lazy_static! {
         0xd9_u8 => OPCode { opcode: 0xd9, name: "CMP", bytes: 3, cycles: 4, mode: Absolute_Y },
         0xc1_u8 => OPCode { opcode: 0xc1, name: "CMP", bytes: 2, cycles: 6, mode: Indirect_X },
         0xd1_u8 => OPCode { opcode: 0xd1, name: "CMP", bytes: 2, cycles: 5, mode: Indirect_Y },
-        // CPX
+
         0xe0_u8 => OPCode { opcode: 0xe0, name: "CPX", bytes: 2, cycles: 2, mode: Immediate },
         0xe4_u8 => OPCode { opcode: 0xe4, name: "CPX", bytes: 2, cycles: 3, mode: ZeroPage },
         0xec_u8 => OPCode { opcode: 0xec, name: "CPX", bytes: 3, cycles: 4, mode: Absolute },
-        // CPY
+
         0xc0_u8 => OPCode { opcode: 0xc0, name: "CPY", bytes: 2, cycles: 2, mode: Immediate },
         0xc4_u8 => OPCode { opcode: 0xc4, name: "CPY", bytes: 2, cycles: 3, mode: ZeroPage },
         0xcc_u8 => OPCode { opcode: 0xcc, name: "CPY", bytes: 3, cycles: 4, mode: Absolute },
@@ -75,11 +75,23 @@ lazy_static! {
         0x58_u8 => OPCode { opcode: 0x58, name: "CLI", bytes: 1, cycles: 2, mode: NoneAddressing },
         0xb8_u8 => OPCode { opcode: 0xb8, name: "CLV", bytes: 1, cycles: 2, mode: NoneAddressing },
         
-        // DEX
-        // DEY
+        0xc6_u8 => OPCode { opcode: 0xc6, name: "DEC", bytes: 2, cycles: 5, mode: ZeroPage },
+        0xd6_u8 => OPCode { opcode: 0xd6, name: "DEC", bytes: 2, cycles: 6, mode: ZeroPage_X },
+        0xce_u8 => OPCode { opcode: 0xce, name: "DEC", bytes: 3, cycles: 6, mode: Absolute },
+        0xde_u8 => OPCode { opcode: 0xde, name: "DEC", bytes: 3, cycles: 7, mode: Absolute_X },
+
+        0xca_u8 => OPCode { opcode: 0xca, name: "DEX", bytes: 1, cycles: 2, mode: NoneAddressing },
+
+        0x88_u8 => OPCode { opcode: 0x88, name: "DEY", bytes: 1, cycles: 2, mode: NoneAddressing },
+        
         // INC
-        // INX
+        0xe6_u8 => OPCode { opcode: 0xe6, name: "INC", bytes: 2, cycles: 5, mode: ZeroPage },
+        0xf6_u8 => OPCode { opcode: 0xf6, name: "INC", bytes: 2, cycles: 6, mode: ZeroPage_X },
+        0xee_u8 => OPCode { opcode: 0xee, name: "INC", bytes: 3, cycles: 6, mode: Absolute },
+        0xfe_u8 => OPCode { opcode: 0xfe, name: "INC", bytes: 3, cycles: 7, mode: Absolute_X },
+  
         // INY
+        0xc8_u8 => OPCode { opcode: 0xc8, name: "INY", bytes: 1, cycles: 2, mode: NoneAddressing },
 
         // LDX
         // LDY

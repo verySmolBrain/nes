@@ -4,7 +4,7 @@ mod test {
     use crate::helpers::check_zero_and_negative;
 
     #[test]
-    fn test_9a_immediate() {
+    fn test_9a_none_move() {
         let mut cpu = CPU::new();
         cpu.load(vec![0x9a, 0x00]);
         cpu.reset();
