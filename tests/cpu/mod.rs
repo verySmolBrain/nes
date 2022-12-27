@@ -14,4 +14,5 @@ pub mod test_clc;
 pub mod test_cld;
 pub mod test_cli;
 pub mod test_clv;
+pub mod test_cmp;
 pub mod test_flags;

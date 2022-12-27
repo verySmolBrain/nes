@@ -198,6 +198,11 @@ impl CPU {
                         self.get_operand_address(&opcode.mode)
                     )
                 },
+                0xc9 | 0xc5 | 0xd5 | 0xcd | 0xdd | 0xd9 |0xc1 |0xd1 => { /* CMP */
+                    self.cmp(
+                        self.get_operand_address(&opcode.mode)
+                    )
+                },
                 0xa8 => self.tay(), /* TAY */
                 0xba => self.tsx(), /* TSX */
                 0x8a => self.txa(), /* TXA */
@@ -290,6 +295,14 @@ impl CPU {
         self.update_zero_and_negative_flag(self.register_x);
     }
 
+    fn cmp(&mut self, addr: u16) {
+        let value = self.mem_read(addr);
+        let result = self.register_a.wrapping_sub(value);
+
+        self.update_zero_and_negative_flag(result);
+        self.update_carry_flag(self.register_a, value);
+    }
+
     fn lda(&mut self, addr: u16) {
         let value = self.mem_read(addr);
 
@@ -322,6 +335,14 @@ impl CPU {
         } else { // 6502 Integers are neither signed or unsigned. 
             // Neg depends on the most significant bit.
             self.status.remove(Status::NEGATIVE)
+        }
+    }
+
+    fn update_carry_flag(&mut self, v1: u8, v2: u8) {
+        if v1 >= v2 {
+            self.status.insert(Status::CARRY)
+        } else {
+            self.status.remove(Status::CARRY)
         }
     }
 

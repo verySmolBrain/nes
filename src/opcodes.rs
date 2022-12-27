@@ -45,6 +45,16 @@ lazy_static! {
         0x96_u8 => OPCode { opcode: 0x96, name: "STX", bytes: 2, cycles: 4, mode: ZeroPage_Y },
         0x8e_u8 => OPCode { opcode: 0x8e, name: "STX", bytes: 3, cycles: 4, mode: Absolute },
 
+        // CMP
+        0xc9_u8 => OPCode { opcode: 0xc9, name: "CMP", bytes: 2, cycles: 2, mode: Immediate },
+        0xc5_u8 => OPCode { opcode: 0xc5, name: "CMP", bytes: 2, cycles: 3, mode: ZeroPage },
+        0xd5_u8 => OPCode { opcode: 0xd5, name: "CMP", bytes: 2, cycles: 4, mode: ZeroPage_X },
+        0xcd_u8 => OPCode { opcode: 0xcd, name: "CMP", bytes: 3, cycles: 4, mode: Absolute },
+        0xdd_u8 => OPCode { opcode: 0xdd, name: "CMP", bytes: 3, cycles: 4, mode: Absolute_X },
+        0xd9_u8 => OPCode { opcode: 0xd9, name: "CMP", bytes: 3, cycles: 4, mode: Absolute_Y },
+        0xc1_u8 => OPCode { opcode: 0xc1, name: "CMP", bytes: 2, cycles: 6, mode: Indirect_X },
+        0xd1_u8 => OPCode { opcode: 0xd1, name: "CMP", bytes: 2, cycles: 5, mode: Indirect_Y },
+
         0x38_u8 => OPCode { opcode: 0x38, name: "SEC", bytes: 1, cycles: 2, mode: NoneAddressing },
         0xf8_u8 => OPCode { opcode: 0xf8, name: "SED", bytes: 1, cycles: 2, mode: NoneAddressing },
         0x78_u8 => OPCode { opcode: 0x78, name: "SEI", bytes: 1, cycles: 2, mode: NoneAddressing },
@@ -53,16 +63,11 @@ lazy_static! {
         0x8a_u8 => OPCode { opcode: 0x8a, name: "TXA", bytes: 1, cycles: 2, mode: NoneAddressing },
         0x9a_u8 => OPCode { opcode: 0x9a, name: "TXS", bytes: 1, cycles: 2, mode: NoneAddressing },
         0x98_u8 => OPCode { opcode: 0x98, name: "TYA", bytes: 1, cycles: 2, mode: NoneAddressing },
-
-        // CLC
         0x18_u8 => OPCode { opcode: 0x18, name: "CLC", bytes: 1, cycles: 2, mode: NoneAddressing },
-        // CLD
         0xd8_u8 => OPCode { opcode: 0xd8, name: "CLD", bytes: 1, cycles: 2, mode: NoneAddressing },
-        // CLI
         0x58_u8 => OPCode { opcode: 0x58, name: "CLI", bytes: 1, cycles: 2, mode: NoneAddressing },
-        // CLV
         0xb8_u8 => OPCode { opcode: 0xb8, name: "CLV", bytes: 1, cycles: 2, mode: NoneAddressing },
-        // CMP
+        
         
 
         // ADC
