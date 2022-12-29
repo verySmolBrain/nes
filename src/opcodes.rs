@@ -91,13 +91,12 @@ lazy_static! {
   
         0xc8_u8 => OPCode { opcode: 0xc8, name: "INY", bytes: 1, cycles: 2, mode: NoneAddressing },
 
-        // LDX
         0xa2_u8 => OPCode { opcode: 0xa2, name: "LDX", bytes: 2, cycles: 2, mode: Immediate },
         0xa6_u8 => OPCode { opcode: 0xa6, name: "LDX", bytes: 2, cycles: 3, mode: ZeroPage },
         0xb6_u8 => OPCode { opcode: 0xb6, name: "LDX", bytes: 2, cycles: 4, mode: ZeroPage_Y },
         0xae_u8 => OPCode { opcode: 0xae, name: "LDX", bytes: 3, cycles: 4, mode: Absolute },
         0xbe_u8 => OPCode { opcode: 0xbe, name: "LDX", bytes: 3, cycles: 4, mode: Absolute_Y },
-        // LDY
+
         0xa0_u8 => OPCode { opcode: 0xa0, name: "LDY", bytes: 2, cycles: 2, mode: Immediate },
         0xa4_u8 => OPCode { opcode: 0xa4, name: "LDY", bytes: 2, cycles: 3, mode: ZeroPage },
         0xb4_u8 => OPCode { opcode: 0xb4, name: "LDY", bytes: 2, cycles: 4, mode: ZeroPage_X },
