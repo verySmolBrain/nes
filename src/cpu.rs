@@ -133,39 +133,39 @@ impl CPU {
         self.stack_pointer = self.stack_pointer.wrapping_sub(1);
     }
 
-    fn get_operand_address(&self, mode: &AddressingMode) -> u16 {
+    fn get_operand_address(&mut self, mode: &AddressingMode) -> Option<u16> {
         match mode {
-            AddressingMode::Immediate => self.program_counter,
-            AddressingMode::ZeroPage => self.mem_read(self.program_counter) as u16,
-            AddressingMode::Absolute => self.mem_read_u16(self.program_counter),
+            AddressingMode::Immediate => Some(self.program_counter),
+            AddressingMode::ZeroPage => Some(self.mem_read(self.program_counter) as u16),
+            AddressingMode::Absolute => Some(self.mem_read_u16(self.program_counter)),
             AddressingMode::ZeroPage_X => {
                 let pos = self.mem_read(self.program_counter);
                 let addr = pos.wrapping_add(self.register_x);
-                addr as u16
+                Some(addr as u16)
             },
             AddressingMode::ZeroPage_Y => {
                 let pos = self.mem_read(self.program_counter);
                 let addr = pos.wrapping_add(self.register_y);
-                addr as u16
+                Some(addr as u16)
             },
             AddressingMode::Absolute_X => {
                 let pos = self.mem_read_u16(self.program_counter);
                 let addr = pos.wrapping_add(self.register_x as u16);
-                addr
+                Some(addr)
             },
             AddressingMode::Absolute_Y => {
                 let pos = self.mem_read_u16(self.program_counter);
                 let addr = pos.wrapping_add(self.register_y as u16);
-                addr
+                Some(addr)
             },
             AddressingMode::Indirect_X => {
                 let pos = self.mem_read(self.program_counter);
                 let ptr = pos.wrapping_add(self.register_x);
 
-                u16::from_le_bytes([ // Indexed Indirect adding before lookup
+                Some(u16::from_le_bytes([ // Indexed Indirect adding before lookup
                     self.mem_read(ptr as u16),
                     self.mem_read(ptr.wrapping_add(1) as u16)
-                ])
+                ]))
             },
             AddressingMode::Indirect_Y => {
                 let pos = self.mem_read(self.program_counter);
@@ -175,10 +175,11 @@ impl CPU {
                 ]); // Indirect Index adding after lookup
 
                 let addr = ptr.wrapping_add(self.register_y as u16);
-                addr
+                self.program_counter += 2;
+                Some(addr)
             },
             AddressingMode::NoneAddressing => {
-                panic!("Invalid mode: {:?}", mode);
+                None
             }
         }
     }
@@ -199,6 +200,7 @@ impl CPU {
         loop {
             let code = self.next();
             let opcode = OPCODES.get(&code).expect("Invalid opcode");
+            let addr = self.get_operand_address(&opcode.mode);
             
             let old_counter = self.program_counter;
             let has_jmped = move |counter| {
@@ -207,75 +209,46 @@ impl CPU {
 
             match code {
                 0xA9 | 0xa5 | 0xb5 | 0xad | 0xbd |0xb9 | 0xa1 | 0xb1 => { /* LDA */
-                    self.lda(
-                        self.get_operand_address(&opcode.mode)
-                    );
+                    self.lda(addr.unwrap());
                 },
                 0x85 | 0x95 | 0x8d | 0x9d | 0x99 | 0x81 | 0x91 => { /* STA */
-                    self.sta(
-                        self.get_operand_address(&opcode.mode)
-                    )
+                    self.sta(addr.unwrap())
                 },
                 0x84 | 0x94 | 0x8c => { /* STY */
-                    self.sty(
-                        self.get_operand_address(&opcode.mode)
-                    )
+                    self.sty(addr.unwrap())
                 },
                 0x86 | 0x96 | 0x8e => { /* STX */
-                    self.stx(
-                        self.get_operand_address(&opcode.mode)
-                    )
+                    self.stx(addr.unwrap())
                 },
                 0xc9 | 0xc5 | 0xd5 | 0xcd | 0xdd | 0xd9 |0xc1 |0xd1 => { /* CMP */
-                    self.cmp(
-                        self.get_operand_address(&opcode.mode)
-                    )
+                    self.cmp(addr.unwrap())
                 },
                 0xe0 | 0xe4 | 0xec => { /* CPX */
-                    self.cpx(
-                        self.get_operand_address(&opcode.mode)
-                    )
+                    self.cpx(addr.unwrap())
                 },
                 0xc0 | 0xc4 | 0xcc => { /* CPY */
-                    self.cpy(
-                        self.get_operand_address(&opcode.mode)    
-                    )
+                    self.cpy(addr.unwrap()    )
                 },
                 0xc6 | 0xd6 | 0xce | 0xde => { /* DEC */
-                    self.dec(
-                        self.get_operand_address(&opcode.mode)
-                    );
+                    self.dec(addr.unwrap());
                 },
                 0xe6 | 0xf6 | 0xee | 0xfe => { /* INC */
-                    self.inc(
-                        self.get_operand_address(&opcode.mode)
-                    )
+                    self.inc(addr.unwrap())
                 },
                 0xa2 | 0xa6 | 0xb6 | 0xae | 0xbe => { /* LDX */
-                    self.ldx(
-                        self.get_operand_address(&opcode.mode)
-
-                    )
+                    self.ldx(addr.unwrap())
                 },
                 0xa0 | 0xa4 | 0xb4 | 0xac | 0xbc => { /* LDY */
-                    self.ldy(
-                        self.get_operand_address(&opcode.mode)
-                    )
+                    self.ldy(addr.unwrap())
                 },
                 0x29 | 0x25 | 0x35 | 0x2d | 0x3d | 0x39 | 0x21 | 0x31 => { /* AND */
-                    self.and(
-                        self.get_operand_address(&opcode.mode)
-                    )
+                    self.and(addr.unwrap())
                 },
                 0x09 | 0x05 | 0x15 | 0x0d | 0x1d | 0x19 | 0x01 | 0x11 => { /* ORA */
-                    self.ora(
-                        self.get_operand_address(&opcode.mode)
-                    )
+                    self.ora(addr.unwrap())
                 },
                 0x49 | 0x45 | 0x55 | 0x4d | 0x5d | 0x59 | 0x41 | 0x51 => { /* EOR */
-                    self.eor(
-                        self.get_operand_address(&opcode.mode)
-                    )
+                    self.eor(addr.unwrap())
                 },
                 0x4c => self.jmp_abs(), /* JMP Absolute */
                 0x6c => self.jmp_ind(), /* JMP Indirect */
