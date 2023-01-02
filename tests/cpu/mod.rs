@@ -30,4 +30,7 @@ pub mod test_pha;
 pub mod test_php;
 pub mod test_pla;
 pub mod test_plp;
+pub mod test_and;
+pub mod test_eor;
+pub mod test_ora;
 pub mod test_flags;

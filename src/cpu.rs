@@ -257,6 +257,21 @@ impl CPU {
                         self.get_operand_address(&opcode.mode)
                     )
                 },
+                0x29 | 0x25 | 0x35 | 0x2d | 0x3d | 0x39 | 0x21 | 0x31 => { /* AND */
+                    self.and(
+                        self.get_operand_address(&opcode.mode)
+                    )
+                },
+                0x09 | 0x05 | 0x15 | 0x0d | 0x1d | 0x19 | 0x01 | 0x11 => { /* ORA */
+                    self.ora(
+                        self.get_operand_address(&opcode.mode)
+                    )
+                },
+                0x49 | 0x45 | 0x55 | 0x4d | 0x5d | 0x59 | 0x41 | 0x51 => { /* EOR */
+                    self.eor(
+                        self.get_operand_address(&opcode.mode)
+                    )
+                },
                 0x48 => self.pha(), /* PHA */
                 0x08 => self.php(), /* PHP */
                 0x68 => self.pla(), /* PLA */
@@ -355,6 +370,24 @@ impl CPU {
 
     fn sec(&mut self) {
         self.status.insert(Status::CARRY);
+    }
+
+    fn and(&mut self, addr: u16) {
+        let value = self.mem_read(addr);
+        self.register_a &= value;
+        self.update_zero_and_negative_flag(self.register_a);
+    }
+
+    fn ora(&mut self, addr: u16) {
+        let value = self.mem_read(addr);
+        self.register_a |= value;
+        self.update_zero_and_negative_flag(self.register_a);
+    }
+
+    fn eor(&mut self, addr: u16) {
+        let value = self.mem_read(addr);
+        self.register_a ^= value;
+        self.update_zero_and_negative_flag(self.register_a);
     }
 
     fn ldx(&mut self, addr: u16) {

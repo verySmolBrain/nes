@@ -104,18 +104,41 @@ lazy_static! {
 
         0xea_u8 => OPCode { name: "NOP", bytes: 1, cycles: 2, mode: NoneAddressing },
 
-        // PHA
         0x48_u8 => OPCode { name: "PHA", bytes: 1, cycles: 3, mode: NoneAddressing },
-        // PHP
+
         0x08_u8 => OPCode { name: "PHP", bytes: 1, cycles: 3, mode: NoneAddressing },
-        // PLA
+
         0x68_u8 => OPCode { name: "PLA", bytes: 1, cycles: 4, mode: NoneAddressing },
-        // PLP
+
         0x28_u8 => OPCode { name: "PLP", bytes: 1, cycles: 4, mode: NoneAddressing },
 
         // AND
+        0x29_u8 => OPCode { name: "AND", bytes: 2, cycles: 2, mode: Immediate },
+        0x25_u8 => OPCode { name: "AND", bytes: 2, cycles: 3, mode: ZeroPage },
+        0x35_u8 => OPCode { name: "AND", bytes: 2, cycles: 4, mode: ZeroPage_X },
+        0x2d_u8 => OPCode { name: "AND", bytes: 3, cycles: 4, mode: Absolute },
+        0x3d_u8 => OPCode { name: "AND", bytes: 3, cycles: 4, mode: Absolute_X },
+        0x39_u8 => OPCode { name: "AND", bytes: 3, cycles: 4, mode: Absolute_Y },
+        0x21_u8 => OPCode { name: "AND", bytes: 2, cycles: 6, mode: Indirect_X },
+        0x31_u8 => OPCode { name: "AND", bytes: 2, cycles: 5, mode: Indirect_Y },
         // ORA
+        0x09_u8 => OPCode { name: "ORA", bytes: 2, cycles: 2, mode: Immediate },
+        0x05_u8 => OPCode { name: "ORA", bytes: 2, cycles: 3, mode: ZeroPage },
+        0x15_u8 => OPCode { name: "ORA", bytes: 2, cycles: 4, mode: ZeroPage_X },
+        0x0d_u8 => OPCode { name: "ORA", bytes: 3, cycles: 4, mode: Absolute },
+        0x1d_u8 => OPCode { name: "ORA", bytes: 3, cycles: 4, mode: Absolute_X },
+        0x19_u8 => OPCode { name: "ORA", bytes: 3, cycles: 4, mode: Absolute_Y },
+        0x01_u8 => OPCode { name: "ORA", bytes: 2, cycles: 6, mode: Indirect_X },
+        0x11_u8 => OPCode { name: "ORA", bytes: 2, cycles: 5, mode: Indirect_Y },
         // EOR
+        0x49_u8 => OPCode { name: "EOR", bytes: 2, cycles: 2, mode: Immediate },
+        0x45_u8 => OPCode { name: "EOR", bytes: 2, cycles: 3, mode: ZeroPage },
+        0x55_u8 => OPCode { name: "EOR", bytes: 2, cycles: 4, mode: ZeroPage_X },
+        0x4d_u8 => OPCode { name: "EOR", bytes: 3, cycles: 4, mode: Absolute },
+        0x5d_u8 => OPCode { name: "EOR", bytes: 3, cycles: 4, mode: Absolute_X },
+        0x59_u8 => OPCode { name: "EOR", bytes: 3, cycles: 4, mode: Absolute_Y },
+        0x41_u8 => OPCode { name: "EOR", bytes: 2, cycles: 6, mode: Indirect_X },
+        0x51_u8 => OPCode { name: "EOR", bytes: 2, cycles: 5, mode: Indirect_Y },
 
         // ADC
         // SBC
