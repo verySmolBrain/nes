@@ -110,25 +110,25 @@ impl CPU {
         self.memory[addr as usize] = value;
     }
 
-    fn stack_read_u16(&mut self) -> u16 {
+    pub fn stack_read_u16(&mut self) -> u16 {
         u16::from_le_bytes([
-            self.stack_pop(),
-            self.stack_pop(),
+            self.stack_pop_u8(),
+            self.stack_pop_u8(),
         ])
     }
 
-    fn stack_push_u16(&mut self, value: u16) {
+    pub fn stack_push_u16(&mut self, value: u16) {
         value.to_le_bytes().iter().for_each(|v| {
-            self.stack_push(*v)
+            self.stack_push_u8(*v)
         })
     }
 
-    fn stack_pop(&mut self) -> u8 {
+    pub fn stack_pop_u8(&mut self) -> u8 {
         self.stack_pointer = self.stack_pointer.wrapping_add(1);
         self.mem_read(STACK + self.stack_pointer as u16)
     }
 
-    fn stack_push(&mut self, value: u8) {
+    pub fn stack_push_u8(&mut self, value: u8) {
         self.mem_write(STACK + self.stack_pointer as u16, value);
         self.stack_pointer = self.stack_pointer.wrapping_sub(1);
     }
@@ -200,7 +200,7 @@ impl CPU {
             let code = self.next();
             let opcode = OPCODES.get(&code).expect("Invalid opcode");
 
-            match opcode.opcode {
+            match code {
                 0xA9 | 0xa5 | 0xb5 | 0xad | 0xbd |0xb9 | 0xa1 | 0xb1 => { /* LDA */
                     self.lda(
                         self.get_operand_address(&opcode.mode)
@@ -257,7 +257,10 @@ impl CPU {
                         self.get_operand_address(&opcode.mode)
                     )
                 },
-                0xea => (), /* NOP */
+                0x48 => self.pha(), /* PHA */
+                0x08 => self.php(), /* PHP */
+                0x68 => self.pla(), /* PLA */
+                0x28 => self.plp(), /* PLP */
                 0xc8 => self.iny(), /* INY */
                 0xca => self.dex(), /* DEX */
                 0x88 => self.dey(), /* DEY */
@@ -275,12 +278,30 @@ impl CPU {
                 0xd8 => self.cld(), /* CLD */
                 0x58 => self.cli(), /* CLI */
                 0xb8 => self.clv(), /* CLV */
+                0xea => (), /* NOP */
                 0x00 => return, /* BRK */
                 _ => todo!()
             }
 
             self.program_counter += opcode.bytes - 1;
         }
+    }
+
+    fn pha(&mut self) {
+        self.stack_push_u8(self.register_a);
+    }
+
+    fn php(&mut self) {
+        self.stack_push_u8(self.status.bits());
+    }
+
+    fn pla(&mut self) {
+        self.register_a = self.stack_pop_u8();
+        self.update_zero_and_negative_flag(self.register_a);
+    }
+
+    fn plp(&mut self) {
+        self.status = Status::from_bits_truncate(self.stack_pop_u8());
     }
 
     fn clc(&mut self) {

@@ -26,4 +26,8 @@ pub mod test_inx;
 pub mod test_nop;
 pub mod test_ldx;
 pub mod test_ldy;
+pub mod test_pha;
+pub mod test_php;
+pub mod test_pla;
+pub mod test_plp;
 pub mod test_flags;
