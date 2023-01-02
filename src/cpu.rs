@@ -135,37 +135,55 @@ impl CPU {
 
     fn get_operand_address(&mut self, mode: &AddressingMode) -> Option<u16> {
         match mode {
-            AddressingMode::Immediate => Some(self.program_counter),
-            AddressingMode::ZeroPage => Some(self.mem_read(self.program_counter) as u16),
-            AddressingMode::Absolute => Some(self.mem_read_u16(self.program_counter)),
+            AddressingMode::Immediate => {
+                let addr = self.program_counter;
+                self.program_counter = self.program_counter.wrapping_add(1);
+                Some(addr)
+            },
+            AddressingMode::ZeroPage => {
+                let addr = self.mem_read(self.program_counter) as u16;
+                self.program_counter = self.program_counter.wrapping_add(1);
+                Some(addr)
+            },
+            AddressingMode::Absolute => {
+                let addr = self.mem_read_u16(self.program_counter);
+                self.program_counter = self.program_counter.wrapping_add(2);
+                Some(addr)
+            },
             AddressingMode::ZeroPage_X => {
                 let pos = self.mem_read(self.program_counter);
                 let addr = pos.wrapping_add(self.register_x);
+                self.program_counter = self.program_counter.wrapping_add(1);
                 Some(addr as u16)
             },
             AddressingMode::ZeroPage_Y => {
                 let pos = self.mem_read(self.program_counter);
                 let addr = pos.wrapping_add(self.register_y);
+                self.program_counter = self.program_counter.wrapping_add(1);
                 Some(addr as u16)
             },
             AddressingMode::Absolute_X => {
                 let pos = self.mem_read_u16(self.program_counter);
                 let addr = pos.wrapping_add(self.register_x as u16);
+                self.program_counter = self.program_counter.wrapping_add(2);
                 Some(addr)
             },
             AddressingMode::Absolute_Y => {
                 let pos = self.mem_read_u16(self.program_counter);
                 let addr = pos.wrapping_add(self.register_y as u16);
+                self.program_counter = self.program_counter.wrapping_add(2);
                 Some(addr)
             },
             AddressingMode::Indirect_X => {
                 let pos = self.mem_read(self.program_counter);
                 let ptr = pos.wrapping_add(self.register_x);
 
-                Some(u16::from_le_bytes([ // Indexed Indirect adding before lookup
+                let addr = u16::from_le_bytes([ // Indexed Indirect adding before lookup
                     self.mem_read(ptr as u16),
                     self.mem_read(ptr.wrapping_add(1) as u16)
-                ]))
+                ]);
+                self.program_counter = self.program_counter.wrapping_add(1);
+                Some(addr)
             },
             AddressingMode::Indirect_Y => {
                 let pos = self.mem_read(self.program_counter);
@@ -175,7 +193,7 @@ impl CPU {
                 ]); // Indirect Index adding after lookup
 
                 let addr = ptr.wrapping_add(self.register_y as u16);
-                self.program_counter += 2;
+                self.program_counter = self.program_counter.wrapping_add(1);
                 Some(addr)
             },
             AddressingMode::NoneAddressing => {
@@ -201,11 +219,6 @@ impl CPU {
             let code = self.next();
             let opcode = OPCODES.get(&code).expect("Invalid opcode");
             let addr = self.get_operand_address(&opcode.mode);
-            
-            let old_counter = self.program_counter;
-            let has_jmped = move |counter| {
-                old_counter != counter
-            };
 
             match code {
                 0xA9 | 0xa5 | 0xb5 | 0xad | 0xbd |0xb9 | 0xa1 | 0xb1 => { /* LDA */
@@ -250,7 +263,9 @@ impl CPU {
                 0x49 | 0x45 | 0x55 | 0x4d | 0x5d | 0x59 | 0x41 | 0x51 => { /* EOR */
                     self.eor(addr.unwrap())
                 },
-                0x4c => self.jmp_abs(), /* JMP Absolute */
+                0x4c => { /* JMP Absolute */
+                    self.jmp(addr.unwrap())
+                }, 
                 0x6c => self.jmp_ind(), /* JMP Indirect */
                 0x48 => self.pha(), /* PHA */
                 0x08 => self.php(), /* PHP */
@@ -277,16 +292,7 @@ impl CPU {
                 0x00 => return, /* BRK */
                 _ => todo!()
             }
-
-            if !has_jmped(self.program_counter) {
-                self.program_counter += opcode.bytes - 1;
-            }
         }
-    }
-
-    fn jmp_abs(&mut self) {
-        let address = self.mem_read_u16(self.program_counter);
-        self.jmp(address);
     }
 
     /*

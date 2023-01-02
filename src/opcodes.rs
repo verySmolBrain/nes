@@ -157,7 +157,7 @@ lazy_static! {
         0x70_u8 => OPCode { name: "BVS", bytes: 2, cycles: 2, mode: NoneAddressing },
 
         0x4c_u8 => OPCode { name: "JMP", bytes: 3, cycles: 3, mode: Absolute },
-        // Indirect but due to 'bug' in 6502, it might as well be a custom addressing mode
+        // Indirect but due to 'bug' in 6502, it doesn't mesh well with the other addressing modes
         0x6c_u8 => OPCode { name: "JMP", bytes: 3, cycles: 5, mode: NoneAddressing }, 
 
         // ASL 
