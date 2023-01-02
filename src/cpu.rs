@@ -5,8 +5,8 @@ const ADDRESS_SPACE: usize = 0xFFFF; // 64 KiB
 const ROM_START: usize = 0x8000;
 const RESET_VECTOR: usize = 0xFFFC;
 
-const STACK: u16 = 0x0100;
-const STACK_RESET: u8 = 0xff; // 256 Byte offset from STACK
+const STACK: u16 = 0x0100; // 256 Byte offset from STACK
+const STACK_RESET: u8 = 0xfd; // Push = store first then decrement. So 8 bit off for first value.
 
 #[derive(Debug)]
 #[allow(non_camel_case_types)]
@@ -79,6 +79,16 @@ impl CPU {
         }
     }
 
+    pub fn reset(&mut self) {
+        self.register_a = 0;
+        self.register_x = 0;
+        self.register_y = 0;
+        self.stack_pointer = STACK_RESET;
+        self.status = Default::default();
+
+        self.program_counter = self.mem_read_u16(RESET_VECTOR as u16);
+    }
+
     pub fn mem_read_u16(&self, addr: u16) -> u16 {
         u16::from_le_bytes([ // LE
             self.mem_read(addr),
@@ -98,6 +108,29 @@ impl CPU {
 
     pub fn mem_write(&mut self, addr: u16, value: u8) {
         self.memory[addr as usize] = value;
+    }
+
+    fn stack_read_u16(&mut self) -> u16 {
+        u16::from_le_bytes([
+            self.stack_pop(),
+            self.stack_pop(),
+        ])
+    }
+
+    fn stack_push_u16(&mut self, value: u16) {
+        value.to_le_bytes().iter().for_each(|v| {
+            self.stack_push(*v)
+        })
+    }
+
+    fn stack_pop(&mut self) -> u8 {
+        self.stack_pointer = self.stack_pointer.wrapping_add(1);
+        self.mem_read(STACK + self.stack_pointer as u16)
+    }
+
+    fn stack_push(&mut self, value: u8) {
+        self.mem_write(STACK + self.stack_pointer as u16, value);
+        self.stack_pointer = self.stack_pointer.wrapping_sub(1);
     }
 
     fn get_operand_address(&self, mode: &AddressingMode) -> u16 {
@@ -148,16 +181,6 @@ impl CPU {
                 panic!("Invalid mode: {:?}", mode);
             }
         }
-    }
-
-    pub fn reset(&mut self) {
-        self.register_a = 0;
-        self.register_x = 0;
-        self.register_y = 0;
-        self.stack_pointer = STACK_RESET;
-        self.status = Default::default();
-
-        self.program_counter = self.mem_read_u16(RESET_VECTOR as u16);
     }
 
     pub fn load_and_run(&mut self, program: Vec<u8>) {
@@ -340,7 +363,6 @@ impl CPU {
     fn inc(&mut self, addr: u16) {
         let value = self.mem_read(addr).wrapping_add(1);
         self.mem_write(addr, value);
-
         self.update_zero_and_negative_flag(value);
     }
 
@@ -423,8 +445,7 @@ impl CPU {
     fn update_negative_flag(&mut self, value: u8) {
         if value & 0b1000_0000 != 0 { 
             self.status.insert(Status::NEGATIVE)
-        } else { // 6502 Integers are neither signed or unsigned. 
-            // Neg depends on the most significant bit.
+        } else { // 6502 Integers are neither signed or unsigned. Neg depends on the most significant bit.
             self.status.remove(Status::NEGATIVE)
         }
     }
