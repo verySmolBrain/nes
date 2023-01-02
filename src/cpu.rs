@@ -63,7 +63,7 @@ pub struct CPU {
     pub stack_pointer: u8,
     pub status: Status,
     pub program_counter: u16,
-    memory: [u8; ADDRESS_SPACE]
+    pub memory: [u8; ADDRESS_SPACE]
 }
 
 impl CPU {
@@ -199,6 +199,11 @@ impl CPU {
         loop {
             let code = self.next();
             let opcode = OPCODES.get(&code).expect("Invalid opcode");
+            
+            let old_counter = self.program_counter;
+            let has_jmped = move |counter| {
+                old_counter != counter
+            };
 
             match code {
                 0xA9 | 0xa5 | 0xb5 | 0xad | 0xbd |0xb9 | 0xa1 | 0xb1 => { /* LDA */
@@ -272,6 +277,8 @@ impl CPU {
                         self.get_operand_address(&opcode.mode)
                     )
                 },
+                0x4c => self.jmp_abs(), /* JMP Absolute */
+                0x6c => self.jmp_ind(), /* JMP Indirect */
                 0x48 => self.pha(), /* PHA */
                 0x08 => self.php(), /* PHP */
                 0x68 => self.pla(), /* PLA */
@@ -298,8 +305,39 @@ impl CPU {
                 _ => todo!()
             }
 
-            self.program_counter += opcode.bytes - 1;
+            if !has_jmped(self.program_counter) {
+                self.program_counter += opcode.bytes - 1;
+            }
         }
+    }
+
+    fn jmp_abs(&mut self) {
+        let address = self.mem_read_u16(self.program_counter);
+        self.jmp(address);
+    }
+
+    /*
+    An original 6502 has does not correctly fetch the target address if the 
+    indirect vector falls on a page boundary (e.g. $xxFF where xx is any value from $00 to $FF). 
+    In this case fetches the LSB from $xxFF as expected but takes the MSB from $xx00.
+    https://www.nesdev.org/obelisk-6502-guide/reference.html#JMP
+     */
+    fn jmp_ind(&mut self) {
+        let pos = self.mem_read_u16(self.program_counter);
+        let address = if pos & 0x00ff == 0x00ff {
+            u16::from_le_bytes([
+                self.mem_read(pos),
+                self.mem_read(pos & 0xff00)
+            ])
+        } else {
+            self.mem_read_u16(pos)
+        };
+
+        self.jmp(address);
+    }
+
+    fn jmp(&mut self, addr: u16) {
+        self.program_counter = addr;
     }
 
     fn pha(&mut self) {

@@ -33,4 +33,5 @@ pub mod test_plp;
 pub mod test_and;
 pub mod test_eor;
 pub mod test_ora;
+pub mod test_jmp;
 pub mod test_flags;

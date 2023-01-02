@@ -112,7 +112,6 @@ lazy_static! {
 
         0x28_u8 => OPCode { name: "PLP", bytes: 1, cycles: 4, mode: NoneAddressing },
 
-        // AND
         0x29_u8 => OPCode { name: "AND", bytes: 2, cycles: 2, mode: Immediate },
         0x25_u8 => OPCode { name: "AND", bytes: 2, cycles: 3, mode: ZeroPage },
         0x35_u8 => OPCode { name: "AND", bytes: 2, cycles: 4, mode: ZeroPage_X },
@@ -121,7 +120,7 @@ lazy_static! {
         0x39_u8 => OPCode { name: "AND", bytes: 3, cycles: 4, mode: Absolute_Y },
         0x21_u8 => OPCode { name: "AND", bytes: 2, cycles: 6, mode: Indirect_X },
         0x31_u8 => OPCode { name: "AND", bytes: 2, cycles: 5, mode: Indirect_Y },
-        // ORA
+
         0x09_u8 => OPCode { name: "ORA", bytes: 2, cycles: 2, mode: Immediate },
         0x05_u8 => OPCode { name: "ORA", bytes: 2, cycles: 3, mode: ZeroPage },
         0x15_u8 => OPCode { name: "ORA", bytes: 2, cycles: 4, mode: ZeroPage_X },
@@ -130,7 +129,7 @@ lazy_static! {
         0x19_u8 => OPCode { name: "ORA", bytes: 3, cycles: 4, mode: Absolute_Y },
         0x01_u8 => OPCode { name: "ORA", bytes: 2, cycles: 6, mode: Indirect_X },
         0x11_u8 => OPCode { name: "ORA", bytes: 2, cycles: 5, mode: Indirect_Y },
-        // EOR
+
         0x49_u8 => OPCode { name: "EOR", bytes: 2, cycles: 2, mode: Immediate },
         0x45_u8 => OPCode { name: "EOR", bytes: 2, cycles: 3, mode: ZeroPage },
         0x55_u8 => OPCode { name: "EOR", bytes: 2, cycles: 4, mode: ZeroPage_X },
@@ -139,9 +138,6 @@ lazy_static! {
         0x59_u8 => OPCode { name: "EOR", bytes: 3, cycles: 4, mode: Absolute_Y },
         0x41_u8 => OPCode { name: "EOR", bytes: 2, cycles: 6, mode: Indirect_X },
         0x51_u8 => OPCode { name: "EOR", bytes: 2, cycles: 5, mode: Indirect_Y },
-
-        // ADC
-        // SBC
 
         // BCC
         // BCS
@@ -152,6 +148,9 @@ lazy_static! {
         // BVC
         // BVS
         // JMP
+        0x4c_u8 => OPCode { name: "JMP", bytes: 3, cycles: 3, mode: Absolute },
+        // Indirect but due to 'bug' in 6502, it might as well be a custom addressing mode
+        0x6c_u8 => OPCode { name: "JMP", bytes: 3, cycles: 5, mode: NoneAddressing }, 
 
         // ASL 
         // BIT
@@ -161,5 +160,8 @@ lazy_static! {
         // ROR
         // RTI
         // RTS
+
+        // ADC
+        // SBC
     };
 }
