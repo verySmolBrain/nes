@@ -20,6 +20,7 @@ pub enum AddressingMode {
     Absolute_Y,
     Indirect_X,
     Indirect_Y,
+    Relative,
     NoneAddressing,
 }
 
@@ -196,6 +197,15 @@ impl CPU {
                 self.program_counter = self.program_counter.wrapping_add(1);
                 Some(addr)
             },
+            AddressingMode::Relative => {
+                let relative = self.mem_read(self.program_counter) as i8;
+                let addr = self.program_counter
+                    .wrapping_add(relative as u16)
+                    .wrapping_add(1);
+                println!("Relative: {:x} -> {:x}", self.program_counter, addr);
+                self.program_counter = self.program_counter.wrapping_add(1);
+                Some(addr)
+            },
             AddressingMode::NoneAddressing => {
                 None
             }
@@ -266,6 +276,14 @@ impl CPU {
                 0x4c => { /* JMP Absolute */
                     self.jmp(addr.unwrap())
                 }, 
+                0xb0 => if self.status.contains(Status::CARRY) { self.jmp(addr.unwrap()) }, /* BCS */
+                0x90 => if !self.status.contains(Status::CARRY) { self.jmp(addr.unwrap()) }, /* BCC */
+                0xf0 => if self.status.contains(Status::ZERO) { self.jmp(addr.unwrap()) }, /* BEQ */
+                0xd0 => if !self.status.contains(Status::ZERO) { self.jmp(addr.unwrap()) }, /* BNE */
+                0x30 => if self.status.contains(Status::NEGATIVE) { self.jmp(addr.unwrap()) }, /* BMI */
+                0x10 => if !self.status.contains(Status::NEGATIVE) {self.jmp(addr.unwrap()) }, /* BPL */
+                0x70 => if self.status.contains(Status::OVERFLOW) { self.jmp(addr.unwrap()) }, /* BVS */
+                0x50 => if !self.status.contains(Status::OVERFLOW) { self.jmp(addr.unwrap()) }, /* BVC */
                 0x6c => self.jmp_ind(), /* JMP Indirect */
                 0x48 => self.pha(), /* PHA */
                 0x08 => self.php(), /* PHP */

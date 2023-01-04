@@ -1,7 +1,7 @@
 use crate::cpu::AddressingMode:: { 
     Absolute, Absolute_X, Absolute_Y, Immediate, 
     Indirect_X, Indirect_Y, NoneAddressing, 
-    ZeroPage, ZeroPage_X, ZeroPage_Y };
+    ZeroPage, ZeroPage_X, ZeroPage_Y, Relative };
 use crate::cpu::AddressingMode;
 use phf::phf_map;
 use lazy_static::lazy_static;
@@ -139,22 +139,21 @@ lazy_static! {
         0x41_u8 => OPCode { name: "EOR", bytes: 2, cycles: 6, mode: Indirect_X },
         0x51_u8 => OPCode { name: "EOR", bytes: 2, cycles: 5, mode: Indirect_Y },
 
-        // BCC
-        0x90_u8 => OPCode { name: "BCC", bytes: 2, cycles: 2, mode: NoneAddressing },
-        // BCS
-        0xb0_u8 => OPCode { name: "BCS", bytes: 2, cycles: 2, mode: NoneAddressing },
-        // BEQ
-        0xf0_u8 => OPCode { name: "BEQ", bytes: 2, cycles: 2, mode: NoneAddressing },
-        // BMI
-        0x30_u8 => OPCode { name: "BMI", bytes: 2, cycles: 2, mode: NoneAddressing },
-        // BNE
-        0xd0_u8 => OPCode { name: "BNE", bytes: 2, cycles: 2, mode: NoneAddressing },
-        // BPL
-        0x10_u8 => OPCode { name: "BPL", bytes: 2, cycles: 2, mode: NoneAddressing },
-        // BVC
-        0x50_u8 => OPCode { name: "BVC", bytes: 2, cycles: 2, mode: NoneAddressing },
-        // BVS
-        0x70_u8 => OPCode { name: "BVS", bytes: 2, cycles: 2, mode: NoneAddressing },
+        0x90_u8 => OPCode { name: "BCC", bytes: 2, cycles: 2, mode: Relative },
+
+        0xb0_u8 => OPCode { name: "BCS", bytes: 2, cycles: 2, mode: Relative },
+
+        0xf0_u8 => OPCode { name: "BEQ", bytes: 2, cycles: 2, mode: Relative },
+
+        0x30_u8 => OPCode { name: "BMI", bytes: 2, cycles: 2, mode: Relative },
+
+        0xd0_u8 => OPCode { name: "BNE", bytes: 2, cycles: 2, mode: Relative },
+
+        0x10_u8 => OPCode { name: "BPL", bytes: 2, cycles: 2, mode: Relative },
+
+        0x50_u8 => OPCode { name: "BVC", bytes: 2, cycles: 2, mode: Relative },
+
+        0x70_u8 => OPCode { name: "BVS", bytes: 2, cycles: 2, mode: Relative },
 
         0x4c_u8 => OPCode { name: "JMP", bytes: 3, cycles: 3, mode: Absolute },
         // Indirect but due to 'bug' in 6502, it doesn't mesh well with the other addressing modes
