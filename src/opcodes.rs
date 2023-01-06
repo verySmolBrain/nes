@@ -1,7 +1,7 @@
 use crate::cpu::AddressingMode:: { 
     Absolute, Absolute_X, Absolute_Y, Immediate, 
     Indirect_X, Indirect_Y, NoneAddressing, 
-    ZeroPage, ZeroPage_X, ZeroPage_Y, Relative };
+    ZeroPage, ZeroPage_X, ZeroPage_Y, Relative, Accumulator, Implied };
 use crate::cpu::AddressingMode;
 use phf::phf_map;
 use lazy_static::lazy_static;
@@ -15,9 +15,9 @@ pub struct OPCode {
 
 lazy_static! {
     pub static ref OPCODES: phf::Map<u8, OPCode> = phf_map! {
-        0x00_u8 => OPCode { name: "BRK", bytes: 1, cycles: 7, mode: NoneAddressing },
-        0xaa_u8 => OPCode { name: "TAX", bytes: 1, cycles: 2, mode: NoneAddressing },
-        0xe8_u8 => OPCode { name: "INX", bytes: 1, cycles: 2, mode: NoneAddressing },
+        0x00_u8 => OPCode { name: "BRK", bytes: 1, cycles: 7, mode: Implied },
+        0xaa_u8 => OPCode { name: "TAX", bytes: 1, cycles: 2, mode: Implied },
+        0xe8_u8 => OPCode { name: "INX", bytes: 1, cycles: 2, mode: Implied },
 
         0xa9_u8 => OPCode { name: "LDA", bytes: 2, cycles: 2, mode: Immediate },
         0xa5_u8 => OPCode { name: "LDA", bytes: 2, cycles: 3, mode: ZeroPage },
@@ -61,34 +61,34 @@ lazy_static! {
         0xc4_u8 => OPCode { name: "CPY", bytes: 2, cycles: 3, mode: ZeroPage },
         0xcc_u8 => OPCode { name: "CPY", bytes: 3, cycles: 4, mode: Absolute },
 
-        0x38_u8 => OPCode { name: "SEC", bytes: 1, cycles: 2, mode: NoneAddressing },
-        0xf8_u8 => OPCode { name: "SED", bytes: 1, cycles: 2, mode: NoneAddressing },
-        0x78_u8 => OPCode { name: "SEI", bytes: 1, cycles: 2, mode: NoneAddressing },
-        0xa8_u8 => OPCode { name: "TAY", bytes: 1, cycles: 2, mode: NoneAddressing },
-        0xba_u8 => OPCode { name: "TSX", bytes: 1, cycles: 2, mode: NoneAddressing },
-        0x8a_u8 => OPCode { name: "TXA", bytes: 1, cycles: 2, mode: NoneAddressing },
-        0x9a_u8 => OPCode { name: "TXS", bytes: 1, cycles: 2, mode: NoneAddressing },
-        0x98_u8 => OPCode { name: "TYA", bytes: 1, cycles: 2, mode: NoneAddressing },
-        0x18_u8 => OPCode { name: "CLC", bytes: 1, cycles: 2, mode: NoneAddressing },
-        0xd8_u8 => OPCode { name: "CLD", bytes: 1, cycles: 2, mode: NoneAddressing },
-        0x58_u8 => OPCode { name: "CLI", bytes: 1, cycles: 2, mode: NoneAddressing },
-        0xb8_u8 => OPCode { name: "CLV", bytes: 1, cycles: 2, mode: NoneAddressing },
+        0x38_u8 => OPCode { name: "SEC", bytes: 1, cycles: 2, mode: Implied },
+        0xf8_u8 => OPCode { name: "SED", bytes: 1, cycles: 2, mode: Implied },
+        0x78_u8 => OPCode { name: "SEI", bytes: 1, cycles: 2, mode: Implied },
+        0xa8_u8 => OPCode { name: "TAY", bytes: 1, cycles: 2, mode: Implied },
+        0xba_u8 => OPCode { name: "TSX", bytes: 1, cycles: 2, mode: Implied },
+        0x8a_u8 => OPCode { name: "TXA", bytes: 1, cycles: 2, mode: Implied },
+        0x9a_u8 => OPCode { name: "TXS", bytes: 1, cycles: 2, mode: Implied },
+        0x98_u8 => OPCode { name: "TYA", bytes: 1, cycles: 2, mode: Implied },
+        0x18_u8 => OPCode { name: "CLC", bytes: 1, cycles: 2, mode: Implied },
+        0xd8_u8 => OPCode { name: "CLD", bytes: 1, cycles: 2, mode: Implied },
+        0x58_u8 => OPCode { name: "CLI", bytes: 1, cycles: 2, mode: Implied },
+        0xb8_u8 => OPCode { name: "CLV", bytes: 1, cycles: 2, mode: Implied },
         
         0xc6_u8 => OPCode { name: "DEC", bytes: 2, cycles: 5, mode: ZeroPage },
         0xd6_u8 => OPCode { name: "DEC", bytes: 2, cycles: 6, mode: ZeroPage_X },
         0xce_u8 => OPCode { name: "DEC", bytes: 3, cycles: 6, mode: Absolute },
         0xde_u8 => OPCode { name: "DEC", bytes: 3, cycles: 7, mode: Absolute_X },
 
-        0xca_u8 => OPCode { name: "DEX", bytes: 1, cycles: 2, mode: NoneAddressing },
+        0xca_u8 => OPCode { name: "DEX", bytes: 1, cycles: 2, mode: Implied },
 
-        0x88_u8 => OPCode { name: "DEY", bytes: 1, cycles: 2, mode: NoneAddressing },
+        0x88_u8 => OPCode { name: "DEY", bytes: 1, cycles: 2, mode: Implied },
         
         0xe6_u8 => OPCode { name: "INC", bytes: 2, cycles: 5, mode: ZeroPage },
         0xf6_u8 => OPCode { name: "INC", bytes: 2, cycles: 6, mode: ZeroPage_X },
         0xee_u8 => OPCode { name: "INC", bytes: 3, cycles: 6, mode: Absolute },
         0xfe_u8 => OPCode { name: "INC", bytes: 3, cycles: 7, mode: Absolute_X },
   
-        0xc8_u8 => OPCode { name: "INY", bytes: 1, cycles: 2, mode: NoneAddressing },
+        0xc8_u8 => OPCode { name: "INY", bytes: 1, cycles: 2, mode: Implied },
 
         0xa2_u8 => OPCode { name: "LDX", bytes: 2, cycles: 2, mode: Immediate },
         0xa6_u8 => OPCode { name: "LDX", bytes: 2, cycles: 3, mode: ZeroPage },
@@ -102,15 +102,15 @@ lazy_static! {
         0xac_u8 => OPCode { name: "LDY", bytes: 3, cycles: 4, mode: Absolute },
         0xbc_u8 => OPCode { name: "LDY", bytes: 3, cycles: 4, mode: Absolute_X },
 
-        0xea_u8 => OPCode { name: "NOP", bytes: 1, cycles: 2, mode: NoneAddressing },
+        0xea_u8 => OPCode { name: "NOP", bytes: 1, cycles: 2, mode: Implied },
 
-        0x48_u8 => OPCode { name: "PHA", bytes: 1, cycles: 3, mode: NoneAddressing },
+        0x48_u8 => OPCode { name: "PHA", bytes: 1, cycles: 3, mode: Implied },
 
-        0x08_u8 => OPCode { name: "PHP", bytes: 1, cycles: 3, mode: NoneAddressing },
+        0x08_u8 => OPCode { name: "PHP", bytes: 1, cycles: 3, mode: Implied },
 
-        0x68_u8 => OPCode { name: "PLA", bytes: 1, cycles: 4, mode: NoneAddressing },
+        0x68_u8 => OPCode { name: "PLA", bytes: 1, cycles: 4, mode: Implied },
 
-        0x28_u8 => OPCode { name: "PLP", bytes: 1, cycles: 4, mode: NoneAddressing },
+        0x28_u8 => OPCode { name: "PLP", bytes: 1, cycles: 4, mode: Implied },
 
         0x29_u8 => OPCode { name: "AND", bytes: 2, cycles: 2, mode: Immediate },
         0x25_u8 => OPCode { name: "AND", bytes: 2, cycles: 3, mode: ZeroPage },
@@ -159,17 +159,36 @@ lazy_static! {
         // Indirect but due to 'bug' in 6502, it doesn't mesh well with the other addressing modes
         0x6c_u8 => OPCode { name: "JMP", bytes: 3, cycles: 5, mode: NoneAddressing }, 
 
-        // BIT
         0x24_u8 => OPCode { name: "BIT", bytes: 2, cycles: 3, mode: ZeroPage },
         0x2c_u8 => OPCode { name: "BIT", bytes: 3, cycles: 4, mode: Absolute },
 
-        // ASL 
-        // JSR
-        // LSR
-        // ROL
-        // ROR
+        0x2a_u8 => OPCode { name: "ROL", bytes: 1, cycles: 2, mode: Accumulator },
+        0x26_u8 => OPCode { name: "ROL", bytes: 2, cycles: 5, mode: ZeroPage },
+        0x36_u8 => OPCode { name: "ROL", bytes: 2, cycles: 6, mode: ZeroPage_X },
+        0x2e_u8 => OPCode { name: "ROL", bytes: 3, cycles: 6, mode: Absolute },
+        0x3e_u8 => OPCode { name: "ROL", bytes: 3, cycles: 7, mode: Absolute_X },
+
+        0x6a_u8 => OPCode { name: "ROR", bytes: 1, cycles: 2, mode: Accumulator },
+        0x66_u8 => OPCode { name: "ROR", bytes: 2, cycles: 5, mode: ZeroPage },
+        0x76_u8 => OPCode { name: "ROR", bytes: 2, cycles: 6, mode: ZeroPage_X },
+        0x6e_u8 => OPCode { name: "ROR", bytes: 3, cycles: 6, mode: Absolute },
+        0x7e_u8 => OPCode { name: "ROR", bytes: 3, cycles: 7, mode: Absolute_X },
+
+        0x0a_u8 => OPCode { name: "ASL", bytes: 1, cycles: 2, mode: Accumulator },
+        0x06_u8 => OPCode { name: "ASL", bytes: 2, cycles: 5, mode: ZeroPage },
+        0x16_u8 => OPCode { name: "ASL", bytes: 2, cycles: 6, mode: ZeroPage_X },
+        0x0e_u8 => OPCode { name: "ASL", bytes: 3, cycles: 6, mode: Absolute },
+        0x1e_u8 => OPCode { name: "ASL", bytes: 3, cycles: 7, mode: Absolute_X },
+
+        0x4a_u8 => OPCode { name: "LSR", bytes: 1, cycles: 2, mode: Accumulator },
+        0x46_u8 => OPCode { name: "LSR", bytes: 2, cycles: 5, mode: ZeroPage },
+        0x56_u8 => OPCode { name: "LSR", bytes: 2, cycles: 6, mode: ZeroPage_X },
+        0x4e_u8 => OPCode { name: "LSR", bytes: 3, cycles: 6, mode: Absolute },
+        0x5e_u8 => OPCode { name: "LSR", bytes: 3, cycles: 7, mode: Absolute_X },
+
         // RTI
         // RTS
+        // JSR
 
         // ADC
         // SBC

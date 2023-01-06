@@ -43,4 +43,8 @@ pub mod test_bpl;
 pub mod test_bvc;
 pub mod test_bvs;
 pub mod test_bit;
+pub mod test_lsr;
+pub mod test_asl;
+pub mod test_rol;
+pub mod test_ror;
 pub mod test_flags;

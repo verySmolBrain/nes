@@ -6,7 +6,7 @@ const ROM_START: usize = 0x8000;
 const RESET_VECTOR: usize = 0xFFFC;
 
 const STACK: u16 = 0x0100; // 256 Byte offset from STACK
-const STACK_RESET: u8 = 0xfd; // Push = store first then decrement. So 8 bit off for first value.
+const STACK_RESET: u8 = 0xfd; // Push = store first then decrement. So 8 bit off for initial.
 
 #[derive(Debug)]
 #[allow(non_camel_case_types)]
@@ -22,6 +22,8 @@ pub enum AddressingMode {
     Indirect_Y,
     Relative,
     NoneAddressing,
+    Accumulator,
+    Implied,
 }
 
 /*
@@ -206,6 +208,12 @@ impl CPU {
                 self.program_counter = self.program_counter.wrapping_add(1);
                 Some(addr)
             },
+            AddressingMode::Accumulator => {
+                None
+            },
+            AddressingMode::Implied => {
+                None
+            },
             AddressingMode::NoneAddressing => {
                 None
             }
@@ -279,14 +287,22 @@ impl CPU {
                 0x24 | 0x2c => { /* BIT */
                     self.bit(addr.unwrap())
                 },
-                0xb0 => if self.status.contains(Status::CARRY) { self.jmp(addr.unwrap()) }, /* BCS */
-                0x90 => if !self.status.contains(Status::CARRY) { self.jmp(addr.unwrap()) }, /* BCC */
-                0xf0 => if self.status.contains(Status::ZERO) { self.jmp(addr.unwrap()) }, /* BEQ */
-                0xd0 => if !self.status.contains(Status::ZERO) { self.jmp(addr.unwrap()) }, /* BNE */
-                0x30 => if self.status.contains(Status::NEGATIVE) { self.jmp(addr.unwrap()) }, /* BMI */
-                0x10 => if !self.status.contains(Status::NEGATIVE) {self.jmp(addr.unwrap()) }, /* BPL */
-                0x70 => if self.status.contains(Status::OVERFLOW) { self.jmp(addr.unwrap()) }, /* BVS */
-                0x50 => if !self.status.contains(Status::OVERFLOW) { self.jmp(addr.unwrap()) }, /* BVC */
+                0x66 | 0x76 | 0x6e | 0x7e => { /* ROR */
+                    self.ror_mem(addr.unwrap())
+                },
+                0x26 | 0x36 | 0x2e | 0x3e => { /* ROL */
+                    self.rol_mem(addr.unwrap())
+                },
+                0x06 | 0x16 | 0x0e | 0x1e => { /* ASL */
+                    self.asl_mem(addr.unwrap())
+                },
+                0x46 | 0x56 | 0x4e | 0x5e => { /* LSR */
+                    self.lsr_mem(addr.unwrap())
+                },
+                0x6a => self.ror_acc(), /* ROR Accumulator */
+                0x2a => self.rol_acc(), /* ROL Accumulator */
+                0x0a => self.asl_acc(), /* ASL Accumulator */
+                0x4a => self.lsr_acc(), /* LSR Accumulator */
                 0x6c => self.jmp_ind(), /* JMP Indirect */
                 0x48 => self.pha(), /* PHA */
                 0x08 => self.php(), /* PHP */
@@ -311,7 +327,15 @@ impl CPU {
                 0xb8 => self.clv(), /* CLV */
                 0xea => (), /* NOP */
                 0x00 => return, /* BRK */
-                _ => todo!()
+                0xb0 => if self.status.contains(Status::CARRY) { self.jmp(addr.unwrap()) }, /* BCS */
+                0x90 => if !self.status.contains(Status::CARRY) { self.jmp(addr.unwrap()) }, /* BCC */
+                0xf0 => if self.status.contains(Status::ZERO) { self.jmp(addr.unwrap()) }, /* BEQ */
+                0xd0 => if !self.status.contains(Status::ZERO) { self.jmp(addr.unwrap()) }, /* BNE */
+                0x30 => if self.status.contains(Status::NEGATIVE) { self.jmp(addr.unwrap()) }, /* BMI */
+                0x10 => if !self.status.contains(Status::NEGATIVE) {self.jmp(addr.unwrap()) }, /* BPL */
+                0x70 => if self.status.contains(Status::OVERFLOW) { self.jmp(addr.unwrap()) }, /* BVS */
+                0x50 => if !self.status.contains(Status::OVERFLOW) { self.jmp(addr.unwrap()) }, /* BVC */
+                _ => panic!("Unimplemented opcode: {:02x}", code),
             }
         }
     }
@@ -321,6 +345,78 @@ impl CPU {
         self.status.set(Status::ZERO, (self.register_a & value) == 0);
         self.status.set(Status::NEGATIVE, value & 0x80 != 0);
         self.status.set(Status::OVERFLOW, value & 0x40 != 0);
+    }
+
+    fn rol_acc(&mut self) {
+        let val = self.rol(self.register_a);
+        self.register_a = val;
+    }
+
+    fn rol_mem(&mut self, addr: u16) {
+        let val = self.rol(self.mem_read(addr));
+        self.mem_write(addr, val);
+    }
+
+    fn rol(&mut self, val: u8) -> u8 {
+        let old_carry = self.status.contains(Status::CARRY) as u8;
+        self.status.set(Status::CARRY, val & 0x80 != 0);
+
+        let new_val = (val << 1) | old_carry;
+        self.update_zero_and_negative_flag(new_val);
+        new_val
+    }
+
+    fn ror_acc(&mut self) {
+        let val = self.ror(self.register_a);
+        self.register_a = val;
+    }
+
+    fn ror_mem(&mut self, addr: u16) {
+        let val = self.ror(self.mem_read(addr));
+        self.mem_write(addr, val);
+    }
+
+    fn ror(&mut self, val: u8) -> u8 {
+        let old_carry = self.status.contains(Status::CARRY) as u8;
+        self.status.set(Status::CARRY, val & 0x01 != 0);
+
+        let new_val = (val >> 1) | (old_carry << 7);
+        self.update_zero_and_negative_flag(new_val);
+        new_val
+    }
+
+    fn asl_acc(&mut self) {
+        let val = self.asl(self.register_a);
+        self.register_a = val;
+    }
+
+    fn asl_mem(&mut self, addr: u16) {
+        let val = self.asl(self.mem_read(addr));
+        self.mem_write(addr, val);
+    }
+
+    fn asl(&mut self, val: u8) -> u8 {
+        self.status.set(Status::CARRY, val & 0x80 != 0);
+        let new_val = val << 1;
+        self.update_zero_and_negative_flag(new_val);
+        new_val
+    }
+
+    fn lsr_acc(&mut self) {
+        let val = self.lsr(self.register_a);
+        self.register_a = val;
+    }
+
+    fn lsr_mem(&mut self, addr: u16) {
+        let val = self.lsr(self.mem_read(addr));
+        self.mem_write(addr, val);
+    }
+
+    fn lsr(&mut self, val: u8) -> u8 {
+        self.status.set(Status::CARRY, val & 0x01 != 0);
+        let new_val = val >> 1;
+        self.update_zero_and_negative_flag(new_val);
+        new_val
     }
 
     /*
