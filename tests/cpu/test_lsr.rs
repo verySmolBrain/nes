@@ -27,6 +27,7 @@ mod test {
         
         cpu.run();
         assert_eq!(cpu.register_a, 0b0000_0000);
+        assert!(cpu.status.contains(Status::ZERO))
     }
 
     #[test]
