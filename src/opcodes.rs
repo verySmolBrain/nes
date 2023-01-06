@@ -159,8 +159,11 @@ lazy_static! {
         // Indirect but due to 'bug' in 6502, it doesn't mesh well with the other addressing modes
         0x6c_u8 => OPCode { name: "JMP", bytes: 3, cycles: 5, mode: NoneAddressing }, 
 
-        // ASL 
         // BIT
+        0x24_u8 => OPCode { name: "BIT", bytes: 2, cycles: 3, mode: ZeroPage },
+        0x2c_u8 => OPCode { name: "BIT", bytes: 3, cycles: 4, mode: Absolute },
+
+        // ASL 
         // JSR
         // LSR
         // ROL

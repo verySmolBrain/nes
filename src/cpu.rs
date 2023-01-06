@@ -276,6 +276,9 @@ impl CPU {
                 0x4c => { /* JMP Absolute */
                     self.jmp(addr.unwrap())
                 }, 
+                0x24 | 0x2c => { /* BIT */
+                    self.bit(addr.unwrap())
+                },
                 0xb0 => if self.status.contains(Status::CARRY) { self.jmp(addr.unwrap()) }, /* BCS */
                 0x90 => if !self.status.contains(Status::CARRY) { self.jmp(addr.unwrap()) }, /* BCC */
                 0xf0 => if self.status.contains(Status::ZERO) { self.jmp(addr.unwrap()) }, /* BEQ */
@@ -311,6 +314,13 @@ impl CPU {
                 _ => todo!()
             }
         }
+    }
+
+    fn bit(&mut self, addr: u16) {
+        let value = self.mem_read(addr);
+        self.status.set(Status::ZERO, (self.register_a & value) == 0);
+        self.status.set(Status::NEGATIVE, value & 0x80 != 0);
+        self.status.set(Status::OVERFLOW, value & 0x40 != 0);
     }
 
     /*
