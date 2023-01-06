@@ -50,5 +50,7 @@ pub mod test_ror;
 pub mod test_jsr;
 pub mod test_rti;
 pub mod test_rts;
+pub mod test_adc;
+pub mod test_sbc;
 pub mod test_stack;
 pub mod test_flags;

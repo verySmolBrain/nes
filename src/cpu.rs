@@ -299,6 +299,12 @@ impl CPU {
                 0x46 | 0x56 | 0x4e | 0x5e => { /* LSR */
                     self.lsr_mem(addr.unwrap())
                 },
+                0x69 | 0x65 | 0x75 | 0x6d | 0x7d | 0x79 | 0x61 | 0x71 => { /* ADC */
+                    self.adc(addr.unwrap())
+                },
+                0xe9 | 0xe5 | 0xf5 | 0xed | 0xfd | 0xf9 | 0xe1 | 0xf1 => { /* SBC */
+                    self.sbc(addr.unwrap())
+                },
                 0x6a => self.ror_acc(), /* ROR Accumulator */
                 0x2a => self.rol_acc(), /* ROL Accumulator */
                 0x0a => self.asl_acc(), /* ASL Accumulator */
@@ -341,6 +347,42 @@ impl CPU {
                 _ => panic!("Unimplemented opcode: {:02x}", code),
             }
         }
+    }
+
+    fn addition(&mut self, val: u8) -> u8 {
+        let mut sum = self.register_a as u16 + val as u16;
+        
+        if self.status.contains(Status::CARRY) {
+            sum += 1;
+        }
+
+        if sum > 0xff {
+            self.status.insert(Status::CARRY);
+        } else {
+            self.status.remove(Status::CARRY);
+        }
+
+        let res = sum as u8; 
+        // http://www.righto.com/2012/12/the-6502-overflow-flag-explained.html
+        if (res ^ self.register_a) & (res ^ val) & 0x80 != 0 {
+            self.status.insert(Status::OVERFLOW);
+        } else { 
+            self.status.remove(Status::OVERFLOW);
+        }
+
+        res
+    }
+
+    fn adc(&mut self, addr: u16) {
+        let res = self.addition(self.mem_read(addr));
+        self.register_a = res;
+        self.update_zero_and_negative_flag(res);
+    }
+
+    fn sbc(&mut self, addr: u16) {
+        let res = self.addition(self.mem_read(addr).wrapping_neg() as u8);
+        self.register_a = res;
+        self.update_zero_and_negative_flag(res);
     }
 
     fn jsr(&mut self) {
