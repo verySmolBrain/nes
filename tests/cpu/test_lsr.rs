@@ -36,7 +36,7 @@ mod test {
         cpu.reset();
 
         cpu.register_a = 0b0001_1111;
-        cpu.status.insert(Status::CARRY);
+        cpu.status.remove(Status::CARRY);
         
         cpu.run();
         assert_eq!(cpu.register_a, 0b0000_1111);
