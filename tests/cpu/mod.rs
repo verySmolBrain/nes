@@ -47,4 +47,8 @@ pub mod test_lsr;
 pub mod test_asl;
 pub mod test_rol;
 pub mod test_ror;
+pub mod test_jsr;
+pub mod test_rti;
+pub mod test_rts;
+pub mod test_stack;
 pub mod test_flags;

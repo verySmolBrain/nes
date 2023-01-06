@@ -113,17 +113,17 @@ impl CPU {
         self.memory[addr as usize] = value;
     }
 
-    pub fn stack_read_u16(&mut self) -> u16 {
-        u16::from_le_bytes([
-            self.stack_pop_u8(),
-            self.stack_pop_u8(),
-        ])
-    }
-
     pub fn stack_push_u16(&mut self, value: u16) {
         value.to_le_bytes().iter().for_each(|v| {
             self.stack_push_u8(*v)
         })
+    }
+
+    pub fn stack_pop_u16(&mut self) -> u16 {
+        u16::from_be_bytes([ // Since we push in LE, we need to pop in BE
+            self.stack_pop_u8(),
+            self.stack_pop_u8(),
+        ])
     }
 
     pub fn stack_pop_u8(&mut self) -> u8 {
@@ -325,6 +325,9 @@ impl CPU {
                 0xd8 => self.cld(), /* CLD */
                 0x58 => self.cli(), /* CLI */
                 0xb8 => self.clv(), /* CLV */
+                0x20 => self.jsr(), /* JSR */
+                0x60 => self.rts(), /* RTS */
+                0x40 => self.rti(), /* RTI */
                 0xea => (), /* NOP */
                 0x00 => return, /* BRK */
                 0xb0 => if self.status.contains(Status::CARRY) { self.jmp(addr.unwrap()) }, /* BCS */
@@ -338,6 +341,20 @@ impl CPU {
                 _ => panic!("Unimplemented opcode: {:02x}", code),
             }
         }
+    }
+
+    fn jsr(&mut self) {
+        let addr = self.program_counter.wrapping_sub(1);
+        self.stack_push_u16(addr);
+    }
+
+    fn rts(&mut self) {
+        self.program_counter = self.stack_pop_u16().wrapping_add(1);
+    }
+
+    fn rti(&mut self) {
+        self.status = Status::from_bits_truncate(self.stack_pop_u8());
+        self.program_counter = self.stack_pop_u16();
     }
 
     fn bit(&mut self, addr: u16) {
