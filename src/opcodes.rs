@@ -190,7 +190,6 @@ pub static OPCODES: phf::Map<u8, OPCode> = phf_map! {
 
     0x20_u8 => OPCode { name: "JSR", bytes: 3, cycles: 6, mode: Absolute },
 
-    // ADC
     0x69_u8 => OPCode { name: "ADC", bytes: 2, cycles: 2, mode: Immediate },
     0x65_u8 => OPCode { name: "ADC", bytes: 2, cycles: 3, mode: ZeroPage },
     0x75_u8 => OPCode { name: "ADC", bytes: 2, cycles: 4, mode: ZeroPage_X },
@@ -199,7 +198,7 @@ pub static OPCODES: phf::Map<u8, OPCode> = phf_map! {
     0x79_u8 => OPCode { name: "ADC", bytes: 3, cycles: 4, mode: Absolute_Y },
     0x61_u8 => OPCode { name: "ADC", bytes: 2, cycles: 6, mode: Indirect_X },
     0x71_u8 => OPCode { name: "ADC", bytes: 2, cycles: 5, mode: Indirect_Y },
-    // SBC
+
     0xe9_u8 => OPCode { name: "SBC", bytes: 2, cycles: 2, mode: Immediate },
     0xe5_u8 => OPCode { name: "SBC", bytes: 2, cycles: 3, mode: ZeroPage },
     0xf5_u8 => OPCode { name: "SBC", bytes: 2, cycles: 4, mode: ZeroPage_X },

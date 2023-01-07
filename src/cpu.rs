@@ -233,7 +233,16 @@ impl CPU {
     }
 
     pub fn run(&mut self) {
+        self.run_with_callback(|_| {});
+    }
+
+    pub fn run_with_callback<F>(&mut self, mut callback: F)
+    where
+        F: FnMut(&mut CPU),
+    {
         loop {
+            callback(self);
+
             let code = self.next();
             let opcode = OPCODES.get(&code).expect("Invalid opcode");
             let addr = self.get_operand_address(&opcode.mode);
