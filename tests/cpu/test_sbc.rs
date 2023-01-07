@@ -2,7 +2,7 @@
 mod test {
     use nes::cpu::CPU;
     use crate::helpers::check_zero_and_negative;
-
+    // SUS
     #[test]
     fn test_e9_sbc_immediate_subtract() {
         let mut cpu = CPU::new();
@@ -13,8 +13,8 @@ mod test {
 
         cpu.run();
         
-        assert_eq!(cpu.register_a, 0x01);
-        check_zero_and_negative(cpu, 0x01)
+        assert_eq!(cpu.register_a, 0x00);
+        check_zero_and_negative(cpu, 0x00)
     }
 
     #[test]
@@ -27,8 +27,8 @@ mod test {
 
         cpu.run();
         
-        assert_eq!(cpu.register_a, 0x03);
-        check_zero_and_negative(cpu, 0x03)
+        assert_eq!(cpu.register_a, 0x02);
+        check_zero_and_negative(cpu, 0x02)
     }
 
     #[test]
@@ -41,8 +41,8 @@ mod test {
 
         cpu.run();
         
-        assert_eq!(cpu.register_a, 0b1110_0000);
-        check_zero_and_negative(cpu, 0b1110_0000);
+        assert_eq!(cpu.register_a, 0b1101_1111);
+        check_zero_and_negative(cpu, 0b1101_1111);
     }
 
     #[test]
@@ -55,8 +55,8 @@ mod test {
 
         cpu.run();
         
-        assert_eq!(cpu.register_a, 0);
-        check_zero_and_negative(cpu, 0);
+        assert_eq!(cpu.register_a, 0xff);
+        check_zero_and_negative(cpu, 0xff);
     }
 
     #[test]
@@ -69,7 +69,7 @@ mod test {
 
         cpu.run();
         
-        assert_eq!(cpu.register_a, 0xff);
-        check_zero_and_negative(cpu, 0xff)
+        assert_eq!(cpu.register_a, 0xfe);
+        check_zero_and_negative(cpu, 0xfe)
     }
 }

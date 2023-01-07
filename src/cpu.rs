@@ -241,8 +241,6 @@ impl CPU {
         F: FnMut(&mut CPU),
     {
         loop {
-            callback(self);
-
             let code = self.next();
             let opcode = OPCODES.get(&code).expect("Invalid opcode");
             let addr = self.get_operand_address(&opcode.mode);
@@ -314,6 +312,9 @@ impl CPU {
                 0xe9 | 0xe5 | 0xf5 | 0xed | 0xfd | 0xf9 | 0xe1 | 0xf1 => { /* SBC */
                     self.sbc(addr.unwrap())
                 },
+                0x20 => {
+                    self.jsr(addr.unwrap())
+                }, /* JSR */
                 0x6a => self.ror_acc(), /* ROR Accumulator */
                 0x2a => self.rol_acc(), /* ROL Accumulator */
                 0x0a => self.asl_acc(), /* ASL Accumulator */
@@ -340,7 +341,6 @@ impl CPU {
                 0xd8 => self.cld(), /* CLD */
                 0x58 => self.cli(), /* CLI */
                 0xb8 => self.clv(), /* CLV */
-                0x20 => self.jsr(), /* JSR */
                 0x60 => self.rts(), /* RTS */
                 0x40 => self.rti(), /* RTI */
                 0xea => (), /* NOP */
@@ -355,6 +355,8 @@ impl CPU {
                 0x50 => if !self.status.contains(Status::OVERFLOW) { self.jmp(addr.unwrap()) }, /* BVC */
                 _ => panic!("Unimplemented opcode: {:02x}", code),
             }
+
+            callback(self);
         }
     }
 
@@ -389,14 +391,14 @@ impl CPU {
     }
 
     fn sbc(&mut self, addr: u16) {
-        let res = self.addition(self.mem_read(addr).wrapping_neg() as u8);
+        let res = self.addition(self.mem_read(addr).wrapping_neg().wrapping_sub(1) as u8);
         self.register_a = res;
         self.update_zero_and_negative_flag(res);
     }
 
-    fn jsr(&mut self) {
-        let addr = self.program_counter.wrapping_sub(1);
-        self.stack_push_u16(addr);
+    fn jsr(&mut self, addr: u16) {
+        self.stack_push_u16(self.program_counter.wrapping_sub(1));
+        self.program_counter = addr;
     }
 
     fn rts(&mut self) {
