@@ -1,6 +1,7 @@
 #[cfg(test)]
 mod test {
     use nes::cpu::CPU;
+    use nes::memory::Mem;
    
     #[test]
     fn test_0x4c_jmp_absolute() {
@@ -20,8 +21,7 @@ mod test {
 
         // LSB: 0x80FF
         // MSB: 0x6c00
-        cpu.memory[0x90FF] = 0x76;
-        cpu.memory[0x9000] = 0x77; // LE
+        cpu.mem_write_u16(0x90FF, 0x7776); // addr: 0x7677
 
         cpu.run();
 

@@ -1,6 +1,7 @@
 #[cfg(test)]
 mod test {
     use nes::cpu::CPU;
+    use nes::memory::Mem;
     use crate::helpers::check_zero_and_negative;
 
     #[test]

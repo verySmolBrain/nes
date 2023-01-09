@@ -1,6 +1,7 @@
 #[cfg(test)]
 mod test {
     use nes::cpu::CPU;
+    use nes::memory::Mem;
 
     #[test]
     fn test_0x85_sta_zero_page() {

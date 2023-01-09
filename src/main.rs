@@ -1,4 +1,5 @@
 use nes::cpu::CPU;
+use nes::memory::Mem;
 use rand::Rng;
 use sdl2::{
     event::Event,

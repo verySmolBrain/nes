@@ -1,6 +1,7 @@
 #[cfg(test)]
 mod test {
     use nes::cpu::CPU;
+    use nes::memory::Mem;
     use nes::cpu::Status;
 
     #[test]
@@ -49,7 +50,7 @@ mod test {
         cpu.load(vec![0x26, 0xa1, 0x00]);
         cpu.reset();
 
-        cpu.memory[0xa1] = 0b1000_0000;
+        cpu.mem_write(0xa1, 0b1000_0000);
         assert!(!cpu.status.contains(Status::CARRY));
         
         cpu.run();

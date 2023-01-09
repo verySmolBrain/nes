@@ -1,6 +1,7 @@
 #[cfg(test)]
 mod test {
     use nes::cpu::CPU;
+    use nes::memory::Mem;
     use nes::cpu::Status;
    
     #[test]
@@ -12,7 +13,7 @@ mod test {
         cpu.status.remove(Status::ZERO);
 
         cpu.register_a = 0b0000_1111;
-        cpu.memory[0xa1] = 0b1111_0000;
+        cpu.mem_write(0xa1, 0b1111_0000);
 
         cpu.run();
         assert!(cpu.status.contains(Status::ZERO));
@@ -25,7 +26,7 @@ mod test {
         cpu.reset();
 
         cpu.register_a = 0b0000_1111;
-        cpu.memory[0xa1] = 0b1111_1111;
+        cpu.mem_write(0xa1, 0b1111_1111);
 
         cpu.run();
         assert!(!cpu.status.contains(Status::ZERO));
@@ -40,7 +41,7 @@ mod test {
         cpu.status.remove(Status::ZERO);
 
         cpu.register_a = 0b1100_0000;
-        cpu.memory[0xa1] = 0b1100_0000;
+        cpu.mem_write(0xa1, 0b1100_0000);
 
         cpu.run();
         assert!(!cpu.status.contains(Status::ZERO));
