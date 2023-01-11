@@ -1,12 +1,13 @@
-use crate::opcodes::OPCODES;
+use crate::{opcodes::OPCODES, bus::Bus, memory::Mem,};
 use bitflags::bitflags;
 
-const ADDRESS_SPACE: usize = 0xFFFF; // 64 KiB
-const ROM_START: usize = 0x8000;
-const RESET_VECTOR: usize = 0xFFFC;
+// const ADDRESS_SPACE: usize = 0xFFFF; // 64 KiB
+pub const ROM_START: usize = 0x0600;
+const RESET_VECTOR: usize = 0x1FFC;
 
 const STACK: u16 = 0x0100; // 256 Byte offset from STACK
 const STACK_RESET: u8 = 0xfd; // Push = store first then decrement. So 8 bit off for initial.
+
 
 #[derive(Debug)]
 #[allow(non_camel_case_types)]
@@ -66,11 +67,11 @@ pub struct CPU {
     pub stack_pointer: u8,
     pub status: Status,
     pub program_counter: u16,
-    pub memory: [u8; ADDRESS_SPACE]
+    pub bus: Bus
 }
 
 impl CPU {
-    pub fn new() -> Self {
+    pub fn new(bus: Bus) -> Self {
         CPU {
             register_a: 0, // accumulator
             register_x: 0,
@@ -78,7 +79,7 @@ impl CPU {
             stack_pointer: STACK_RESET,
             status: Default::default(), 
             program_counter: 0,
-            memory: [0; ADDRESS_SPACE]
+            bus
         }
     }
 
@@ -90,27 +91,6 @@ impl CPU {
         self.status = Default::default();
 
         self.program_counter = self.mem_read_u16(RESET_VECTOR as u16);
-    }
-
-    pub fn mem_read_u16(&self, addr: u16) -> u16 {
-        u16::from_le_bytes([ // LE
-            self.mem_read(addr),
-            self.mem_read(addr + 1)
-        ])
-    }
-
-    pub fn mem_write_u16(&mut self, addr: u16, value: u16) {
-        value.to_le_bytes().iter().enumerate().for_each(|(i, v)| {
-            self.mem_write(addr + i as u16, *v) // LE
-        })
-    }
-
-    pub fn mem_read(&self, addr: u16) -> u8 {
-        self.memory[addr as usize]
-    }
-
-    pub fn mem_write(&mut self, addr: u16, value: u8) {
-        self.memory[addr as usize] = value;
     }
 
     pub fn stack_push_u16(&mut self, value: u16) {
@@ -227,8 +207,9 @@ impl CPU {
     }
 
     pub fn load(&mut self, program: Vec<u8>) {
-        self.memory[ROM_START .. (ROM_START + program.len())]
-            .copy_from_slice(&program[..]);
+        for i in 0..(program.len() as u16) {
+            self.mem_write(((ROM_START as u16) + i) as u16, program[i as usize]);
+        }
         self.mem_write_u16(RESET_VECTOR as u16, ROM_START as u16)
     }
 

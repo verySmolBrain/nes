@@ -1,11 +1,13 @@
 #[cfg(test)]
 mod test {
     use nes::cpu::CPU;
+    use nes::bus::Bus;
     use nes::cpu::Status;
 
     #[test]
     fn test_b8_none() {
-        let mut cpu = CPU::new();
+        let bus = Bus::new();
+        let mut cpu = CPU::new(bus);
         cpu.load(vec![0xb8, 0x00]);
         cpu.reset();
 

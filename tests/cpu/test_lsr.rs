@@ -1,11 +1,14 @@
 #[cfg(test)]
 mod test {
     use nes::cpu::CPU;
+    use nes::bus::Bus;
+    use nes::memory::Mem;
     use nes::cpu::Status;
 
     #[test]
     fn test_0x4a_lsr_accumulator_carry() {
-        let mut cpu = CPU::new();
+        let bus = Bus::new();
+        let mut cpu = CPU::new(bus);
         cpu.load(vec![0x4a, 0x00]);
         cpu.reset();
 
@@ -18,7 +21,8 @@ mod test {
 
     #[test]
     fn test_0x4a_lsr_accumulator_no_set_from_carry() {
-        let mut cpu = CPU::new();
+        let bus = Bus::new();
+        let mut cpu = CPU::new(bus);
         cpu.load(vec![0x4a, 0x00]);
         cpu.reset();
 
@@ -32,7 +36,8 @@ mod test {
 
     #[test]
     fn test_0x4a_lsr_accumulator_set_and_carry() {
-        let mut cpu = CPU::new();
+        let bus = Bus::new();
+        let mut cpu = CPU::new(bus);
         cpu.load(vec![0x4a, 0x00]);
         cpu.reset();
 
@@ -46,11 +51,12 @@ mod test {
 
     #[test]
     fn test_0x46_lsr_zero_page_carry() {
-        let mut cpu = CPU::new();
+        let bus = Bus::new();
+        let mut cpu = CPU::new(bus);
         cpu.load(vec![0x46, 0xa1, 0x00]);
         cpu.reset();
 
-        cpu.memory[0xa1] = 0b0000_0001;
+        cpu.mem_write(0xa1, 0b0000_0001);
         assert!(!cpu.status.contains(Status::CARRY));
         
         cpu.run();

@@ -1,11 +1,13 @@
 #[cfg(test)]
 mod test {
     use nes::cpu::CPU;
+    use nes::bus::Bus;
     use crate::helpers::check_zero_and_negative;
 
     #[test]
     fn test_8a_none_move() {
-        let mut cpu = CPU::new();
+        let bus = Bus::new();
+        let mut cpu = CPU::new(bus);
         cpu.load(vec![0x8a, 0x00]);
         cpu.reset();
 

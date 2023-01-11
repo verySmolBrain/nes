@@ -1,11 +1,14 @@
 #[cfg(test)]
 mod test {
     use nes::cpu::CPU;
+    use nes::bus::Bus;
+    use nes::memory::Mem;
     use crate::helpers::check_zero_and_negative;
 
     #[test]
     fn test_e6_zero_page_zero() {
-        let mut cpu = CPU::new();
+        let bus = Bus::new();
+        let mut cpu = CPU::new(bus);
         cpu.load(vec![0xe6, 0xa1, 0x00]);
         cpu.reset();
 
@@ -18,7 +21,8 @@ mod test {
 
     #[test]
     fn test_e6_zero_page_one() {
-        let mut cpu = CPU::new();
+        let bus = Bus::new();
+        let mut cpu = CPU::new(bus);
         cpu.load(vec![0xe6, 0xa1, 0x00]);
         cpu.reset();
 

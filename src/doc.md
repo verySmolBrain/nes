@@ -63,6 +63,28 @@ pointers or routines easier but is less performant)
 
 [Addressing Modes](https://wiki.cdot.senecacollege.ca/wiki/6502_Addressing_Modes)
 
+
+### Bus
+
+* 8-bit Data Bus -> Byte being read or written
+* 1-bit Control But -> Read or write access
+* 16-bit Address Bus -> Address of required location
+
+Mirroring
+
+* [0x000 .. 0x0800 ]
+* [0x800 .. 0x1000 ]
+* [0x1000 .. 0x1800 ]
+* [0x1800 .. 0x2000 ]
+
+* NES Motherboard has only 11 addressing tracks but the 
+addressing space reserved for RAM [0x0000 .. 0x2000 ] has 13 bits.
+So we effectively need to Zero out the 2 MSB if we receive a 
+request in the RAM address space.
+
+* This also applies to address space [ 0x2008 .. 0x4000 ] which mirrors 
+memory mappings for PPU registers [ 0x2000 .. 0x2008 ].
+
 ## Important Notes
 - Address is stored in 2 bytes
 - [Little endian](https://stackoverflow.com/questions/4752715/why-are-both-little-and-big-endian-in-use) is used for addresses

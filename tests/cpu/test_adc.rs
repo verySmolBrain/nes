@@ -1,12 +1,14 @@
 #[cfg(test)]
 mod test {
     use nes::cpu::CPU;
+    use nes::bus::Bus;
     use nes::cpu::Status;
     use crate::helpers::check_zero_and_negative;
 
     #[test]
     fn test_69_adc_immediate_addition() {
-        let mut cpu = CPU::new();
+        let bus = Bus::new();
+        let mut cpu = CPU::new(bus);
         cpu.load(vec![0x69, 0x01, 0x00]);
         cpu.reset();
 
@@ -20,7 +22,8 @@ mod test {
 
     #[test]
     fn test_69_adc_immediate_big_addition() {
-        let mut cpu = CPU::new();
+        let bus = Bus::new();
+        let mut cpu = CPU::new(bus);
         cpu.load(vec![0x69, 120, 0x00]);
         cpu.reset();
 
@@ -35,7 +38,8 @@ mod test {
 
     #[test]
     fn test_69_adc_immediate_overflow() {
-        let mut cpu = CPU::new();
+        let bus = Bus::new();
+        let mut cpu = CPU::new(bus);
         cpu.load(vec![0x69, 80, 0x00]);
         cpu.reset();
 
@@ -50,7 +54,8 @@ mod test {
 
     #[test]
     fn test_69_adc_immediate_max_addition() {
-        let mut cpu = CPU::new();
+        let bus = Bus::new();
+        let mut cpu = CPU::new(bus);
         cpu.load(vec![0x69, 0xff, 0x00]);
         cpu.reset();
 

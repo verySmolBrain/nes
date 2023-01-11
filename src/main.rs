@@ -1,4 +1,6 @@
 use nes::cpu::CPU;
+use nes::bus::Bus;
+use nes::memory::Mem;
 use rand::Rng;
 use sdl2::{
     event::Event,
@@ -101,7 +103,8 @@ fn main() {
         update
     }
 
-    let mut cpu = CPU::new();
+    let bus = Bus::new();
+    let mut cpu = CPU::new(bus);
     cpu.load(game_code);
     cpu.reset();
 
