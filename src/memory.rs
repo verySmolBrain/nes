@@ -39,7 +39,10 @@ impl Mem for Bus {
         match addr {
             RAM ..= RAM_MIRRORS_END => {
                 self.cpu_vram[(addr & 0b111_11111111) as usize] = data;
-            }
+            },
+            0x8000..=0xFFFF => {
+                panic!("Attempt to write to Cartridge ROM space")
+            },
             _ => {}
         }
     }

@@ -1,11 +1,13 @@
 #[cfg(test)]
 mod test {
     use nes::cpu::CPU;
+    use nes::bus::Bus;
     use nes::cpu::Status;
    
     #[test]
     fn test_0x28_php_immediate() {
-        let mut cpu = CPU::new();
+        let bus = Bus::new();
+        let mut cpu = CPU::new(bus);
         cpu.load(vec![0x28, 0x00]);
         cpu.reset();
 

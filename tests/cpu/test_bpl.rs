@@ -1,11 +1,14 @@
 #[cfg(test)]
 mod test {
     use nes::cpu::CPU;
+    use nes::bus::Bus;
     use nes::cpu::Status;
+    use nes::cpu::ROM_START;
    
     #[test]
     fn test_0x10_bpl_relative_no_branch() {
-        let mut cpu = CPU::new();
+        let bus = Bus::new();
+        let mut cpu = CPU::new(bus);
         cpu.load(vec![0x10, 0x05, 0x00]);
         cpu.reset();
 
@@ -13,12 +16,13 @@ mod test {
         assert!(cpu.status.contains(Status::NEGATIVE));
 
         cpu.run();
-        assert_eq!(0x8003, cpu.program_counter);
+        assert_eq!((ROM_START as u16) + 3, cpu.program_counter);
     }
 
     #[test]
     fn test_0x10_bpl_relative_branch() {
-        let mut cpu = CPU::new();
+        let bus = Bus::new();
+        let mut cpu = CPU::new(bus);
         cpu.load(vec![0x10, 0x05, 0x00]);
         cpu.reset();
 
@@ -26,6 +30,6 @@ mod test {
         assert!(!cpu.status.contains(Status::NEGATIVE));
 
         cpu.run(); // 0x8001 + 0x05 (Relative) + 0x1 (Skip Label) + 0x1 (Next instruction)
-        assert_eq!(0x8008, cpu.program_counter);
+        assert_eq!((ROM_START as u16) + 8, cpu.program_counter);
     }
 }

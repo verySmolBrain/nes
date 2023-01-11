@@ -2,8 +2,8 @@ use crate::{opcodes::OPCODES, bus::Bus, memory::Mem,};
 use bitflags::bitflags;
 
 // const ADDRESS_SPACE: usize = 0xFFFF; // 64 KiB
-const ROM_START: usize = 0x8000;
-const RESET_VECTOR: usize = 0xFFFC;
+pub const ROM_START: usize = 0x0600;
+const RESET_VECTOR: usize = 0x1FFC;
 
 const STACK: u16 = 0x0100; // 256 Byte offset from STACK
 const STACK_RESET: u8 = 0xfd; // Push = store first then decrement. So 8 bit off for initial.
@@ -71,7 +71,7 @@ pub struct CPU {
 }
 
 impl CPU {
-    pub fn new() -> Self {
+    pub fn new(bus: Bus) -> Self {
         CPU {
             register_a: 0, // accumulator
             register_x: 0,
@@ -79,7 +79,7 @@ impl CPU {
             stack_pointer: STACK_RESET,
             status: Default::default(), 
             program_counter: 0,
-            bus: Bus::new()
+            bus
         }
     }
 

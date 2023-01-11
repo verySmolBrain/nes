@@ -1,11 +1,13 @@
 #[cfg(test)]
 mod test {
     use nes::cpu::CPU;
+    use nes::bus::Bus;
     use nes::cpu::Status;
 
     #[test]
     fn test_c9_immediate_a_greater() {
-        let mut cpu = CPU::new();
+        let bus = Bus::new();
+        let mut cpu = CPU::new(bus);
         cpu.load(vec![0xc9, 0x05, 0x00]);
         cpu.reset();
 
@@ -19,7 +21,8 @@ mod test {
 
     #[test]
     fn test_c9_immediate_a_less() {
-        let mut cpu = CPU::new();
+        let bus = Bus::new();
+        let mut cpu = CPU::new(bus);
         cpu.load(vec![0xc9, 0x06, 0x00]);
         cpu.reset();
 
@@ -33,7 +36,8 @@ mod test {
 
     #[test]
     fn test_c9_immediate_zero_zero() {
-        let mut cpu = CPU::new();
+        let bus = Bus::new();
+        let mut cpu = CPU::new(bus);
         cpu.load(vec![0xc9, 0x00, 0x00]);
         cpu.reset();
 
@@ -47,7 +51,8 @@ mod test {
 
     #[test]
     fn test_c9_immediate_test_big() {
-        let mut cpu = CPU::new();
+        let bus = Bus::new();
+        let mut cpu = CPU::new(bus);
         cpu.load(vec![0xc9, 0xff, 0x00]);
         cpu.reset();
 

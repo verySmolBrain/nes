@@ -1,10 +1,12 @@
 #[cfg(test)]
 mod test {
+    use nes::bus::Bus;
     use nes::cpu::CPU;
 
     #[test]
     fn test_0x60_rts_implied_pop() {
-        let mut cpu = CPU::new();
+        let bus = Bus::new();
+        let mut cpu = CPU::new(bus);
         cpu.load(vec![0x60, 0x00]);
         cpu.reset();
 
