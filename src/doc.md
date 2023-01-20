@@ -115,6 +115,8 @@ NES Header
 Flags 8 - 15 are rarely used.
 ```
 
+##
+
 ## Important Notes
 - Address is stored in 2 bytes
 - [Little endian](https://stackoverflow.com/questions/4752715/why-are-both-little-and-big-endian-in-use) is used for addresses
