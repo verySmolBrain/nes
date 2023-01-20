@@ -41,7 +41,7 @@ impl Mem for Bus {
                 self.cpu_vram[(addr & 0b111_11111111) as usize] = data;
             },
             0x8000..=0xFFFF => {
-                panic!("Attempt to write to Cartridge ROM space")
+                panic!("Attempted to write to ROM")
             },
             _ => {}
         }

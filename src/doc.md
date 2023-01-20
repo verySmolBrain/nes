@@ -29,7 +29,6 @@ Processor Status Flags
 - I - Interrupt Disable Flag - Disable CPU interrupts
 - Z - Zero Flag - Set if last operation result was 0 
 - C - Carry Flag - Carryover for bigger than 8-bit numbers
-- 1 - Unused flag that is always set to 1
 
 ```
 7  bit  0
@@ -84,6 +83,37 @@ request in the RAM address space.
 
 * This also applies to address space [ 0x2008 .. 0x4000 ] which mirrors 
 memory mappings for PPU registers [ 0x2000 .. 0x2008 ].
+
+## ROM Catride Structure
+
+* The physical cartridges had 2 banks of ROM memory.
+PRG ROM for code & CHR ROM for graphics. PRG ROM gets 
+connected to CPU and CHR ROM gets connected to PPU
+so neither can access each other. 
+
+* We deal with ROM dumps which are slightly different. The most popular is iNES.
+
+```
+NES Header 16 Bytes
+Trainer (Optional) 512 Bytes
+PRG ROM 16384 * x Bytes (x depends on header)
+CHR ROM 8192 * y Bytes (y depends on header)
+```
+
+```
+NES Header
+0-3 - Constant $4E $45 $53 $1A (ASCII "NES" followed by MS-DOS end-of-file)
+4 - Size of PRG ROM in 16 KB units
+5 - Size of CHR ROM in 8 KB units (Value 0 means the board uses CHR RAM)
+6 - Flags 6 (mapper, mirroring, battery, trainer)
+7 - Flags 7 (mapper, VS/Playchoice, NES 2.0)
+8 - Flags 8 (PRG-RAM size)
+9 - Flags 9 (TV system, PRG-RAM presence, bus conflicts)
+10 - Flags 10 (TV system, PRG-RAM presence, bus conflicts)
+11-15 - Unused padding (should be filled with zero, but some rippers put their name across bytes 7-15)
+
+Flags 8 - 15 are rarely used.
+```
 
 ## Important Notes
 - Address is stored in 2 bytes
