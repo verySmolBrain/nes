@@ -94,25 +94,40 @@ so neither can access each other.
 * We deal with ROM dumps which are slightly different. The most popular is iNES.
 
 ```
-NES Header 16 Bytes
-Trainer (Optional) 512 Bytes
-PRG ROM 16384 * x Bytes (x depends on header)
-CHR ROM 8192 * y Bytes (y depends on header)
+    Map for NES ROM header
+    + - - - - - - - - - - - Constant ($4E $45 $53 $1A) used to identify NES file
+    | | | | + - - - - - - - Number of 16 KB PRG-ROM banks
+    | | | | | + - - - - - - Number of 8 KB CHR-ROM banks
+    | | | | | | + - - - - - Flags 6
+    | | | | | | | + - - - - Flags 7
+    | | | | | | | | + - - - Size of 8 KB PRG-RAM banks
+    | | | | | | | | | + - - Flags 9 (unused)
+    | | | | | | | | | |
+    N N N N P C B B R 0 0 0 0 0 0 0
 ```
 
 ```
-NES Header
-0-3 - Constant $4E $45 $53 $1A (ASCII "NES" followed by MS-DOS end-of-file)
-4 - Size of PRG ROM in 16 KB units
-5 - Size of CHR ROM in 8 KB units (Value 0 means the board uses CHR RAM)
-6 - Flags 6 (mapper, mirroring, battery, trainer)
-7 - Flags 7 (mapper, VS/Playchoice, NES 2.0)
-8 - Flags 8 (PRG-RAM size)
-9 - Flags 9 (TV system, PRG-RAM presence, bus conflicts)
-10 - Flags 10 (TV system, PRG-RAM presence, bus conflicts)
-11-15 - Unused padding (should be filled with zero, but some rippers put their name across bytes 7-15)
+    Flags 6 
 
-Flags 8 - 15 are rarely used.
+    76543210
+    ||||||||
+    |||||||+- Mirroring: 0: horizontal (vertical arrangement) (CIRAM A10 = PPU A11)
+    |||||||              1: vertical (horizontal arrangement) (CIRAM A10 = PPU A10)
+    ||||||+-- 1: Cartridge contains battery-backed PRG RAM ($6000-7FFF) or other persistent memory
+    |||||+--- 1: 512-byte trainer at $7000-$71FF (stored before PRG data)
+    ||||+---- 1: Ignore mirroring control or above mirroring bit; instead provide four-screen VRAM
+    ++++----- Lower nybble of mapper number
+```
+
+```
+    Flags 7
+    
+    76543210
+    ||||||||
+    |||||||+- VS Unisystem
+    ||||||+-- PlayChoice-10 (8 KB of Hint Screen data stored after CHR data)
+    ||||++--- If equal to 2, flags 8-15 are in NES 2.0 format
+    ++++----- Upper nybble of mapper number
 ```
 
 ##
