@@ -1,4 +1,5 @@
-
+use std::fs::File;
+use std::io::Read;
 
 #[derive(Debug, PartialEq)]
 pub enum Mirroring {
@@ -61,5 +62,12 @@ impl Rom {
             mapper,
             screen_mirroring,
         })
+    }
+
+    pub fn load(rom_path: &str) -> Result<Rom, String> {
+        let mut file = File::open(rom_path).unwrap();
+        let mut cartridge = Vec::new();
+        file.read_to_end(&mut cartridge).unwrap();
+        Rom::new(cartridge)
     }
 }

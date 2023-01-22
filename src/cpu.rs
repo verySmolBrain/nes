@@ -1,4 +1,4 @@
-use crate::{opcodes::OPCODES, bus::Bus, memory::Mem,};
+use crate::{opcodes::OPCODES, bus::Bus, memory::Mem, rom::Rom };
 use bitflags::bitflags;
 
 /*  _______________ $10000  _______________
@@ -30,12 +30,11 @@ use bitflags::bitflags;
    |_______________| $0000 |_______________|
 */
 
-pub const ROM_START: usize = 0x0600;
-const RESET_VECTOR: usize = 0x1FFC;
+pub const ROM_START: usize = 0x8600;
+const RESET_VECTOR: usize = 0xFFFC;
 
 const STACK: u16 = 0x0100; 
-// Push = store first then decrement. So 8 bit off for initial.
-const STACK_RESET: u8 = 0xfd; 
+const STACK_RESET: u8 = 0xfd; // Push = store first then decrement. So 8 bit off for initial.
 
 
 #[derive(Debug)]
@@ -65,7 +64,7 @@ NVss DIZC
 |||| ||+-- Zero
 |||| |+--- Interrupt Disable
 |||| +---- Decimal
-||++------ No CPU effect, see: the B flag
+||++------ No Cpu effect, see: the B flag
 |+-------- Overflow
 +--------- Negative
  */
@@ -89,7 +88,7 @@ impl Default for Status {
     }
 }
 
-pub struct CPU {
+pub struct Cpu {
     pub register_a: u8, 
     pub register_x: u8,
     pub register_y: u8,
@@ -99,9 +98,11 @@ pub struct CPU {
     pub bus: Bus
 }
 
-impl CPU {
-    pub fn new(bus: Bus) -> Self {
-        CPU {
+impl Cpu {
+    pub fn new(rom: Rom) -> Self {
+        let bus = Bus::new(rom);
+
+        Cpu {
             register_a: 0, // accumulator
             register_x: 0,
             register_y: 0,
@@ -242,18 +243,30 @@ impl CPU {
         self.mem_write_u16(RESET_VECTOR as u16, ROM_START as u16)
     }
 
+    pub fn load_cartridge(&mut self, program: Vec<u8>) -> Result<(), String> {
+        let cartridge = Rom::new(program)?;
+        let new_bus = Bus::new(cartridge);
+
+        self.bus = new_bus;
+        self.reset();
+
+        Ok(())
+    }
+
     pub fn run(&mut self) {
         self.run_with_callback(|_| {});
     }
 
     pub fn run_with_callback<F>(&mut self, mut callback: F)
     where
-        F: FnMut(&mut CPU),
+        F: FnMut(&mut Cpu),
     {
         loop {
             let code = self.next();
             let opcode = OPCODES.get(&code).expect("Invalid opcode");
             let addr = self.get_operand_address(&opcode.mode);
+
+            println!("PC: {:x} Code: {:x} Addr: {:x?} Mode: {:?}", self.program_counter, code, addr, opcode.mode);
 
             match code {
                 0xA9 | 0xa5 | 0xb5 | 0xad | 0xbd |0xb9 | 0xa1 | 0xb1 => { /* LDA */

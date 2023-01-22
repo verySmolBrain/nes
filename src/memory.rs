@@ -1,4 +1,4 @@
-use crate::cpu::CPU;
+use crate::cpu::Cpu;
 use crate::bus::Bus;
 
 const RAM: u16 = 0x0000;
@@ -54,7 +54,7 @@ impl Mem for Bus {
     }
 }
 
-impl Mem for CPU {
+impl Mem for Cpu {
     fn mem_read(&self, addr: u16) -> u8 {
         self.bus.mem_read(addr)
     }
