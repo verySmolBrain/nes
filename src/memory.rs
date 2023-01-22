@@ -7,6 +7,9 @@ const RAM_MIRRORS_END: u16 = 0x1FFF;
 // const PPU_REGISTERS: u16 = 0x2000;
 // const PPU_REGISTERS_MIRRORS_END: u16 = 0x3FFF;
 
+const ROM: u16 = 0x8000;
+const ROM_MIRRORS_END: u16 = 0xFFFF;
+
 pub trait Mem {
     fn mem_read(&self, addr: u16) -> u8;
     fn mem_write(&mut self, addr: u16, value: u8);
@@ -30,7 +33,10 @@ impl Mem for Bus {
         match addr {
             RAM ..= RAM_MIRRORS_END => {
                 self.cpu_vram[(addr & 0b111_11111111) as usize]
-            }
+            },
+            ROM ..= ROM_MIRRORS_END => {
+                self.read_rom(addr)
+            },
             _ => 0
         }
     }
