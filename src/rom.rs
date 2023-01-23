@@ -16,8 +16,8 @@ pub struct Rom {
 }
 
 const NES_HEADER: [u8; 4] = [0x4E, 0x45, 0x53, 0x1A];
-const PRG_ROM_PAGE_SIZE: usize = 0x4000;
-const CHR_ROM_PAGE_SIZE: usize = 0x2000;
+pub const PRG_ROM_PAGE_SIZE: usize = 0x4000;
+pub const CHR_ROM_PAGE_SIZE: usize = 0x2000;
 
 impl Rom {
     pub fn new(cartridge: Vec<u8>) -> Result<Rom, String> {

@@ -30,7 +30,7 @@ use bitflags::bitflags;
    |_______________| $0000 |_______________|
 */
 
-pub const ROM_START: usize = 0x8600;
+pub const ROM_START: usize = 0x8000;
 const RESET_VECTOR: usize = 0xFFFC;
 
 const STACK: u16 = 0x0100; 
@@ -99,9 +99,7 @@ pub struct Cpu {
 }
 
 impl Cpu {
-    pub fn new(rom: Rom) -> Self {
-        let bus = Bus::new(rom);
-
+    pub fn new(bus: Bus) -> Self {
         Cpu {
             register_a: 0, // accumulator
             register_x: 0,
@@ -214,7 +212,6 @@ impl Cpu {
                 let addr = self.program_counter
                     .wrapping_add(relative as u16)
                     .wrapping_add(1);
-                println!("Relative: {:x} -> {:x}", self.program_counter, addr);
                 self.program_counter = self.program_counter.wrapping_add(1);
                 Some(addr)
             },
@@ -262,11 +259,11 @@ impl Cpu {
         F: FnMut(&mut Cpu),
     {
         loop {
+            callback(self);
+
             let code = self.next();
             let opcode = OPCODES.get(&code).expect("Invalid opcode");
             let addr = self.get_operand_address(&opcode.mode);
-
-            println!("PC: {:x} Code: {:x} Addr: {:x?} Mode: {:?}", self.program_counter, code, addr, opcode.mode);
 
             match code {
                 0xA9 | 0xa5 | 0xb5 | 0xad | 0xbd |0xb9 | 0xa1 | 0xb1 => { /* LDA */
@@ -378,8 +375,6 @@ impl Cpu {
                 0x50 => if !self.status.contains(Status::OVERFLOW) { self.jmp(addr.unwrap()) }, /* BVC */
                 _ => panic!("Unimplemented opcode: {:02x}", code),
             }
-
-            callback(self);
         }
     }
 
