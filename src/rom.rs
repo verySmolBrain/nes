@@ -8,6 +8,7 @@ pub enum Mirroring {
     FOURSCREEN,
 }
 
+#[derive(Debug, PartialEq)]
 pub struct Rom {
     pub prg_rom: Vec<u8>,
     pub chr_rom: Vec<u8>,

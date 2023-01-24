@@ -1,8 +1,10 @@
 use nes::cpu::Cpu;
+use nes::rom::{ Rom, PRG_ROM_PAGE_SIZE, CHR_ROM_PAGE_SIZE, Mirroring };
 use nes::memory::Mem;
 use nes::cpu::Status;
 use nes::opcodes::OPCODES;
 use nes::cpu::AddressingMode;
+use expect_test::{ expect, Expect };
 
 pub fn check_zero_and_negative(cpu: Cpu, value: u8) {
     if value == 0 {
@@ -14,6 +16,15 @@ pub fn check_zero_and_negative(cpu: Cpu, value: u8) {
         assert!(cpu.status.contains(Status::NEGATIVE));
     } else {
         assert!(!cpu.status.contains(Status::NEGATIVE));
+    }
+}
+
+pub fn test_rom() -> Rom {
+    Rom {
+        prg_rom: vec![1; 2 * PRG_ROM_PAGE_SIZE],
+        chr_rom: vec![2; 1 * CHR_ROM_PAGE_SIZE],
+        mapper: 0,
+        screen_mirroring: Mirroring::VERTICAL,
     }
 }
 
@@ -114,7 +125,7 @@ pub fn trace(cpu: &mut Cpu) -> String {
 
             assembly_translation = Some(format!("{} (${:02X},X) @ {:02X} = {:04X} = {:02X}", opcode.name, lsb.unwrap(), address_after_offset, address_at_offset, value_at_address))
         },
-        AddressingMode::NoneAddressing => { // Solely for JMP Indirect
+        AddressingMode::JMPIndirect => { // Solely for JMP Indirect
             lsb = Some(cpu.mem_read(pc.wrapping_add(1)));
             msb = Some(cpu.mem_read(pc.wrapping_add(2)));
 
@@ -133,6 +144,9 @@ pub fn trace(cpu: &mut Cpu) -> String {
 
             assembly_translation = Some(format!("{} (${:02X}{:02X}) = {:04X}", opcode.name, msb.unwrap(), lsb.unwrap(), value_at_address))
         },
+        AddressingMode::NoneAddressing => {
+            
+        }
     }
 
     let hex = vec![Some(code), lsb, msb];

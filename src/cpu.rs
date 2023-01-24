@@ -53,6 +53,7 @@ pub enum AddressingMode {
     NoneAddressing,
     Accumulator,
     Implied,
+    JMPIndirect,
 }
 
 /*
@@ -219,6 +220,9 @@ impl Cpu {
                 None
             },
             AddressingMode::Implied => {
+                None
+            },
+            AddressingMode::JMPIndirect => {
                 None
             },
             AddressingMode::NoneAddressing => {

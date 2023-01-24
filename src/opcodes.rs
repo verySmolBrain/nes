@@ -1,7 +1,7 @@
 use crate::cpu::AddressingMode:: { 
     Absolute, Absolute_X, Absolute_Y, Immediate, 
-    Indirect_X, Indirect_Y, NoneAddressing, 
-    ZeroPage, ZeroPage_X, ZeroPage_Y, Relative, Accumulator, Implied };
+    Indirect_X, Indirect_Y,
+    ZeroPage, ZeroPage_X, ZeroPage_Y, Relative, Accumulator, Implied, JMPIndirect };
 use crate::cpu::AddressingMode;
 use phf::phf_map;
 
@@ -155,7 +155,7 @@ pub static OPCODES: phf::Map<u8, OPCode> = phf_map! {
 
     0x4c_u8 => OPCode { name: "JMP", bytes: 3, cycles: 3, mode: Absolute },
     // Indirect but due to 'bug' in 6502, it doesn't mesh well with the other addressing modes
-    0x6c_u8 => OPCode { name: "JMP", bytes: 3, cycles: 5, mode: NoneAddressing }, 
+    0x6c_u8 => OPCode { name: "JMP", bytes: 3, cycles: 5, mode: JMPIndirect }, 
 
     0x24_u8 => OPCode { name: "BIT", bytes: 2, cycles: 3, mode: ZeroPage },
     0x2c_u8 => OPCode { name: "BIT", bytes: 3, cycles: 4, mode: Absolute },
@@ -209,3 +209,4 @@ pub static OPCODES: phf::Map<u8, OPCode> = phf_map! {
     0xf1_u8 => OPCode { name: "SBC", bytes: 2, cycles: 5, mode: Indirect_Y },
 };
 
+// Organise this
