@@ -1,7 +1,8 @@
 use nes::cpu::Cpu;
 use nes::rom::Rom;
 use nes::bus::Bus;
-use nes::player::Player;
+// use nes::player::Player;
+use nes::helpers::trace::trace;
 use std::env;
 
 fn main() {
@@ -12,6 +13,10 @@ fn main() {
     let mut cpu = Cpu::new(bus);
     cpu.reset();
 
-    let mut player = Player::new();
-    player.run(cpu);
+    // let mut player = Player::new();
+    // player.run(cpu);
+    cpu.program_counter = 0xc000;
+    cpu.run_with_callback(|cpu|
+        println!("{}", trace(cpu))
+    )
 }

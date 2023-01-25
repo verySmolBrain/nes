@@ -3,7 +3,8 @@ mod test {
     use nes::cpu::Cpu;
     use nes::bus::Bus;
     use nes::memory::Mem;
-    use crate::helpers::{ trace, TestRom };
+    use crate::helpers::{ TestRom };
+    use nes::helpers::trace::trace;
     use expect_test::expect;
 
     #[test]
