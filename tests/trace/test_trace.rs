@@ -3,12 +3,12 @@ mod test {
     use nes::cpu::Cpu;
     use nes::bus::Bus;
     use nes::memory::Mem;
-    use crate::helpers::{ trace, test_rom };
+    use crate::helpers::{ trace, TestRom };
     use expect_test::expect;
 
     #[test]
     fn test_format_trace() {
-        let mut bus = Bus::new(test_rom());
+        let mut bus = Bus::new(TestRom::default_rom());
         bus.mem_write(0x00, 0xa2);
         bus.mem_write(0x01, 0x01);
         bus.mem_write(0x02, 0xca);
@@ -36,7 +36,7 @@ mod test {
 
     #[test]
     fn test_format_trace_memory_access() {
-        let mut bus = Bus::new(test_rom());
+        let mut bus = Bus::new(TestRom::default_rom());
         bus.mem_write(0x00, 0x11);
         bus.mem_write(0x01, 0x10);
         bus.mem_write(0x10, 0x00);

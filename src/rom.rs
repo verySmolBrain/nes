@@ -47,13 +47,7 @@ impl Rom {
         let prg_rom_start = 16 + if trainer_exists { 512 } else { 0 };
         let chr_rom_start = prg_rom_start + prg_rom_size;
 
-        let nes_version = if flag_7 | 0b0000_0000 == 0 {
-            1
-        } else {
-            2
-        };
-
-        if nes_version != 1 {
+        if flag_7 & 0b0000_1100 != 0 {
             return Err("Unsupported NES Version".to_string())
         }
 
