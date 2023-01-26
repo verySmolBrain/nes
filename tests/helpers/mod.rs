@@ -1,19 +1,24 @@
 use nes::cpu::Cpu;
+use nes::bus::Bus;
+use nes::memory::Mem;
 use nes::rom::{ Rom, PRG_ROM_PAGE_SIZE, CHR_ROM_PAGE_SIZE, Mirroring };
-use nes::cpu::Status;
+use expect_test::Expect;
+use nes::helpers::trace::trace;
 
 const HEADER_LEN: usize = 16;
 
-pub fn check_zero_and_negative(cpu: Cpu, value: u8) {
-    if value == 0 {
-        assert!(cpu.status.contains(Status::ZERO));
-    } else {
-        assert!(!cpu.status.contains(Status::ZERO));
-    }
-    if value & 0b1000_0000 != 0 {
-        assert!(cpu.status.contains(Status::NEGATIVE));
-    } else {
-        assert!(!cpu.status.contains(Status::NEGATIVE));
+pub fn check(cpu: &mut Cpu, expected: Expect) {
+    let mut res: Vec<String> = vec![];
+    cpu.run_with_callback(|cpu| {
+        res.push(trace(cpu));
+    });
+
+    expected.assert_eq(&res.join("\n"));
+}
+
+pub fn load_into_memory(bus: &mut Bus, data: Vec<u8>, start: u16) {
+    for (i, byte) in data.iter().enumerate() {
+        bus.mem_write(start + i as u16, *byte);
     }
 }
 
