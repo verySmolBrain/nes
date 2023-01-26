@@ -1,55 +1,52 @@
 #[cfg(test)]
 mod test {
-    use nes::cpu::CPU;
+    use nes::cpu::Cpu;
+    use nes::cpu::Status;
     use nes::bus::Bus;
     use nes::memory::Mem;
-    use nes::cpu::Status;
+    use crate::helpers::{ TestRom, load_into_memory, check };
+    use expect_test::expect;
    
     #[test]
     fn test_0x24_bit_zero_page_zero() {
-        let bus = Bus::new();
-        let mut cpu = CPU::new(bus);
-        cpu.load(vec![0x24, 0xa1, 0x00]);
-        cpu.reset();
+        let mut bus = Bus::new(TestRom::default_rom());
+        load_into_memory(&mut bus, vec![0x24, 0xa1, 0x00], 0x0000);
+        bus.mem_write(0xa1, 0b1111_0000);
 
+        let mut cpu = Cpu::new(bus);
+        cpu.program_counter = 0x0000;
         cpu.status.remove(Status::ZERO);
 
         cpu.register_a = 0b0000_1111;
-        cpu.mem_write(0xa1, 0b1111_0000);
+        
 
-        cpu.run();
-        assert!(cpu.status.contains(Status::ZERO));
+        check(&mut cpu, expect![[""]])
     }
 
     #[test]
     fn test_0x24_bit_zero_page_not_zero() {
-        let bus = Bus::new();
-        let mut cpu = CPU::new(bus);
-        cpu.load(vec![0x24, 0xa1, 0x00]);
-        cpu.reset();
+        let mut bus = Bus::new(TestRom::default_rom());
+        load_into_memory(&mut bus, vec![0x24, 0xa1, 0x00], 0x0000);
+        bus.mem_write(0xa1, 0b1111_1111);
 
+        let mut cpu = Cpu::new(bus);
+        cpu.program_counter = 0x0000;
         cpu.register_a = 0b0000_1111;
-        cpu.mem_write(0xa1, 0b1111_1111);
 
-        cpu.run();
-        assert!(!cpu.status.contains(Status::ZERO));
+        check(&mut cpu, expect![[""]])
     }
 
     #[test]
     fn test_0x24_bit_zero_page_overflow_negative() {
-        let bus = Bus::new();
-        let mut cpu = CPU::new(bus);
-        cpu.load(vec![0x24, 0xa1, 0x00]);
-        cpu.reset();
+        let mut bus = Bus::new(TestRom::default_rom());
+        load_into_memory(&mut bus, vec![0x24, 0xa1, 0x00], 0x0000);
+        bus.mem_write(0xa1, 0b1100_0000);
 
+        let mut cpu = Cpu::new(bus);
+        cpu.program_counter = 0x0000;
         cpu.status.remove(Status::ZERO);
-
         cpu.register_a = 0b1100_0000;
-        cpu.mem_write(0xa1, 0b1100_0000);
 
-        cpu.run();
-        assert!(!cpu.status.contains(Status::ZERO));
-        assert!(cpu.status.contains(Status::OVERFLOW));
-        assert!(cpu.status.contains(Status::NEGATIVE));
+        check(&mut cpu, expect![[""]])
     }
 }

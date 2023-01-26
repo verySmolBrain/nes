@@ -1,34 +1,34 @@
 #[cfg(test)]
 mod test {
-    use nes::cpu::CPU;
-    use nes::bus::Bus;
+    use nes::cpu::Cpu;
     use nes::cpu::Status;
-    use nes::cpu::ROM_START;
+    use nes::bus::Bus;
+    use crate::helpers::{ TestRom, load_into_memory, check };
+    use expect_test::expect;
    
     #[test]
     fn test_0xb0_bcs_relative_no_branch() {
-        let bus = Bus::new();
-        let mut cpu = CPU::new(bus);
-        cpu.load(vec![0xb0, 0x05, 0x00]);
-        cpu.reset();
+        let mut bus = Bus::new(TestRom::default_rom());
+        load_into_memory(&mut bus, vec![0xb0, 0x05, 0x00], 0x0000);
 
+        let mut cpu = Cpu::new(bus);
+        cpu.program_counter = 0x0000;
         assert!(!cpu.status.contains(Status::CARRY));
 
-        cpu.run();
-        assert_eq!((ROM_START as u16) + 3, cpu.program_counter);
+        check(&mut cpu, expect![[""]])
     }
 
     #[test]
     fn test_0xb0_bcs_relative_branch() {
-        let bus = Bus::new();
-        let mut cpu = CPU::new(bus);
-        cpu.load(vec![0xb0, 0x05, 0x00]);
-        cpu.reset();
+        let mut bus = Bus::new(TestRom::default_rom());
+        load_into_memory(&mut bus, vec![0xb0, 0x05, 0x00], 0x0000);
 
+        let mut cpu = Cpu::new(bus);
+        cpu.program_counter = 0x0000;
         cpu.status.insert(Status::CARRY);
         assert!(cpu.status.contains(Status::CARRY));
 
-        cpu.run(); // 0x8001 + 0x05 (Relative) + 0x1 (Skip Label) + 0x1 (Next instruction)
-        assert_eq!((ROM_START as u16) + 8, cpu.program_counter);
+        // 0x8001 + 0x05 (Relative) + 0x1 (Skip Label) + 0x1 (Next instruction)
+        check(&mut cpu, expect![[""]])
     }
 }
