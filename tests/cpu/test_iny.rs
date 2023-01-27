@@ -1,34 +1,31 @@
 #[cfg(test)]
 mod test {
-    use nes::cpu::CPU;
+    use nes::cpu::Cpu;
     use nes::bus::Bus;
-    use crate::helpers::check_zero_and_negative;
+    use crate::helpers::{ TestRom, load_into_memory, check };
+    use expect_test::expect;
 
     #[test]
     fn test_c8_immediate_zero() {
-        let bus = Bus::new();
-        let mut cpu = CPU::new(bus);
-        cpu.load(vec![0xc8, 0x00]);
-        cpu.reset();
+        let mut bus = Bus::new(TestRom::default_rom());
+        load_into_memory(&mut bus, vec![0xc8, 0x00], 0x0000);
 
+        let mut cpu = Cpu::new(bus);
+        cpu.program_counter = 0x0000;
         cpu.register_y = 0xff;
         
-        cpu.run();
-        assert_eq!(cpu.register_y, 0x00);
-        check_zero_and_negative(cpu, 0)
+        check(&mut cpu, expect![[""]])
     }
 
     #[test]
     fn test_c8_immediate_one() {
-        let bus = Bus::new();
-        let mut cpu = CPU::new(bus);
-        cpu.load(vec![0xc8, 0x00]);
-        cpu.reset();
+        let mut bus = Bus::new(TestRom::default_rom());
+        load_into_memory(&mut bus, vec![0xc8, 0x00], 0x0000);
 
+        let mut cpu = Cpu::new(bus);
+        cpu.program_counter = 0x0000;
         cpu.register_y = 0;
         
-        cpu.run();
-        assert_eq!(cpu.register_y, 0x01);
-        check_zero_and_negative(cpu, 1)
+        check(&mut cpu, expect![[""]])
     }
 }
