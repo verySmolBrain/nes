@@ -13,6 +13,8 @@ mod test {
         let mut cpu = Cpu::new(bus);
         cpu.program_counter = 0x0000;
 
-        check(&mut cpu, expect![[""]])
+        check(&mut cpu, expect![[r#"
+            0000  38        SEC                             A:00 X:00 Y:00 P:24 SP:FD
+            0001  00        BRK                             A:00 X:00 Y:00 P:25 SP:FD"#]])
     }
 }

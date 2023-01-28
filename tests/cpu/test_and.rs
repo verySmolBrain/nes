@@ -13,7 +13,9 @@ mod test {
         let mut cpu = Cpu::new(bus);
         cpu.register_a = 0b1000_1111;
 
-        check(&mut cpu, expect![[""]])
+        check(&mut cpu, expect![[r#"
+            0000  29 F0     AND #$F0                        A:8F X:00 Y:00 P:24 SP:FD
+            0002  00        BRK                             A:80 X:00 Y:00 P:A4 SP:FD"#]])
     }
 
     #[test]
@@ -24,6 +26,8 @@ mod test {
         let mut cpu = Cpu::new(bus);
         cpu.register_a = 0b0000_1111;
 
-        check(&mut cpu, expect![[""]])
+        check(&mut cpu, expect![[r#"
+            0000  29 F0     AND #$F0                        A:0F X:00 Y:00 P:24 SP:FD
+            0002  00        BRK                             A:00 X:00 Y:00 P:26 SP:FD"#]])
     }
 }

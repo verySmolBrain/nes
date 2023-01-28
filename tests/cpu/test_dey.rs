@@ -14,6 +14,8 @@ mod test {
         cpu.program_counter = 0x0000;
         cpu.register_y = 1;
 
-        check(&mut cpu, expect![[""]])
+        check(&mut cpu, expect![[r#"
+            0000  88        DEY                             A:00 X:00 Y:01 P:24 SP:FD
+            0001  00        BRK                             A:00 X:00 Y:00 P:26 SP:FD"#]])
     }
 }

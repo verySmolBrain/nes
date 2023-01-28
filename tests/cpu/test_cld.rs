@@ -16,6 +16,8 @@ mod test {
         cpu.status.insert(Status::DECIMAL);
         assert!(cpu.status.contains(Status::DECIMAL));
         
-        check(&mut cpu, expect![[""]])
+        check(&mut cpu, expect![[r#"
+            0000  D8        CLD                             A:00 X:00 Y:00 P:2C SP:FD
+            0001  00        BRK                             A:00 X:00 Y:00 P:24 SP:FD"#]])
     }
 }

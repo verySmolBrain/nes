@@ -17,6 +17,9 @@ mod test {
         cpu.status.insert(Status::CARRY);
         cpu.status.insert(Status::NEGATIVE);
 
-        check(&mut cpu, expect![[""]])
+        check(&mut cpu, expect![[r#"
+            0000  08        PHP                             A:00 X:00 Y:00 P:A7 SP:FD
+            0001  28        PLP                             A:00 X:00 Y:00 P:A7 SP:FC
+            0002  00        BRK                             A:00 X:00 Y:00 P:A7 SP:FD"#]])
     }
 }

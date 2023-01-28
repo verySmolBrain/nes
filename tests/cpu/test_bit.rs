@@ -20,7 +20,9 @@ mod test {
         cpu.register_a = 0b0000_1111;
         
 
-        check(&mut cpu, expect![[""]])
+        check(&mut cpu, expect![[r#"
+            0000  24 A1     BIT $A1 = F0                    A:0F X:00 Y:00 P:24 SP:FD
+            0002  00        BRK                             A:0F X:00 Y:00 P:E6 SP:FD"#]])
     }
 
     #[test]
@@ -33,7 +35,9 @@ mod test {
         cpu.program_counter = 0x0000;
         cpu.register_a = 0b0000_1111;
 
-        check(&mut cpu, expect![[""]])
+        check(&mut cpu, expect![[r#"
+            0000  24 A1     BIT $A1 = FF                    A:0F X:00 Y:00 P:24 SP:FD
+            0002  00        BRK                             A:0F X:00 Y:00 P:E4 SP:FD"#]])
     }
 
     #[test]
@@ -47,6 +51,8 @@ mod test {
         cpu.status.remove(Status::ZERO);
         cpu.register_a = 0b1100_0000;
 
-        check(&mut cpu, expect![[""]])
+        check(&mut cpu, expect![[r#"
+            0000  24 A1     BIT $A1 = C0                    A:C0 X:00 Y:00 P:24 SP:FD
+            0002  00        BRK                             A:C0 X:00 Y:00 P:E4 SP:FD"#]])
     }
 }

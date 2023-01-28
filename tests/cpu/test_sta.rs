@@ -14,6 +14,8 @@ mod test {
         cpu.program_counter = 0x0000;
         cpu.register_a = 5;
         
-        check(&mut cpu, expect![[""]])
+        check(&mut cpu, expect![[r#"
+            0000  85 A1     STA $A1 = 00                    A:05 X:00 Y:00 P:24 SP:FD
+            0002  00        BRK                             A:05 X:00 Y:00 P:24 SP:FD"#]])
     }
 }

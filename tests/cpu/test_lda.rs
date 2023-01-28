@@ -13,7 +13,9 @@ mod test {
         let mut cpu = Cpu::new(bus);
         cpu.program_counter = 0x0000;
 
-        check(&mut cpu, expect![[""]])
+        check(&mut cpu, expect![[r#"
+            0000  A9 05     LDA #$05                        A:00 X:00 Y:00 P:24 SP:FD
+            0002  00        BRK                             A:05 X:00 Y:00 P:24 SP:FD"#]])
     }
    
     #[test]
@@ -24,6 +26,8 @@ mod test {
         let mut cpu = Cpu::new(bus);
         cpu.program_counter = 0x0000;
 
-        check(&mut cpu, expect![[""]])
+        check(&mut cpu, expect![[r#"
+            0000  A9 00     LDA #$00                        A:00 X:00 Y:00 P:24 SP:FD
+            0002  00        BRK                             A:00 X:00 Y:00 P:26 SP:FD"#]])
     }
 }

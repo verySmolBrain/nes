@@ -15,7 +15,7 @@ mod test {
 
         cpu.stack_push_u8(0x42);
         
-        let expected = expect![[""]];
+        let expected = expect!["66"];
         expected.assert_eq(&cpu.stack_pop_u8().to_string());
     }
 
@@ -29,7 +29,7 @@ mod test {
 
         cpu.stack_push_u16(0x4042);
 
-        let expected = expect![[""]];
+        let expected = expect!["16450"];
         expected.assert_eq(&cpu.stack_pop_u16().to_string());
     }
 }

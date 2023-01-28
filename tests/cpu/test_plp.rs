@@ -22,6 +22,8 @@ mod test {
 
         cpu.stack_push_u8(status.bits());
 
-        check(&mut cpu, expect![[""]])
+        check(&mut cpu, expect![[r#"
+            0000  28        PLP                             A:00 X:00 Y:00 P:24 SP:FC
+            0001  00        BRK                             A:00 X:00 Y:00 P:A7 SP:FD"#]])
     }
 }

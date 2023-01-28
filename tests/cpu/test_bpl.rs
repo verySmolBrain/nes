@@ -16,7 +16,9 @@ mod test {
         cpu.status.insert(Status::NEGATIVE);
         assert!(cpu.status.contains(Status::NEGATIVE));
 
-        check(&mut cpu, expect![[""]])
+        check(&mut cpu, expect![[r#"
+            0000  10 05     BPL $07                         A:00 X:00 Y:00 P:A4 SP:FD
+            0002  00        BRK                             A:00 X:00 Y:00 P:A4 SP:FD"#]])
     }
 
     #[test]
@@ -30,6 +32,8 @@ mod test {
         assert!(!cpu.status.contains(Status::NEGATIVE));
 
         // 0x8001 + 0x05 (Relative) + 0x1 (Skip Label) + 0x1 (Next instruction)
-        check(&mut cpu, expect![[""]])
+        check(&mut cpu, expect![[r#"
+            0000  10 05     BPL $07                         A:00 X:00 Y:00 P:24 SP:FD
+            0007  00        BRK                             A:00 X:00 Y:00 P:24 SP:FD"#]])
     }
 }

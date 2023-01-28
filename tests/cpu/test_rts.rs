@@ -16,6 +16,8 @@ mod test {
         cpu.stack_push_u16(addr);
         
         // 0x4042 + 1 for next
-        check(&mut cpu, expect![[""]])
+        check(&mut cpu, expect![[r#"
+            0000  60        RTS                             A:00 X:00 Y:00 P:24 SP:FB
+            4042  00        BRK                             A:00 X:00 Y:00 P:24 SP:FD"#]])
     }
 }

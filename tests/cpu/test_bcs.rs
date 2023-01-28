@@ -15,7 +15,9 @@ mod test {
         cpu.program_counter = 0x0000;
         assert!(!cpu.status.contains(Status::CARRY));
 
-        check(&mut cpu, expect![[""]])
+        check(&mut cpu, expect![[r#"
+            0000  B0 05     BCS $07                         A:00 X:00 Y:00 P:24 SP:FD
+            0002  00        BRK                             A:00 X:00 Y:00 P:24 SP:FD"#]])
     }
 
     #[test]
@@ -29,6 +31,8 @@ mod test {
         assert!(cpu.status.contains(Status::CARRY));
 
         // 0x8001 + 0x05 (Relative) + 0x1 (Skip Label) + 0x1 (Next instruction)
-        check(&mut cpu, expect![[""]])
+        check(&mut cpu, expect![[r#"
+            0000  B0 05     BCS $07                         A:00 X:00 Y:00 P:25 SP:FD
+            0007  00        BRK                             A:00 X:00 Y:00 P:25 SP:FD"#]])
     }
 }

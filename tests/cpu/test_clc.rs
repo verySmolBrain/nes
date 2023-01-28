@@ -16,6 +16,8 @@ mod test {
         cpu.status.insert(Status::CARRY);
         assert!(cpu.status.contains(Status::CARRY));
         
-        check(&mut cpu, expect![[""]])
+        check(&mut cpu, expect![[r#"
+            0000  18        CLC                             A:00 X:00 Y:00 P:25 SP:FD
+            0001  00        BRK                             A:00 X:00 Y:00 P:24 SP:FD"#]])
     }
 }

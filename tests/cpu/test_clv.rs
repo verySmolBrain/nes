@@ -16,6 +16,8 @@ mod test {
         cpu.status.insert(Status::OVERFLOW);
         assert!(cpu.status.contains(Status::OVERFLOW));
         
-        check(&mut cpu, expect![[""]])
+        check(&mut cpu, expect![[r#"
+            0000  B8        CLV                             A:00 X:00 Y:00 P:64 SP:FD
+            0001  00        BRK                             A:00 X:00 Y:00 P:24 SP:FD"#]])
     }
 }

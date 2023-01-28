@@ -19,6 +19,8 @@ mod test {
         cpu.status.remove(Status::INTERDIS);
         assert!(!cpu.status.contains(Status::INTERDIS));
         
-        check(&mut cpu, expect![[""]])
+        check(&mut cpu, expect![[r#"
+            0000  78        SEI                             A:00 X:00 Y:00 P:20 SP:FD
+            0001  00        BRK                             A:00 X:00 Y:00 P:24 SP:FD"#]])
     }
 }

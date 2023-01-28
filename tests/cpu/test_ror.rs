@@ -16,7 +16,9 @@ mod test {
         cpu.program_counter = 0x0000;
         cpu.register_a = 0b0000_0001;
         
-        check(&mut cpu, expect![[""]])
+        check(&mut cpu, expect![[r#"
+            0000  6A        ROR A                           A:01 X:00 Y:00 P:24 SP:FD
+            0001  00        BRK                             A:00 X:00 Y:00 P:27 SP:FD"#]])
     }
 
     #[test]
@@ -29,7 +31,9 @@ mod test {
         cpu.register_a = 0b0000_0000;
         cpu.status.insert(Status::CARRY);
         
-        check(&mut cpu, expect![[""]])
+        check(&mut cpu, expect![[r#"
+            0000  6A        ROR A                           A:00 X:00 Y:00 P:25 SP:FD
+            0001  00        BRK                             A:80 X:00 Y:00 P:A4 SP:FD"#]])
     }
 
     #[test]
@@ -42,7 +46,9 @@ mod test {
         cpu.register_a = 0b1111_0001;
         cpu.status.insert(Status::CARRY);
         
-        check(&mut cpu, expect![[""]])
+        check(&mut cpu, expect![[r#"
+            0000  6A        ROR A                           A:F1 X:00 Y:00 P:25 SP:FD
+            0001  00        BRK                             A:F8 X:00 Y:00 P:A5 SP:FD"#]])
     }
 
     #[test]
@@ -54,6 +60,8 @@ mod test {
         let mut cpu = Cpu::new(bus);
         cpu.program_counter = 0x0000;
         
-        check(&mut cpu, expect![[""]])
+        check(&mut cpu, expect![[r#"
+            0000  66 A1     ROR $A1 = 01                    A:00 X:00 Y:00 P:24 SP:FD
+            0002  00        BRK                             A:00 X:00 Y:00 P:27 SP:FD"#]])
     }
 }
