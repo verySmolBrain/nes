@@ -1,26 +1,37 @@
 #[cfg(test)]
 mod test {
-    use nes::cpu::CPU;
+    use nes::cpu::Cpu;
     use nes::bus::Bus;
     use nes::memory::Mem;
+    use crate::helpers::{ TestRom, load_into_memory, check };
+    use expect_test::expect;
    
     #[test]
     fn test_0x4c_jmp_absolute() {
-        let bus = Bus::new();
-        let mut cpu = CPU::new(bus);
-        cpu.load(vec![0x4c, 0x05, 0x00, 0x00]); // addr: 0x8005 
-        cpu.reset();
+        let mut bus = Bus::new(TestRom::default_rom());
+        load_into_memory(&mut bus, vec![0x4c, 0x05, 0x00, 0x00], 0x0000);
 
-        cpu.run();
-        assert_eq!(cpu.program_counter, 6); // addr: 0x8005 + 1 to reach break
+        let mut cpu = Cpu::new(bus);
+        cpu.program_counter = 0x0000; // addr: 0x8005 
+
+        // addr: 0x8005 + 1 to reach break
+        check(&mut cpu, expect![[r#"
+            0000  4C 05 00  JMP $0005                       A:00 X:00 Y:00 P:24 SP:FD
+            0005  00        BRK                             A:00 X:00 Y:00 P:24 SP:FD"#]])
     }
 
     #[test]
     fn test_0x6c_jmp_indirect_ff_bug() {
-        let bus = Bus::new();
-        let mut cpu = CPU::new(bus);
-        cpu.load(vec![0x6c, 0xFF, 0x00, 0x00]); // addr: 0x80FF
-        cpu.reset();
+        let mut bus = Bus::new(TestRom::default_rom());
+        load_into_memory(&mut bus, vec![0x6c, 0xFF, 0x00, 0x00], 0x0000);
+
+        // LSB: 0x80FF
+        // MSB: 0x6c00
+        bus.mem_write(0x00FF, 0x10);
+        bus.mem_write(0x0000, 0x11);
+
+        let mut cpu = Cpu::new(bus);
+        cpu.program_counter = 0x0000; // addr: 0x80FF
 
         /*
         An original 6502 has does not correctly fetch the target address if the 
@@ -29,13 +40,9 @@ mod test {
         https://www.nesdev.org/obelisk-6502-guide/reference.html#JMP
         */
 
-        // LSB: 0x80FF
-        // MSB: 0x6c00
-        cpu.mem_write(0x00FF, 0x10);
-        cpu.mem_write(0x0000, 0x11);
-
-        cpu.run();
-
-        assert_eq!(cpu.program_counter, 0x1111); // addr: 0x7677 + 1 to reach break
+        // addr: 0x7677 + 1 to reach break
+        check(&mut cpu, expect![[r#"
+            0000  11 FF     ORA ($FF),Y = 1110 @ 1110 = 00  A:00 X:00 Y:00 P:24 SP:FD
+            0002  00        BRK                             A:00 X:00 Y:00 P:26 SP:FD"#]])
     }
 }

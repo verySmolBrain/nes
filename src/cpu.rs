@@ -1,11 +1,38 @@
-use crate::{opcodes::OPCODES, bus::Bus, memory::Mem,};
+use crate::{opcodes::OPCODES, bus::Bus, memory::Mem, rom::Rom };
 use bitflags::bitflags;
 
-// const ADDRESS_SPACE: usize = 0xFFFF; // 64 KiB
-pub const ROM_START: usize = 0x0600;
-const RESET_VECTOR: usize = 0x1FFC;
+/*  _______________ $10000  _______________
+   | PRG-ROM       |       |               |
+   | Upper Bank    |       |               |
+   |_ _ _ _ _ _ _ _| $C000 | PRG-ROM       |
+   | PRG-ROM       |       |               |
+   | Lower Bank    |       |               |
+   |_______________| $8000 |_______________|
+   | SRAM          |       | SRAM          |
+   |_______________| $6000 |_______________|
+   | Expansion ROM |       | Expansion ROM |
+   |_______________| $4020 |_______________|
+   | I/O Registers |       |               |
+   |_ _ _ _ _ _ _ _| $4000 |               |
+   | Mirrors       |       | I/O Registers |
+   | $2000-$2007   |       |               |
+   |_ _ _ _ _ _ _ _| $2008 |               |
+   | I/O Registers |       |               |
+   |_______________| $2000 |_______________|
+   | Mirrors       |       |               |
+   | $0000-$07FF   |       |               |
+   |_ _ _ _ _ _ _ _| $0800 |               |
+   | RAM           |       | RAM           |
+   |_ _ _ _ _ _ _ _| $0200 |               |
+   | Stack         |       |               |
+   |_ _ _ _ _ _ _ _| $0100 |               |
+   | Zero Page     |       |               |
+   |_______________| $0000 |_______________|
+*/
 
-const STACK: u16 = 0x0100; // 256 Byte offset from STACK
+const RESET_VECTOR: usize = 0xFFFC;
+
+const STACK: u16 = 0x0100; 
 const STACK_RESET: u8 = 0xfd; // Push = store first then decrement. So 8 bit off for initial.
 
 
@@ -25,6 +52,8 @@ pub enum AddressingMode {
     NoneAddressing,
     Accumulator,
     Implied,
+    JMPIndirect,
+    Jump,
 }
 
 /*
@@ -36,7 +65,7 @@ NVss DIZC
 |||| ||+-- Zero
 |||| |+--- Interrupt Disable
 |||| +---- Decimal
-||++------ No CPU effect, see: the B flag
+||++------ No Cpu effect, see: the B flag
 |+-------- Overflow
 +--------- Negative
  */
@@ -60,7 +89,7 @@ impl Default for Status {
     }
 }
 
-pub struct CPU {
+pub struct Cpu {
     pub register_a: u8, 
     pub register_x: u8,
     pub register_y: u8,
@@ -70,9 +99,9 @@ pub struct CPU {
     pub bus: Bus
 }
 
-impl CPU {
+impl Cpu {
     pub fn new(bus: Bus) -> Self {
-        CPU {
+        Cpu {
             register_a: 0, // accumulator
             register_x: 0,
             register_y: 0,
@@ -94,13 +123,13 @@ impl CPU {
     }
 
     pub fn stack_push_u16(&mut self, value: u16) {
-        value.to_le_bytes().iter().for_each(|v| {
+        value.to_be_bytes().iter().for_each(|v| {
             self.stack_push_u8(*v)
         })
     }
 
     pub fn stack_pop_u16(&mut self) -> u16 {
-        u16::from_be_bytes([ // Since we push in LE, we need to pop in BE
+        u16::from_le_bytes([ // Since we push in LE, we need to pop in BE
             self.stack_pop_u8(),
             self.stack_pop_u8(),
         ])
@@ -128,7 +157,7 @@ impl CPU {
                 self.program_counter = self.program_counter.wrapping_add(1);
                 Some(addr)
             },
-            AddressingMode::Absolute => {
+            AddressingMode::Absolute | AddressingMode::Jump => {
                 let addr = self.mem_read_u16(self.program_counter);
                 self.program_counter = self.program_counter.wrapping_add(2);
                 Some(addr)
@@ -184,7 +213,6 @@ impl CPU {
                 let addr = self.program_counter
                     .wrapping_add(relative as u16)
                     .wrapping_add(1);
-                println!("Relative: {:x} -> {:x}", self.program_counter, addr);
                 self.program_counter = self.program_counter.wrapping_add(1);
                 Some(addr)
             },
@@ -194,34 +222,32 @@ impl CPU {
             AddressingMode::Implied => {
                 None
             },
+            AddressingMode::JMPIndirect => {
+                None
+            },
             AddressingMode::NoneAddressing => {
                 None
             }
         }
     }
 
-    pub fn load_and_run(&mut self, program: Vec<u8>) {
-        self.load(program);
-        self.reset();
-        self.run();
-    }
+    // pub fn load_cartridge(&mut self, program: Vec<u8>) -> Result<(), String> {
+    //     let cartridge = Rom::new(program)?;
+    //     let new_bus = Bus::new(cartridge);
 
-    pub fn load(&mut self, program: Vec<u8>) {
-        for i in 0..(program.len() as u16) {
-            self.mem_write(((ROM_START as u16) + i) as u16, program[i as usize]);
-        }
-        self.mem_write_u16(RESET_VECTOR as u16, ROM_START as u16)
-    }
+    //     self.bus = new_bus;
+    //     self.reset();
 
-    pub fn run(&mut self) {
-        self.run_with_callback(|_| {});
-    }
+    //     Ok(())
+    // }
 
     pub fn run_with_callback<F>(&mut self, mut callback: F)
     where
-        F: FnMut(&mut CPU),
+        F: FnMut(&mut Cpu),
     {
         loop {
+            callback(self);
+
             let code = self.next();
             let opcode = OPCODES.get(&code).expect("Invalid opcode");
             let addr = self.get_operand_address(&opcode.mode);
@@ -336,8 +362,6 @@ impl CPU {
                 0x50 => if !self.status.contains(Status::OVERFLOW) { self.jmp(addr.unwrap()) }, /* BVC */
                 _ => panic!("Unimplemented opcode: {:02x}", code),
             }
-
-            callback(self);
         }
     }
 
@@ -389,6 +413,9 @@ impl CPU {
     fn rti(&mut self) {
         self.status = Status::from_bits_truncate(self.stack_pop_u8());
         self.program_counter = self.stack_pop_u16();
+
+        self.status.remove(Status::BREAKTWO);
+        self.status.insert(Status::BREAKONE);
     }
 
     fn bit(&mut self, addr: u16) {
@@ -499,7 +526,10 @@ impl CPU {
     }
 
     fn php(&mut self) {
-        self.stack_push_u8(self.status.bits());
+        let mut p = self.status.clone();
+        p.insert(Status::BREAKONE);
+        p.insert(Status::BREAKTWO);
+        self.stack_push_u8(p.bits());
     }
 
     fn pla(&mut self) {
@@ -509,6 +539,8 @@ impl CPU {
 
     fn plp(&mut self) {
         self.status = Status::from_bits_truncate(self.stack_pop_u8());
+        self.status.remove(Status::BREAKTWO);
+        self.status.insert(Status::BREAKONE);
     }
 
     fn clc(&mut self) {
@@ -544,7 +576,7 @@ impl CPU {
 
     fn txs(&mut self) {
         self.stack_pointer = self.register_x;
-        self.update_zero_and_negative_flag(self.stack_pointer);
+        // self.update_zero_and_negative_flag(self.stack_pointer);
     }
 
     fn tya(&mut self) {

@@ -2,3 +2,6 @@ pub mod cpu;
 pub mod opcodes;
 pub mod bus;
 pub mod memory;
+pub mod rom;
+pub mod player;
+pub mod helpers;
