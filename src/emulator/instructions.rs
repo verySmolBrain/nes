@@ -294,10 +294,9 @@ impl Cpu {
             Code::TSX => {
                 self.register_x = self.stack_pointer;
                 self.update_zero_and_negative_flag(self.register_x);
-            }, /* TSX */
+            },
             Code::TXS => { /* TXS */
                 self.stack_pointer = self.register_x;
-                // self.update_zero_and_negative_flag(self.stack_pointer); // wut?
             }, 
 
 
@@ -389,7 +388,7 @@ impl Cpu {
 
         let res = sum as u8; 
         // http://www.righto.com/2012/12/the-6502-overflow-flag-explained.html
-        if (res ^ self.register_a) & (res ^ val) & 0x80 != 0 {
+        if (res ^ self.register_a) & (res ^ val) & 0b10000000 != 0 {
             self.status.insert(Status::OVERFLOW);
         } else { 
             self.status.remove(Status::OVERFLOW);
@@ -407,7 +406,7 @@ impl Cpu {
     }
 
     fn lsr(&mut self, val: u8) -> u8 {
-        self.status.set(Status::CARRY, val & 0x01 != 0);
+        self.status.set(Status::CARRY, val & 0b1 != 0);
         let new_val = val >> 1;
         self.update_zero_and_negative_flag(new_val);
 
@@ -416,7 +415,7 @@ impl Cpu {
 
     fn rol(&mut self, val: u8) -> u8 {
         let old_carry = self.status.contains(Status::CARRY) as u8;
-        self.status.set(Status::CARRY, val & 0x80 != 0);
+        self.status.set(Status::CARRY, val & 0b10000000 != 0);
 
         let new_val = (val << 1) | old_carry;
         self.update_zero_and_negative_flag(new_val);
@@ -425,7 +424,7 @@ impl Cpu {
 
     fn ror(&mut self, val: u8) -> u8 {
         let old_carry = self.status.contains(Status::CARRY) as u8;
-        self.status.set(Status::CARRY, val & 0x01 != 0); // Update this
+        self.status.set(Status::CARRY, val & 0b1 != 0);
 
         let new_val = (val >> 1) | (old_carry << 7);
         self.update_zero_and_negative_flag(new_val);
