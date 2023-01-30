@@ -370,7 +370,7 @@ impl Cpu {
             Code::NOP => (), /* NOP */
         }
 
-        true
+        true // Change later
     }
 
     fn addition(&mut self, val: u8) -> u8 {

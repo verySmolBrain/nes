@@ -46,7 +46,7 @@ impl Mem for Bus {
             RAM ..= RAM_MIRRORS_END => {
                 self.cpu_vram[(addr & 0b111_11111111) as usize] = data;
             },
-            0x8000..=0xFFFF => {
+            0x8000 ..= 0xFFFF => {
                 panic!("Attempted to write to ROM")
             },
             _ => {}
