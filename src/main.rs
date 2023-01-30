@@ -1,6 +1,6 @@
-use nes::cpu::Cpu;
-use nes::rom::Rom;
-use nes::bus::Bus;
+use nes::emulator::cpu::Cpu;
+use nes::emulator::rom::Rom;
+use nes::emulator::bus::Bus;
 // use nes::player::Player;
 use nes::helpers::trace::trace;
 use std::env;

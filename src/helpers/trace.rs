@@ -1,7 +1,7 @@
-use crate::opcodes::OPCODES;
-use crate::cpu::AddressingMode;
-use crate::cpu::Cpu;
-use crate::memory::Mem;
+use crate::emulator::opcodes::OPCODES;
+use crate::emulator::addressing_modes::AddressingMode;
+use crate::emulator::cpu::Cpu;
+use crate::emulator::memory::Mem;
 
 pub fn trace(cpu: &mut Cpu) -> String {
     let pc = cpu.program_counter;
@@ -21,43 +21,43 @@ pub fn trace(cpu: &mut Cpu) -> String {
 
     match opcode.mode {
         AddressingMode::Implied => {
-            assembly_translation = Some(format!("{}", opcode.name))
+            assembly_translation = Some(format!("{}", opcode.code))
         },
         AddressingMode::Immediate => {
             lsb = Some(cpu.mem_read(pc.wrapping_add(1)));
-            assembly_translation = Some(format!("{} #${:02X}", opcode.name, lsb.unwrap()))
+            assembly_translation = Some(format!("{} #${:02X}", opcode.code, lsb.unwrap()))
         },
         AddressingMode::Relative => {
             lsb = Some(cpu.mem_read(pc.wrapping_add(1)));
             let address_after_offset = pc.wrapping_add(1).wrapping_add(1).wrapping_add(lsb.unwrap() as u16);
-            assembly_translation = Some(format!("{} ${:02X}", opcode.name, address_after_offset))
+            assembly_translation = Some(format!("{} ${:02X}", opcode.code, address_after_offset))
         },
         AddressingMode::Accumulator => {
-            assembly_translation = Some(format!("{} A", opcode.name))
+            assembly_translation = Some(format!("{} A", opcode.code))
         },
         AddressingMode::ZeroPage => {
             lsb = Some(cpu.mem_read(pc.wrapping_add(1)));
             let value_at_address = cpu.mem_read(lsb.unwrap() as u16);
-            assembly_translation = Some(format!("{} ${:02X} = {:02X}", opcode.name, lsb.unwrap(), value_at_address))
+            assembly_translation = Some(format!("{} ${:02X} = {:02X}", opcode.code, lsb.unwrap(), value_at_address))
         },
         AddressingMode::ZeroPage_X => {
             lsb = Some(cpu.mem_read(pc.wrapping_add(1)));
             let offset = lsb.unwrap().wrapping_add(x);
             let val_at_offset = cpu.mem_read(offset as u16);
-            assembly_translation = Some(format!("{} ${:02X},X @ {:02X} = {:02X}", opcode.name, lsb.unwrap(), offset, val_at_offset))
+            assembly_translation = Some(format!("{} ${:02X},X @ {:02X} = {:02X}", opcode.code, lsb.unwrap(), offset, val_at_offset))
         },
         AddressingMode::ZeroPage_Y => {
             lsb = Some(cpu.mem_read(pc.wrapping_add(1)));
             let offset = lsb.unwrap().wrapping_add(y);
             let val_at_offset = cpu.mem_read(offset as u16);
-            assembly_translation = Some(format!("{} ${:02X},Y @ {:02X} = {:02X}", opcode.name, lsb.unwrap(), offset, val_at_offset))
+            assembly_translation = Some(format!("{} ${:02X},Y @ {:02X} = {:02X}", opcode.code, lsb.unwrap(), offset, val_at_offset))
         },
         AddressingMode::Absolute => {
             lsb = Some(cpu.mem_read(pc.wrapping_add(1)));
             msb = Some(cpu.mem_read(pc.wrapping_add(2)));
             let address = u16::from_le_bytes([lsb.unwrap(), msb.unwrap()]);
             let val_at_address = cpu.mem_read(address);
-            assembly_translation = Some(format!("{} ${:02X}{:02X} = {:02X}", opcode.name, msb.unwrap(), lsb.unwrap(), val_at_address))
+            assembly_translation = Some(format!("{} ${:02X}{:02X} = {:02X}", opcode.code, msb.unwrap(), lsb.unwrap(), val_at_address))
         },
         AddressingMode::Absolute_X => {
             lsb = Some(cpu.mem_read(pc.wrapping_add(1)));
@@ -67,7 +67,7 @@ pub fn trace(cpu: &mut Cpu) -> String {
             let address_after_offset = address.wrapping_add(x as u16);
             let val_at_offset = cpu.mem_read(address_after_offset);
 
-            assembly_translation = Some(format!("{} ${:02X}{:02X},X @ {:04X} = {:02X}", opcode.name, msb.unwrap(), lsb.unwrap(), address_after_offset, val_at_offset))
+            assembly_translation = Some(format!("{} ${:02X}{:02X},X @ {:04X} = {:02X}", opcode.code, msb.unwrap(), lsb.unwrap(), address_after_offset, val_at_offset))
         },
         AddressingMode::Absolute_Y => {
             lsb = Some(cpu.mem_read(pc.wrapping_add(1)));
@@ -77,7 +77,7 @@ pub fn trace(cpu: &mut Cpu) -> String {
             let address_after_offset = address.wrapping_add(y as u16);
             let val_at_offset = cpu.mem_read(address_after_offset);
 
-            assembly_translation = Some(format!("{} ${:02X}{:02X},Y @ {:04X} = {:02X}", opcode.name, msb.unwrap(), lsb.unwrap(), address_after_offset, val_at_offset))
+            assembly_translation = Some(format!("{} ${:02X}{:02X},Y @ {:04X} = {:02X}", opcode.code, msb.unwrap(), lsb.unwrap(), address_after_offset, val_at_offset))
         },
         AddressingMode::Indirect_Y => {
             lsb = Some(cpu.mem_read(pc.wrapping_add(1)));
@@ -89,7 +89,7 @@ pub fn trace(cpu: &mut Cpu) -> String {
             let address_after_offset = address_at_offset.wrapping_add(y as u16);
             let value_at_address = cpu.mem_read(address_after_offset);
 
-            assembly_translation = Some(format!("{} (${:02X}),Y = {:04X} @ {:04X} = {:02X}", opcode.name, lsb.unwrap(), address_at_offset, address_after_offset, value_at_address))
+            assembly_translation = Some(format!("{} (${:02X}),Y = {:04X} @ {:04X} = {:02X}", opcode.code, lsb.unwrap(), address_at_offset, address_after_offset, value_at_address))
         },
         AddressingMode::Indirect_X => {
             lsb = Some(cpu.mem_read(pc.wrapping_add(1)));
@@ -101,9 +101,9 @@ pub fn trace(cpu: &mut Cpu) -> String {
             ]);
             let value_at_address = cpu.mem_read(address_at_offset);
 
-            assembly_translation = Some(format!("{} (${:02X},X) @ {:02X} = {:04X} = {:02X}", opcode.name, lsb.unwrap(), address_after_offset, address_at_offset, value_at_address))
+            assembly_translation = Some(format!("{} (${:02X},X) @ {:02X} = {:04X} = {:02X}", opcode.code, lsb.unwrap(), address_after_offset, address_at_offset, value_at_address))
         },
-        AddressingMode::JMPIndirect => { // Solely for JMP Indirect
+        AddressingMode::JumpIndirect => { // Solely for JMP Indirect
             lsb = Some(cpu.mem_read(pc.wrapping_add(1)));
             msb = Some(cpu.mem_read(pc.wrapping_add(2)));
 
@@ -118,12 +118,12 @@ pub fn trace(cpu: &mut Cpu) -> String {
                 cpu.mem_read_u16(address)
             };
 
-            assembly_translation = Some(format!("{} (${:02X}{:02X}) = {:04X}", opcode.name, msb.unwrap(), lsb.unwrap(), address_after_boundary))
+            assembly_translation = Some(format!("{} (${:02X}{:02X}) = {:04X}", opcode.code, msb.unwrap(), lsb.unwrap(), address_after_boundary))
         },
         AddressingMode::Jump => {
             lsb = Some(cpu.mem_read(pc.wrapping_add(1)));
             msb = Some(cpu.mem_read(pc.wrapping_add(2)));
-            assembly_translation = Some(format!("{} ${:02X}{:02X}", opcode.name, msb.unwrap(), lsb.unwrap()))
+            assembly_translation = Some(format!("{} ${:02X}{:02X}", opcode.code, msb.unwrap(), lsb.unwrap()))
         },
         AddressingMode::NoneAddressing => {
             

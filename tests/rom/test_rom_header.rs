@@ -1,7 +1,7 @@
 #[cfg(test)]
 
 mod test {
-    use nes::rom::Rom;
+    use nes::emulator::rom::Rom;
     use crate::helpers::{ TestRom };
     use expect_test::expect;
 

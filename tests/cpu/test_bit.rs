@@ -1,9 +1,9 @@
 #[cfg(test)]
 mod test {
-    use nes::cpu::Cpu;
-    use nes::cpu::Status;
-    use nes::bus::Bus;
-    use nes::memory::Mem;
+    use nes::emulator::cpu::Cpu;
+    use nes::emulator::cpu::Status;
+    use nes::emulator::bus::Bus;
+    use nes::emulator::memory::Mem;
     use crate::helpers::{ TestRom, load_into_memory, check };
     use expect_test::expect;
    
