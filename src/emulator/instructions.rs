@@ -374,6 +374,67 @@ impl Cpu {
                 } else {
                     self.status.remove(Status::CARRY);
                 }
+            },
+
+            Code::AAX_U => { /* AAX */
+                let addr = addr.unwrap();
+                let val = self.register_a & self.register_x;
+
+                self.mem_write(addr, val);
+                self.update_zero_and_negative_flag(val);
+            },
+
+            Code::ARR_U => { /* ARR */
+                let addr = addr.unwrap();
+
+                let val = self.mem_read(addr);
+                self.register_a &= val;
+                self.register_a >>= 1;
+
+                let bit_5_set = self.register_a & 0b100 != 0;
+                let bit_6_set = self.register_a & 0b10 != 0;
+
+                if bit_5_set && bit_6_set {
+                    self.status.insert(Status::CARRY);
+                    self.status.remove(Status::OVERFLOW);
+                } else if bit_5_set && !bit_6_set {
+                    self.status.remove(Status::CARRY);
+                    self.status.insert(Status::OVERFLOW);
+                } else if !bit_5_set && bit_6_set {
+                    self.status.insert(Status::CARRY);
+                    self.status.insert(Status::OVERFLOW);
+                } else {
+                    self.status.remove(Status::CARRY);
+                    self.status.remove(Status::OVERFLOW);
+                }
+
+                self.update_zero_and_negative_flag(self.register_a);
+            },
+
+            Code::ASR_U => { /* ASR */
+                let addr = addr.unwrap();
+
+                let val = self.mem_read(addr);
+                self.register_a &= val;
+
+                if self.register_a & 0b1 == 0 {
+                    self.status.remove(Status::CARRY);
+                } else {
+                    self.status.insert(Status::CARRY);
+                }
+
+                self.register_a >>= 1;
+                self.update_zero_and_negative_flag(self.register_a);
+            },
+
+            Code::ATX_U => { /* ATX_U */
+                let addr = addr.unwrap();
+
+                let val = self.mem_read(addr);
+                self.register_a &= val;
+                self.register_x = self.register_a;
+
+                self.update_zero_and_negative_flag(self.register_a);
             }
 
             Code::BRK => { /* BRK */
