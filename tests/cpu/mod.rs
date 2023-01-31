@@ -54,3 +54,5 @@ pub mod test_adc;
 pub mod test_sbc;
 pub mod test_stack;
 pub mod test_flags;
+
+pub mod test_aac_u;

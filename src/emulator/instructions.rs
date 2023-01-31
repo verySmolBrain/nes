@@ -362,12 +362,28 @@ impl Cpu {
                 self.status.insert(Status::INTERDIS);
             }, 
 
+
+            Code::AAC_U => { /* AAC */
+                let addr = addr.unwrap();
+
+                self.register_a &= self.mem_read(addr);
+                self.update_zero_and_negative_flag(self.register_a);
+
+                if self.status.contains(Status::NEGATIVE) {
+                    self.status.insert(Status::CARRY);
+                } else {
+                    self.status.remove(Status::CARRY);
+                }
+            }
+
             Code::BRK => { /* BRK */
                 self.status.insert(Status::BREAKONE);
                 return false; // Change later
             }, 
 
             Code::NOP => (), /* NOP */
+
+            _ => panic!(),
         }
 
         true // Change later
