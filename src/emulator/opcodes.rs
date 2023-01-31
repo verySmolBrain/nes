@@ -91,6 +91,37 @@ pub enum Code {
 
     NOP,
     BRK,
+
+    /* Combined */
+    AAC_U,
+    AAX_U,
+    ARR_U,
+    ASR_U,
+    ATX_U,
+    AXA_U,
+    AXS_U,
+
+    /* RMW (read-modify-write) */
+    DCP_U,
+    ISC_U,
+    LAR_U,
+    LAX_U,
+    RLA_U,
+    RRA_U,
+    SLO_U,
+    SRE_U,
+    SXA_U,
+    SYA_U,
+    XAS_U,
+
+    /* Do Nothing */
+    DOP_U,
+    KIL_U,
+    NOP_U,
+    TOP_U,
+
+    /* ඞ */
+    XAA_U
 }
 
 pub static OPCODES: phf::Map<u8, OPCode> = phf_map! {
@@ -342,10 +373,140 @@ pub static OPCODES: phf::Map<u8, OPCode> = phf_map! {
      */
 
     0xea_u8 => OPCode { code: Code::NOP, bytes: 1, cycles: 2, mode: Implied },
+
     0x00_u8 => OPCode { code: Code::BRK, bytes: 1, cycles: 7, mode: Implied },
 
     /*
         Unofficial Instructions
         =======================
      */
+
+    0x0b_u8 => OPCode { code: Code::AAC_U, bytes: 2, cycles: 2, mode: Immediate },
+    0x2b_u8 => OPCode { code: Code::AAC_U, bytes: 2, cycles: 2, mode: Immediate },
+
+    0x87_u8 => OPCode { code: Code::AAX_U, bytes: 2, cycles: 3, mode: ZeroPage },
+    0x97_u8 => OPCode { code: Code::AAX_U, bytes: 2, cycles: 4, mode: ZeroPage_Y },
+    0x83_u8 => OPCode { code: Code::AAX_U, bytes: 2, cycles: 6, mode: Indirect_X },
+    0x8f_u8 => OPCode { code: Code::AAX_U, bytes: 3, cycles: 4, mode: Absolute },
+
+    0x6b_u8 => OPCode { code: Code::ARR_U, bytes: 2, cycles: 2, mode: Immediate },
+
+    0x4b_u8 => OPCode { code: Code::ASR_U, bytes: 2, cycles: 2, mode: Immediate },
+
+    0xab_u8 => OPCode { code: Code::ATX_U, bytes: 2, cycles: 2, mode: Immediate },
+
+    0x9f_u8 => OPCode { code: Code::AXA_U, bytes: 3, cycles: 5, mode: Absolute_Y },
+    0x93_u8 => OPCode { code: Code::AXA_U, bytes: 2, cycles: 6, mode: Indirect_Y },
+
+    0xcb_u8 => OPCode { code: Code::AXS_U, bytes: 2, cycles: 2, mode: Immediate },
+
+    0xc7_u8 => OPCode { code: Code::DCP_U, bytes: 2, cycles: 5, mode: ZeroPage },
+    0xd7_u8 => OPCode { code: Code::DCP_U, bytes: 2, cycles: 6, mode: ZeroPage_X },
+    0xcf_u8 => OPCode { code: Code::DCP_U, bytes: 3, cycles: 6, mode: Absolute },
+    0xdf_u8 => OPCode { code: Code::DCP_U, bytes: 3, cycles: 7, mode: Absolute_X },
+    0xdb_u8 => OPCode { code: Code::DCP_U, bytes: 3, cycles: 7, mode: Absolute_Y },
+    0xc3_u8 => OPCode { code: Code::DCP_U, bytes: 2, cycles: 8, mode: Indirect_X },
+    0xd3_u8 => OPCode { code: Code::DCP_U, bytes: 2, cycles: 8, mode: Indirect_Y },
+
+    0x04_u8 => OPCode { code: Code::DOP_U, bytes: 2, cycles: 3, mode: ZeroPage },
+    0x14_u8 => OPCode { code: Code::DOP_U, bytes: 2, cycles: 4, mode: ZeroPage_X },
+    0x34_u8 => OPCode { code: Code::DOP_U, bytes: 2, cycles: 4, mode: ZeroPage_X },
+    0x44_u8 => OPCode { code: Code::DOP_U, bytes: 2, cycles: 3, mode: ZeroPage },
+    0x54_u8 => OPCode { code: Code::DOP_U, bytes: 2, cycles: 4, mode: ZeroPage_X },
+    0x64_u8 => OPCode { code: Code::DOP_U, bytes: 2, cycles: 3, mode: ZeroPage },
+    0x74_u8 => OPCode { code: Code::DOP_U, bytes: 2, cycles: 4, mode: ZeroPage_X },
+    0x80_u8 => OPCode { code: Code::DOP_U, bytes: 2, cycles: 2, mode: Immediate },
+    0x82_u8 => OPCode { code: Code::DOP_U, bytes: 2, cycles: 2, mode: Immediate },
+    0x89_u8 => OPCode { code: Code::DOP_U, bytes: 2, cycles: 2, mode: Immediate },
+    0xc2_u8 => OPCode { code: Code::DOP_U, bytes: 2, cycles: 2, mode: Immediate },
+    0xd4_u8 => OPCode { code: Code::DOP_U, bytes: 2, cycles: 4, mode: ZeroPage_X },
+    0xe2_u8 => OPCode { code: Code::DOP_U, bytes: 2, cycles: 2, mode: Immediate },
+    0xf4_u8 => OPCode { code: Code::DOP_U, bytes: 2, cycles: 4, mode: ZeroPage_X },
+
+    0xe7_u8 => OPCode { code: Code::ISC_U, bytes: 2, cycles: 5, mode: ZeroPage },
+    0xf7_u8 => OPCode { code: Code::ISC_U, bytes: 2, cycles: 6, mode: ZeroPage_X },
+    0xef_u8 => OPCode { code: Code::ISC_U, bytes: 3, cycles: 6, mode: Absolute },
+    0xff_u8 => OPCode { code: Code::ISC_U, bytes: 3, cycles: 7, mode: Absolute_X },
+    0xfb_u8 => OPCode { code: Code::ISC_U, bytes: 3, cycles: 7, mode: Absolute_Y },
+    0xe3_u8 => OPCode { code: Code::ISC_U, bytes: 2, cycles: 8, mode: Indirect_X },
+    0xf3_u8 => OPCode { code: Code::ISC_U, bytes: 2, cycles: 8, mode: Indirect_Y },
+
+    0x02_u8 => OPCode { code: Code::KIL_U, bytes: 1, cycles: 0, mode: Implied },
+    0x12_u8 => OPCode { code: Code::KIL_U, bytes: 1, cycles: 0, mode: Implied },
+    0x22_u8 => OPCode { code: Code::KIL_U, bytes: 1, cycles: 0, mode: Implied },
+    0x32_u8 => OPCode { code: Code::KIL_U, bytes: 1, cycles: 0, mode: Implied },
+    0x42_u8 => OPCode { code: Code::KIL_U, bytes: 1, cycles: 0, mode: Implied },
+    0x52_u8 => OPCode { code: Code::KIL_U, bytes: 1, cycles: 0, mode: Implied },
+    0x62_u8 => OPCode { code: Code::KIL_U, bytes: 1, cycles: 0, mode: Implied },
+    0x72_u8 => OPCode { code: Code::KIL_U, bytes: 1, cycles: 0, mode: Implied },
+    0x92_u8 => OPCode { code: Code::KIL_U, bytes: 1, cycles: 0, mode: Implied },
+    0xb2_u8 => OPCode { code: Code::KIL_U, bytes: 1, cycles: 0, mode: Implied },
+    0xd2_u8 => OPCode { code: Code::KIL_U, bytes: 1, cycles: 0, mode: Implied },
+    0xf2_u8 => OPCode { code: Code::KIL_U, bytes: 1, cycles: 0, mode: Implied },
+
+    0xbb_u8 => OPCode { code: Code::LAR_U, bytes: 3, cycles: 4, mode: Absolute_Y },
+
+    0xa7_u8 => OPCode { code: Code::LAX_U, bytes: 2, cycles: 3, mode: ZeroPage },
+    0xb7_u8 => OPCode { code: Code::LAX_U, bytes: 2, cycles: 4, mode: ZeroPage_Y },
+    0xaf_u8 => OPCode { code: Code::LAX_U, bytes: 3, cycles: 4, mode: Absolute },
+    0xbf_u8 => OPCode { code: Code::LAX_U, bytes: 3, cycles: 4, mode: Absolute_Y },
+    0xa3_u8 => OPCode { code: Code::LAX_U, bytes: 2, cycles: 6, mode: Indirect_X },
+    0xb3_u8 => OPCode { code: Code::LAX_U, bytes: 2, cycles: 5, mode: Indirect_Y },
+
+    0x1a_u8 => OPCode { code: Code::NOP_U, bytes: 1, cycles: 2, mode: Implied },
+    0x3a_u8 => OPCode { code: Code::NOP_U, bytes: 1, cycles: 2, mode: Implied },
+    0x5a_u8 => OPCode { code: Code::NOP_U, bytes: 1, cycles: 2, mode: Implied },
+    0x7a_u8 => OPCode { code: Code::NOP_U, bytes: 1, cycles: 2, mode: Implied },
+    0xda_u8 => OPCode { code: Code::NOP_U, bytes: 1, cycles: 2, mode: Implied },
+    0xfa_u8 => OPCode { code: Code::NOP_U, bytes: 1, cycles: 2, mode: Implied },
+
+    0x27_u8 => OPCode { code: Code::RLA_U, bytes: 2, cycles: 5, mode: ZeroPage },
+    0x37_u8 => OPCode { code: Code::RLA_U, bytes: 2, cycles: 6, mode: ZeroPage_X },
+    0x2f_u8 => OPCode { code: Code::RLA_U, bytes: 3, cycles: 6, mode: Absolute },
+    0x3f_u8 => OPCode { code: Code::RLA_U, bytes: 3, cycles: 7, mode: Absolute_X },
+    0x3b_u8 => OPCode { code: Code::RLA_U, bytes: 3, cycles: 7, mode: Absolute_Y },
+    0x23_u8 => OPCode { code: Code::RLA_U, bytes: 2, cycles: 8, mode: Indirect_X },
+    0x33_u8 => OPCode { code: Code::RLA_U, bytes: 2, cycles: 8, mode: Indirect_Y },
+
+    0x67_u8 => OPCode { code: Code::RRA_U, bytes: 2, cycles: 5, mode: ZeroPage },
+    0x77_u8 => OPCode { code: Code::RRA_U, bytes: 2, cycles: 6, mode: ZeroPage_X },
+    0x6f_u8 => OPCode { code: Code::RRA_U, bytes: 3, cycles: 6, mode: Absolute },
+    0x7f_u8 => OPCode { code: Code::RRA_U, bytes: 3, cycles: 7, mode: Absolute_X },
+    0x7b_u8 => OPCode { code: Code::RRA_U, bytes: 3, cycles: 7, mode: Absolute_Y },
+    0x63_u8 => OPCode { code: Code::RRA_U, bytes: 2, cycles: 8, mode: Indirect_X },
+    0x73_u8 => OPCode { code: Code::RRA_U, bytes: 2, cycles: 8, mode: Indirect_Y },
+
+    0xeb_u8 => OPCode { code: Code::SBC, bytes: 2, cycles: 2, mode: Immediate },
+
+    0x07_u8 => OPCode { code: Code::SLO_U, bytes: 2, cycles: 5, mode: ZeroPage },
+    0x17_u8 => OPCode { code: Code::SLO_U, bytes: 2, cycles: 6, mode: ZeroPage_X },
+    0x0f_u8 => OPCode { code: Code::SLO_U, bytes: 3, cycles: 6, mode: Absolute },
+    0x1f_u8 => OPCode { code: Code::SLO_U, bytes: 3, cycles: 7, mode: Absolute_X },
+    0x1b_u8 => OPCode { code: Code::SLO_U, bytes: 3, cycles: 7, mode: Absolute_Y },
+    0x03_u8 => OPCode { code: Code::SLO_U, bytes: 2, cycles: 8, mode: Indirect_X },
+    0x13_u8 => OPCode { code: Code::SLO_U, bytes: 2, cycles: 8, mode: Indirect_Y },
+
+    0x47_u8 => OPCode { code: Code::SRE_U, bytes: 2, cycles: 5, mode: ZeroPage },
+    0x57_u8 => OPCode { code: Code::SRE_U, bytes: 2, cycles: 6, mode: ZeroPage_X },
+    0x4f_u8 => OPCode { code: Code::SRE_U, bytes: 3, cycles: 6, mode: Absolute },
+    0x5f_u8 => OPCode { code: Code::SRE_U, bytes: 3, cycles: 7, mode: Absolute_X },
+    0x5b_u8 => OPCode { code: Code::SRE_U, bytes: 3, cycles: 7, mode: Absolute_Y },
+    0x43_u8 => OPCode { code: Code::SRE_U, bytes: 2, cycles: 8, mode: Indirect_X },
+    0x53_u8 => OPCode { code: Code::SRE_U, bytes: 2, cycles: 8, mode: Indirect_Y },
+    
+    0x9e_u8 => OPCode { code: Code::SXA_U, bytes: 3, cycles: 5, mode: Absolute_Y },
+
+    0x9c_u8 => OPCode { code: Code::SYA_U, bytes: 3, cycles: 5, mode: Absolute_X },
+
+    0x0c_u8 => OPCode { code: Code::NOP_U, bytes: 3, cycles: 4, mode: Absolute },
+    0x1c_u8 => OPCode { code: Code::NOP_U, bytes: 3, cycles: 4, mode: Absolute_X },
+    0x3c_u8 => OPCode { code: Code::NOP_U, bytes: 3, cycles: 4, mode: Absolute_X },
+    0x5c_u8 => OPCode { code: Code::NOP_U, bytes: 3, cycles: 4, mode: Absolute_X },
+    0x7c_u8 => OPCode { code: Code::NOP_U, bytes: 3, cycles: 4, mode: Absolute_X },
+    0xdc_u8 => OPCode { code: Code::NOP_U, bytes: 3, cycles: 4, mode: Absolute_X },
+    0xfc_u8 => OPCode { code: Code::NOP_U, bytes: 3, cycles: 4, mode: Absolute_X },
+
+    0x8b_u8 => OPCode { code: Code::XAA_U, bytes: 2, cycles: 2, mode: Immediate },
+
+    0x9b_u8 => OPCode { code: Code::XAS_U, bytes: 3, cycles: 5, mode: Absolute_Y },
 };
