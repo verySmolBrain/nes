@@ -57,3 +57,4 @@ pub mod test_flags;
 
 pub mod test_aac_u;
 pub mod test_aax_u;
+pub mod test_arr_u;
