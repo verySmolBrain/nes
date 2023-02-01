@@ -427,7 +427,7 @@ impl Cpu {
                 self.update_zero_and_negative_flag(self.register_a);
             },
 
-            Code::ATX_U => { /* ATX_U */
+            Code::ATX_U => { /* ATX */
                 let addr = addr.unwrap();
 
                 let val = self.mem_read(addr);
@@ -436,6 +436,17 @@ impl Cpu {
 
                 self.update_zero_and_negative_flag(self.register_a);
             }
+
+            Code::AXA_U => { /* AXA */
+                let addr = addr.unwrap();
+
+                let val = self.register_a & self.register_x & 7;
+                self.mem_write(addr, val);
+            },
+
+            Code::AXS_U => { /* AXS */
+
+            },
 
             Code::BRK => { /* BRK */
                 self.status.insert(Status::BREAKONE);

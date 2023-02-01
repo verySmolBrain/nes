@@ -21,7 +21,7 @@ mod test {
             0002  00        BRK                             A:1F X:F8 Y:00 P:24 SP:FD"#]]);
 
         let val = cpu.mem_read(0x00a1);
-        let expected = expect!["11000"];
-        expected.assert_eq(&format!("{:b}", val));
+        let expected = expect!["00011000"];
+        expected.assert_eq(&format!("{:08b}", val).as_str());
     }
 }
