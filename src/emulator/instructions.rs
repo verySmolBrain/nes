@@ -464,6 +464,17 @@ impl Cpu {
                 self.update_carry_flag(self.register_a, val);
             },
 
+            Code::ISC_U => { /* ISC */
+                let addr = addr.unwrap();
+
+                let val = self.mem_read(addr).wrapping_add(1);
+                self.mem_write(addr, val);
+                
+                let res = self.addition(val.wrapping_neg().wrapping_sub(1) as u8);
+                self.register_a = res;
+                self.update_zero_and_negative_flag(self.register_a);
+            }
+
             Code::BRK => { /* BRK */
                 self.status.insert(Status::BREAKONE);
                 return false; // Change later
