@@ -445,7 +445,23 @@ impl Cpu {
             },
 
             Code::AXS_U => { /* AXS */
+                let addr = addr.unwrap();
+                let val = self.mem_read(addr);
 
+                let res = self.register_a & self.register_x;
+
+                self.update_carry_flag(res, val);
+                self.register_x = res.wrapping_sub(val);
+                self.update_zero_and_negative_flag(self.register_x);
+            },
+
+
+            Code::DCP_U => { /* DCP */
+                let addr = addr.unwrap();
+                let val = self.mem_read(addr).wrapping_sub(1);
+
+                self.mem_write(addr, val);
+                self.update_carry_flag(self.register_a, val);
             },
 
             Code::BRK => { /* BRK */
@@ -453,6 +469,7 @@ impl Cpu {
                 return false; // Change later
             }, 
 
+            Code::DOP_U => (), /* DOP */
             Code::NOP => (), /* NOP */
 
             _ => panic!(),

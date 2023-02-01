@@ -61,3 +61,5 @@ pub mod test_arr_u;
 pub mod test_asr_u;
 pub mod test_atx_u;
 pub mod test_axa_u;
+pub mod test_axs_u;
+pub mod test_dcp_u;
