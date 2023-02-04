@@ -71,3 +71,4 @@ pub mod test_rla_u;
 pub mod test_rra_u;
 pub mod test_slo_u;
 pub mod test_sre_u;
+pub mod test_sxa_u;

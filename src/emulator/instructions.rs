@@ -543,6 +543,12 @@ impl Cpu {
                 self.update_zero_and_negative_flag(self.register_a);
             },
 
+            Code::SXA_U => { /* SXA */
+                let addr = addr.unwrap();
+                let val = self.register_x & ((addr >> 8) as u8 + 1);
+                self.mem_write(addr, val);
+            }
+
             Code::BRK => { /* BRK */
                 self.status.insert(Status::BREAKONE);
                 return false; // Change later
