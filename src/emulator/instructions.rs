@@ -469,17 +469,28 @@ impl Cpu {
 
                 let val = self.mem_read(addr).wrapping_add(1);
                 self.mem_write(addr, val);
-                
+
                 let res = self.addition(val.wrapping_neg().wrapping_sub(1) as u8);
                 self.register_a = res;
                 self.update_zero_and_negative_flag(self.register_a);
             }
 
+            Code::LAR_U => { /* LAR */
+                let addr = addr.unwrap();
+
+                let val = self.mem_read(addr);
+                self.stack_pointer &= val;
+                self.register_a = self.stack_pointer;
+                self.register_x = self.stack_pointer;
+                self.update_zero_and_negative_flag(self.stack_pointer);
+            },
+
             Code::BRK => { /* BRK */
                 self.status.insert(Status::BREAKONE);
                 return false; // Change later
             }, 
-
+            
+            Code::KIL_U => (), /* KIL */
             Code::DOP_U => (), /* DOP */
             Code::NOP => (), /* NOP */
 
