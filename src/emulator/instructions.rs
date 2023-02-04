@@ -531,6 +531,18 @@ impl Cpu {
                 self.update_zero_and_negative_flag(self.register_a);
             },
 
+            Code::SRE_U => { /* SRE */
+                let addr = addr.unwrap();
+
+                let val = self.mem_read(addr);
+                self.status.set(Status::CARRY, val & 0b1 != 0);
+                let res = val >> 1;
+                self.mem_write(addr, res);
+
+                self.register_a ^= res;
+                self.update_zero_and_negative_flag(self.register_a);
+            },
+
             Code::BRK => { /* BRK */
                 self.status.insert(Status::BREAKONE);
                 return false; // Change later
