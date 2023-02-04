@@ -65,3 +65,4 @@ pub mod test_axs_u;
 pub mod test_dcp_u;
 pub mod test_isc_u;
 pub mod test_lar_u;
+pub mod test_lax_u;

@@ -485,6 +485,15 @@ impl Cpu {
                 self.update_zero_and_negative_flag(self.stack_pointer);
             },
 
+            Code::LAX_U => { /* LAX */
+                let addr = addr.unwrap();
+
+                let val = self.mem_read(addr);
+                self.register_a = val;
+                self.register_x = val;
+                self.update_zero_and_negative_flag(val);
+            },
+
             Code::BRK => { /* BRK */
                 self.status.insert(Status::BREAKONE);
                 return false; // Change later
