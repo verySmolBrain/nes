@@ -499,6 +499,7 @@ impl Cpu {
                 return false; // Change later
             }, 
             
+            Code::NOP_U => (),
             Code::KIL_U => (), /* KIL */
             Code::DOP_U => (), /* DOP */
             Code::NOP => (), /* NOP */
