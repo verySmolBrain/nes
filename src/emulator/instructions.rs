@@ -517,7 +517,19 @@ impl Cpu {
                 let res = self.addition(res);
                 self.register_a = res;
                 self.update_zero_and_negative_flag(self.register_a);
-            }
+            },
+
+            Code::SLO_U => { /* SLO */
+                let addr = addr.unwrap();
+
+                let val = self.mem_read(addr);
+                self.status.set(Status::CARRY, val & 0b1000_0000 != 0);
+                let res = val << 1;
+                self.mem_write(addr, res);
+
+                self.register_a |= res;
+                self.update_zero_and_negative_flag(self.register_a);
+            },
 
             Code::BRK => { /* BRK */
                 self.status.insert(Status::BREAKONE);

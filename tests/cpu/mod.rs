@@ -69,3 +69,4 @@ pub mod test_lax_u;
 pub mod test_nop_u;
 pub mod test_rla_u;
 pub mod test_rra_u;
+pub mod test_slo_u;
