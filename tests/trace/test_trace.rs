@@ -1,8 +1,8 @@
 #[cfg(test)]
 mod test {
-    use nes::cpu::Cpu;
-    use nes::bus::Bus;
-    use nes::memory::Mem;
+    use nes::emulator::cpu::Cpu;
+    use nes::emulator::bus::Bus;
+    use nes::emulator::memory::Mem;
     use crate::helpers::{ TestRom, load_into_memory, check };
     use expect_test::expect;
 
@@ -13,7 +13,7 @@ mod test {
 
         let mut cpu = Cpu::new(bus);
         cpu.program_counter = 0x00;
-        cpu.register_a = 1;
+        cpu.accumulator = 1;
         cpu.register_x = 2;
         cpu.register_y = 3;
 

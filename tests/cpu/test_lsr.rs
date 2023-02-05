@@ -1,9 +1,9 @@
 #[cfg(test)]
 mod test {
-    use nes::cpu::Cpu;
-    use nes::bus::Bus;
-    use nes::cpu::Status;
-    use nes::memory::Mem;
+    use nes::emulator::cpu::Cpu;
+    use nes::emulator::bus::Bus;
+    use nes::emulator::cpu::Status;
+    use nes::emulator::memory::Mem;
     use crate::helpers::{ TestRom, load_into_memory, check };
     use expect_test::expect;
 
@@ -14,7 +14,7 @@ mod test {
 
         let mut cpu = Cpu::new(bus);
         cpu.program_counter = 0x0000;
-        cpu.register_a = 0b0000_0001;
+        cpu.accumulator = 0b0000_0001;
         
         check(&mut cpu, expect![[r#"
             0000  4A        LSR A                           A:01 X:00 Y:00 P:24 SP:FD
@@ -28,7 +28,7 @@ mod test {
 
         let mut cpu = Cpu::new(bus);
         cpu.program_counter = 0x0000;
-        cpu.register_a = 0b0000_0000;
+        cpu.accumulator = 0b0000_0000;
         cpu.status.insert(Status::CARRY);
         
         check(&mut cpu, expect![[r#"
@@ -43,7 +43,7 @@ mod test {
 
         let mut cpu = Cpu::new(bus);
         cpu.program_counter = 0x0000;
-        cpu.register_a = 0b0001_1111;
+        cpu.accumulator = 0b0001_1111;
         cpu.status.remove(Status::CARRY);
         
         check(&mut cpu, expect![[r#"

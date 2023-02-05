@@ -1,4 +1,4 @@
-use crate::rom::Rom;
+use crate::emulator::rom::Rom;
 
 const BUS_ADDRESS_SPACE: usize = 0x800;
 

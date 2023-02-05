@@ -1,7 +1,7 @@
 #[cfg(test)]
 mod test {
-    use nes::cpu::Cpu;
-    use nes::bus::Bus;
+    use nes::emulator::cpu::Cpu;
+    use nes::emulator::bus::Bus;
     use crate::helpers::{ TestRom, load_into_memory, check };
     use expect_test::expect;
 
@@ -12,7 +12,7 @@ mod test {
 
         let mut cpu = Cpu::new(bus);
         cpu.program_counter = 0x0000;
-        cpu.register_a = 0x06; // cmp 0x06, 0x05
+        cpu.accumulator = 0x06; // cmp 0x06, 0x05
         
         check(&mut cpu, expect![[r#"
             0000  C9 05     CMP #$05                        A:06 X:00 Y:00 P:24 SP:FD
@@ -26,7 +26,7 @@ mod test {
 
         let mut cpu = Cpu::new(bus);
         cpu.program_counter = 0x0000;
-        cpu.register_a = 0x05; // cmp 0x05, 0x06
+        cpu.accumulator = 0x05; // cmp 0x05, 0x06
         
         check(&mut cpu, expect![[r#"
             0000  C9 06     CMP #$06                        A:05 X:00 Y:00 P:24 SP:FD
@@ -40,7 +40,7 @@ mod test {
 
         let mut cpu = Cpu::new(bus);
         cpu.program_counter = 0x0000;
-        cpu.register_a = 0x00; // cmp 0x00, 0x00
+        cpu.accumulator = 0x00; // cmp 0x00, 0x00
         
         check(&mut cpu, expect![[r#"
             0000  C9 00     CMP #$00                        A:00 X:00 Y:00 P:24 SP:FD
@@ -54,7 +54,7 @@ mod test {
 
         let mut cpu = Cpu::new(bus);
         cpu.program_counter = 0x0000;
-        cpu.register_a = 0x01; // cmp 0xff, 0x01
+        cpu.accumulator = 0x01; // cmp 0xff, 0x01
     
         check(&mut cpu, expect![[r#"
             0000  C9 FF     CMP #$FF                        A:01 X:00 Y:00 P:24 SP:FD
