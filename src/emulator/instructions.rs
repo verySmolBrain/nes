@@ -549,6 +549,12 @@ impl Cpu {
                 self.mem_write(addr, val);
             }
 
+            Code::SYA_U => { /* SYA */
+                let addr = addr.unwrap();
+                let val = self.register_y & ((addr >> 8) as u8 + 1);
+                self.mem_write(addr, val);
+            }
+
             Code::BRK => { /* BRK */
                 self.status.insert(Status::BREAKONE);
                 return false; // Change later
