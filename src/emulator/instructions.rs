@@ -23,8 +23,8 @@ impl Cpu {
                 let addr = addr.unwrap();
                 let value = self.mem_read(addr);
 
-                self.register_a = value;
-                self.update_zero_and_negative_flag(self.register_a);
+                self.accumulator = value;
+                self.update_zero_and_negative_flag(self.accumulator);
             },
             Code::LDX => { /* LDX */
                 let addr = addr.unwrap();
@@ -44,7 +44,7 @@ impl Cpu {
 
             Code::STA => { /* STA */
                 let addr = addr.unwrap();
-                self.mem_write(addr, self.register_a)
+                self.mem_write(addr, self.accumulator)
             },
             Code::STX => { /* STX */
                 let addr = addr.unwrap();
@@ -60,14 +60,14 @@ impl Cpu {
                 let addr = addr.unwrap();
                 
                 let res = self.addition(self.mem_read(addr));
-                self.register_a = res;
+                self.accumulator = res;
                 self.update_zero_and_negative_flag(res);
             },
             Code::SBC => { /* SBC */
                 let addr = addr.unwrap();
 
                 let res = self.addition(self.mem_read(addr).wrapping_neg().wrapping_sub(1) as u8);
-                self.register_a = res;
+                self.accumulator = res;
                 self.update_zero_and_negative_flag(res);
             },
             
@@ -110,22 +110,22 @@ impl Cpu {
                 let addr = addr.unwrap();
 
                 let value = self.mem_read(addr);
-                self.register_a &= value;
-                self.update_zero_and_negative_flag(self.register_a);
+                self.accumulator &= value;
+                self.update_zero_and_negative_flag(self.accumulator);
             },
             Code::ORA => { /* ORA */
                 let addr = addr.unwrap();
 
                 let value = self.mem_read(addr);
-                self.register_a |= value;
-                self.update_zero_and_negative_flag(self.register_a);
+                self.accumulator |= value;
+                self.update_zero_and_negative_flag(self.accumulator);
             },
             Code::EOR => { /* EOR */
                 let addr = addr.unwrap();
 
                 let value = self.mem_read(addr);
-                self.register_a ^= value;
-                self.update_zero_and_negative_flag(self.register_a);
+                self.accumulator ^= value;
+                self.update_zero_and_negative_flag(self.accumulator);
             },
             Code::JMP => { /* JMP */
                 let addr = addr.unwrap();
@@ -195,10 +195,10 @@ impl Cpu {
                 let addr = addr.unwrap();
 
                 let value = self.mem_read(addr);
-                let result = self.register_a.wrapping_sub(value);
+                let result = self.accumulator.wrapping_sub(value);
         
                 self.update_zero_and_negative_flag(result);
-                self.update_carry_flag(self.register_a, value);
+                self.update_carry_flag(self.accumulator, value);
             },
             Code::CPX => { /* CPX */
                 let addr = addr.unwrap();
@@ -222,7 +222,7 @@ impl Cpu {
                 let addr = addr.unwrap();
 
                 let value = self.mem_read(addr);
-                self.status.set(Status::ZERO, (self.register_a & value) == 0);
+                self.status.set(Status::ZERO, (self.accumulator & value) == 0);
                 self.status.set(Status::NEGATIVE, value & 0b10000000 != 0);
                 self.status.set(Status::OVERFLOW, value & 0b01000000 != 0);
             },
@@ -230,8 +230,8 @@ impl Cpu {
 
             Code::ASL => { /* ASL */
                 if code.mode == AddressingMode::Accumulator {
-                    let new_val = self.asl(self.register_a);
-                    self.register_a = new_val;
+                    let new_val = self.asl(self.accumulator);
+                    self.accumulator = new_val;
                 } else {
                     let addr = addr.unwrap();
                     let val = self.mem_read(addr);
@@ -242,8 +242,8 @@ impl Cpu {
             },
             Code::LSR => { /* LSR */
                 if code.mode == AddressingMode::Accumulator {
-                    let val = self.lsr(self.register_a);
-                    self.register_a = val;
+                    let val = self.lsr(self.accumulator);
+                    self.accumulator = val;
                 } else {
                     let addr = addr.unwrap();
 
@@ -253,8 +253,8 @@ impl Cpu {
             },
             Code::ROL => { /* ROL */
                 if code.mode == AddressingMode::Accumulator {
-                    let val = self.rol(self.register_a);
-                    self.register_a = val;
+                    let val = self.rol(self.accumulator);
+                    self.accumulator = val;
                 } else {
                     let addr = addr.unwrap();
 
@@ -264,8 +264,8 @@ impl Cpu {
             },
             Code::ROR => { /* ROR */
                 if code.mode == AddressingMode::Accumulator {
-                    let val = self.ror(self.register_a);
-                    self.register_a = val;
+                    let val = self.ror(self.accumulator);
+                    self.accumulator = val;
                 } else {
                     let addr = addr.unwrap();
 
@@ -276,20 +276,20 @@ impl Cpu {
 
 
             Code::TAX => { /* TAX */
-                self.register_x = self.register_a;
+                self.register_x = self.accumulator;
                 self.update_zero_and_negative_flag(self.register_x);
             }, 
             Code::TAY => { /* TAY */
-                self.register_y = self.register_a;
+                self.register_y = self.accumulator;
                 self.update_zero_and_negative_flag(self.register_y);
             }, 
             Code::TXA => { /* TXA */
-                self.register_a = self.register_x;
-                self.update_zero_and_negative_flag(self.register_a);
+                self.accumulator = self.register_x;
+                self.update_zero_and_negative_flag(self.accumulator);
             }, 
             Code::TYA => { /* TYA */
-                self.register_a = self.register_y;
-                self.update_zero_and_negative_flag(self.register_a);
+                self.accumulator = self.register_y;
+                self.update_zero_and_negative_flag(self.accumulator);
             }, 
             Code::TSX => {
                 self.register_x = self.stack_pointer;
@@ -301,7 +301,7 @@ impl Cpu {
 
 
             Code::PHA => { /* PHA */
-                self.stack_push_u8(self.register_a);
+                self.stack_push_u8(self.accumulator);
             }, 
             Code::PHP => { /* PHP */
                 let mut p = self.status.clone();
@@ -310,8 +310,8 @@ impl Cpu {
                 self.stack_push_u8(p.bits());
             }, 
             Code::PLA => { /* PLA */
-                self.register_a = self.stack_pop_u8();
-                self.update_zero_and_negative_flag(self.register_a);
+                self.accumulator = self.stack_pop_u8();
+                self.update_zero_and_negative_flag(self.accumulator);
             }, 
             Code::PLP => { /* PLP */
                 self.status = Status::from_bits_truncate(self.stack_pop_u8());
@@ -366,8 +366,8 @@ impl Cpu {
             Code::AAC_U => { /* AAC */
                 let addr = addr.unwrap();
 
-                self.register_a &= self.mem_read(addr);
-                self.update_zero_and_negative_flag(self.register_a);
+                self.accumulator &= self.mem_read(addr);
+                self.update_zero_and_negative_flag(self.accumulator);
 
                 if self.status.contains(Status::NEGATIVE) {
                     self.status.insert(Status::CARRY);
@@ -378,7 +378,7 @@ impl Cpu {
 
             Code::AAX_U => { /* AAX */
                 let addr = addr.unwrap();
-                let val = self.register_a & self.register_x;
+                let val = self.accumulator & self.register_x;
 
                 self.mem_write(addr, val);
                 self.update_zero_and_negative_flag(val);
@@ -388,11 +388,11 @@ impl Cpu {
                 let addr = addr.unwrap();
 
                 let val = self.mem_read(addr);
-                self.register_a &= val;
-                self.register_a >>= 1;
+                self.accumulator &= val;
+                self.accumulator >>= 1;
 
-                let bit_5_set = self.register_a & 0b100 != 0;
-                let bit_6_set = self.register_a & 0b10 != 0;
+                let bit_5_set = self.accumulator & 0b100 != 0;
+                let bit_6_set = self.accumulator & 0b10 != 0;
 
                 if bit_5_set && bit_6_set {
                     self.status.insert(Status::CARRY);
@@ -408,39 +408,39 @@ impl Cpu {
                     self.status.remove(Status::OVERFLOW);
                 }
 
-                self.update_zero_and_negative_flag(self.register_a);
+                self.update_zero_and_negative_flag(self.accumulator);
             },
 
             Code::ASR_U => { /* ASR */
                 let addr = addr.unwrap();
 
                 let val = self.mem_read(addr);
-                self.register_a &= val;
+                self.accumulator &= val;
 
-                if self.register_a & 0b1 == 0 {
+                if self.accumulator & 0b1 == 0 {
                     self.status.remove(Status::CARRY);
                 } else {
                     self.status.insert(Status::CARRY);
                 }
 
-                self.register_a >>= 1;
-                self.update_zero_and_negative_flag(self.register_a);
+                self.accumulator >>= 1;
+                self.update_zero_and_negative_flag(self.accumulator);
             },
 
             Code::ATX_U => { /* ATX */
                 let addr = addr.unwrap();
 
                 let val = self.mem_read(addr);
-                self.register_a &= val;
-                self.register_x = self.register_a;
+                self.accumulator &= val;
+                self.register_x = self.accumulator;
 
-                self.update_zero_and_negative_flag(self.register_a);
+                self.update_zero_and_negative_flag(self.accumulator);
             }
 
             Code::AXA_U => { /* AXA */
                 let addr = addr.unwrap();
 
-                let val = self.register_a & self.register_x & 7;
+                let val = self.accumulator & self.register_x & 7;
                 self.mem_write(addr, val);
             },
 
@@ -448,7 +448,7 @@ impl Cpu {
                 let addr = addr.unwrap();
                 let val = self.mem_read(addr);
 
-                let res = self.register_a & self.register_x;
+                let res = self.accumulator & self.register_x;
 
                 self.update_carry_flag(res, val);
                 self.register_x = res.wrapping_sub(val);
@@ -461,7 +461,7 @@ impl Cpu {
                 let val = self.mem_read(addr).wrapping_sub(1);
 
                 self.mem_write(addr, val);
-                self.update_carry_flag(self.register_a, val);
+                self.update_carry_flag(self.accumulator, val);
             },
 
             Code::ISC_U => { /* ISC */
@@ -471,8 +471,8 @@ impl Cpu {
                 self.mem_write(addr, val);
 
                 let res = self.addition(val.wrapping_neg().wrapping_sub(1) as u8);
-                self.register_a = res;
-                self.update_zero_and_negative_flag(self.register_a);
+                self.accumulator = res;
+                self.update_zero_and_negative_flag(self.accumulator);
             }
 
             Code::LAR_U => { /* LAR */
@@ -480,7 +480,7 @@ impl Cpu {
 
                 let val = self.mem_read(addr);
                 self.stack_pointer &= val;
-                self.register_a = self.stack_pointer;
+                self.accumulator = self.stack_pointer;
                 self.register_x = self.stack_pointer;
                 self.update_zero_and_negative_flag(self.stack_pointer);
             },
@@ -489,7 +489,7 @@ impl Cpu {
                 let addr = addr.unwrap();
 
                 let val = self.mem_read(addr);
-                self.register_a = val;
+                self.accumulator = val;
                 self.register_x = val;
                 self.update_zero_and_negative_flag(val);
             },
@@ -502,8 +502,8 @@ impl Cpu {
                 let res = val << 1;
                 self.mem_write(addr, res);
 
-                self.register_a &= res;
-                self.update_zero_and_negative_flag(self.register_a);
+                self.accumulator &= res;
+                self.update_zero_and_negative_flag(self.accumulator);
             },
 
             Code::RRA_U => { /* RRA */
@@ -515,8 +515,8 @@ impl Cpu {
                 self.mem_write(addr, res);
 
                 let res = self.addition(res);
-                self.register_a = res;
-                self.update_zero_and_negative_flag(self.register_a);
+                self.accumulator = res;
+                self.update_zero_and_negative_flag(self.accumulator);
             },
 
             Code::SLO_U => { /* SLO */
@@ -527,8 +527,8 @@ impl Cpu {
                 let res = val << 1;
                 self.mem_write(addr, res);
 
-                self.register_a |= res;
-                self.update_zero_and_negative_flag(self.register_a);
+                self.accumulator |= res;
+                self.update_zero_and_negative_flag(self.accumulator);
             },
 
             Code::SRE_U => { /* SRE */
@@ -539,8 +539,8 @@ impl Cpu {
                 let res = val >> 1;
                 self.mem_write(addr, res);
 
-                self.register_a ^= res;
-                self.update_zero_and_negative_flag(self.register_a);
+                self.accumulator ^= res;
+                self.update_zero_and_negative_flag(self.accumulator);
             },
 
             Code::SXA_U => { /* SXA */
@@ -558,7 +558,7 @@ impl Cpu {
             Code::XAS_U => { /* XAS */
                 let addr = addr.unwrap();
                 
-                self.stack_pointer = self.register_a & self.register_x;
+                self.stack_pointer = self.accumulator & self.register_x;
                 let val = self.stack_pointer & ((addr >> 8) as u8 + 1);
                 self.mem_write(addr, val);
             },
@@ -567,8 +567,8 @@ impl Cpu {
                 let addr = addr.unwrap();
 
                 let val = self.mem_read(addr);
-                self.register_a = self.register_x & val;
-                self.update_zero_and_negative_flag(self.register_a);
+                self.accumulator = self.register_x & val;
+                self.update_zero_and_negative_flag(self.accumulator);
             },
 
             Code::BRK => { /* BRK */
@@ -586,7 +586,7 @@ impl Cpu {
     }
 
     fn addition(&mut self, val: u8) -> u8 {
-        let mut sum = self.register_a as u16 + val as u16;
+        let mut sum = self.accumulator as u16 + val as u16;
         
         if self.status.contains(Status::CARRY) {
             sum += 1;
@@ -600,7 +600,7 @@ impl Cpu {
 
         let res = sum as u8; 
         // http://www.righto.com/2012/12/the-6502-overflow-flag-explained.html
-        if (res ^ self.register_a) & (res ^ val) & 0b10000000 != 0 {
+        if (res ^ self.accumulator) & (res ^ val) & 0b10000000 != 0 {
             self.status.insert(Status::OVERFLOW);
         } else { 
             self.status.remove(Status::OVERFLOW);

@@ -13,7 +13,7 @@ pub fn trace(cpu: &mut Cpu) -> String {
     let mut msb: Option<u8> = None;
     let mut assembly_translation: Option<String> = None;
 
-    let accumulator = cpu.register_a;
+    let accumulator = cpu.accumulator;
     let x = cpu.register_x;
     let y = cpu.register_y;
     let status = cpu.status.bits();

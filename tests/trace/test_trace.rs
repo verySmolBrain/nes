@@ -13,7 +13,7 @@ mod test {
 
         let mut cpu = Cpu::new(bus);
         cpu.program_counter = 0x00;
-        cpu.register_a = 1;
+        cpu.accumulator = 1;
         cpu.register_x = 2;
         cpu.register_y = 3;
 

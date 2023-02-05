@@ -14,7 +14,7 @@ mod test {
 
         let mut cpu = Cpu::new(bus);
         cpu.program_counter = 0x0000;
-        cpu.register_a = 0b1000_0000;
+        cpu.accumulator = 0b1000_0000;
         
         check(&mut cpu, expect![[r#"
             0000  2A        ROL A                           A:80 X:00 Y:00 P:24 SP:FD
@@ -28,7 +28,7 @@ mod test {
 
         let mut cpu = Cpu::new(bus);
         cpu.program_counter = 0x0000;
-        cpu.register_a = 0b0000_0000;
+        cpu.accumulator = 0b0000_0000;
         cpu.status.insert(Status::CARRY);
         
         check(&mut cpu, expect![[r#"
@@ -43,7 +43,7 @@ mod test {
 
         let mut cpu = Cpu::new(bus);
         cpu.program_counter = 0x0000;
-        cpu.register_a = 0b1000_1111;
+        cpu.accumulator = 0b1000_1111;
         cpu.status.insert(Status::CARRY);
         
         check(&mut cpu, expect![[r#"

@@ -67,7 +67,7 @@ impl Default for Status {
 }
 
 pub struct Cpu {
-    pub register_a: u8, 
+    pub accumulator: u8, 
     pub register_x: u8,
     pub register_y: u8,
     pub stack_pointer: u8,
@@ -79,7 +79,7 @@ pub struct Cpu {
 impl Cpu {
     pub fn new(bus: Bus) -> Self {
         Cpu {
-            register_a: 0, // accumulator
+            accumulator: 0, // accumulator
             register_x: 0,
             register_y: 0,
             stack_pointer: STACK_RESET,
@@ -90,7 +90,7 @@ impl Cpu {
     }
 
     pub fn reset(&mut self) {
-        self.register_a = 0;
+        self.accumulator = 0;
         self.register_x = 0;
         self.register_y = 0;
         self.stack_pointer = STACK_RESET;

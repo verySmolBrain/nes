@@ -14,7 +14,7 @@ mod test {
         let mut cpu = Cpu::new(bus);
         cpu.program_counter = 0x0000;
         cpu.register_x = 0b1111_1111;
-        cpu.register_a = 0b0000_1111;
+        cpu.accumulator = 0b0000_1111;
         cpu.stack_pointer = 0b0000_0001;
         cpu.register_y = 0;
         

@@ -12,7 +12,7 @@ mod test {
 
         let mut cpu = Cpu::new(bus);
         cpu.program_counter = 0x0000;
-        cpu.register_a = 1;
+        cpu.accumulator = 1;
 
         check(&mut cpu, expect![[r#"
             0000  E9 00     SBC #$00                        A:01 X:00 Y:00 P:24 SP:FD
@@ -26,7 +26,7 @@ mod test {
 
         let mut cpu = Cpu::new(bus);
         cpu.program_counter = 0x0000;
-        cpu.register_a = 0x09;
+        cpu.accumulator = 0x09;
 
         check(&mut cpu, expect![[r#"
             0000  E9 06     SBC #$06                        A:09 X:00 Y:00 P:24 SP:FD
@@ -40,7 +40,7 @@ mod test {
 
         let mut cpu = Cpu::new(bus);
         cpu.program_counter = 0x0000;
-        cpu.register_a = 80;
+        cpu.accumulator = 80;
 
         check(&mut cpu, expect![[r#"
             0000  E9 70     SBC #$70                        A:50 X:00 Y:00 P:24 SP:FD
@@ -54,7 +54,7 @@ mod test {
 
         let mut cpu = Cpu::new(bus);
         cpu.program_counter = 0x0000;
-        cpu.register_a = 80;
+        cpu.accumulator = 80;
 
         check(&mut cpu, expect![[r#"
             0000  E9 50     SBC #$50                        A:50 X:00 Y:00 P:24 SP:FD
@@ -68,7 +68,7 @@ mod test {
 
         let mut cpu = Cpu::new(bus);
         cpu.program_counter = 0x0000;
-        cpu.register_a = 0xff;
+        cpu.accumulator = 0xff;
 
         check(&mut cpu, expect![[r#"
             0000  E9 00     SBC #$00                        A:FF X:00 Y:00 P:24 SP:FD

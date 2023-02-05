@@ -14,7 +14,7 @@ mod test {
 
         let mut cpu = Cpu::new(bus);
         cpu.program_counter = 0;
-        cpu.register_a = 5;
+        cpu.accumulator = 5;
 
         check(&mut cpu, expect![[r#"
             0000  E7 A1     ISC_U $A1 = 01                  A:05 X:00 Y:00 P:24 SP:FD

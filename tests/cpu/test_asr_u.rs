@@ -12,7 +12,7 @@ mod test {
 
         let mut cpu = Cpu::new(bus);
         cpu.program_counter = 0;
-        cpu.register_a = 0b1111_1111;
+        cpu.accumulator = 0b1111_1111;
 
         check(&mut cpu, expect![[r#"
             0000  4B 02     ASR_U #$02                      A:FF X:00 Y:00 P:24 SP:FD
@@ -26,7 +26,7 @@ mod test {
 
         let mut cpu = Cpu::new(bus);
         cpu.program_counter = 0;
-        cpu.register_a = 0b1111_1111;
+        cpu.accumulator = 0b1111_1111;
 
         check(&mut cpu, expect![[r#"
             0000  4B 01     ASR_U #$01                      A:FF X:00 Y:00 P:24 SP:FD
