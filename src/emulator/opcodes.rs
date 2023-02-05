@@ -22,7 +22,7 @@ impl Display for Code {
             Code::AAX_U => write!(f, "*SAX"),
             Code::SBC_U => write!(f, "*SBC"),
             Code::DCP_U => write!(f, "*DCP"),
-            Code::ISC_U => write!(f, "*ISB"),
+            Code::ISB_U => write!(f, "*ISB"),
             Code::SLO_U => write!(f, "*SLO"),
             Code::RLA_U => write!(f, "*RLA"),
             Code::SRE_U => write!(f, "*SRE"),
@@ -117,7 +117,7 @@ pub enum Code {
 
     /* RMW (read-modify-write) */
     DCP_U,
-    ISC_U,
+    ISB_U,
     LAR_U,
     LAX_U,
     RLA_U,
@@ -428,13 +428,13 @@ pub static OPCODES: phf::Map<u8, OPCode> = phf_map! {
     0xc3_u8 => OPCode { code: Code::DCP_U, bytes: 2, cycles: 8, mode: Indirect_X },
     0xd3_u8 => OPCode { code: Code::DCP_U, bytes: 2, cycles: 8, mode: Indirect_Y },
 
-    0xe7_u8 => OPCode { code: Code::ISC_U, bytes: 2, cycles: 5, mode: ZeroPage },
-    0xf7_u8 => OPCode { code: Code::ISC_U, bytes: 2, cycles: 6, mode: ZeroPage_X },
-    0xef_u8 => OPCode { code: Code::ISC_U, bytes: 3, cycles: 6, mode: Absolute },
-    0xff_u8 => OPCode { code: Code::ISC_U, bytes: 3, cycles: 7, mode: Absolute_X },
-    0xfb_u8 => OPCode { code: Code::ISC_U, bytes: 3, cycles: 7, mode: Absolute_Y },
-    0xe3_u8 => OPCode { code: Code::ISC_U, bytes: 2, cycles: 8, mode: Indirect_X },
-    0xf3_u8 => OPCode { code: Code::ISC_U, bytes: 2, cycles: 8, mode: Indirect_Y },
+    0xe7_u8 => OPCode { code: Code::ISB_U, bytes: 2, cycles: 5, mode: ZeroPage },
+    0xf7_u8 => OPCode { code: Code::ISB_U, bytes: 2, cycles: 6, mode: ZeroPage_X },
+    0xef_u8 => OPCode { code: Code::ISB_U, bytes: 3, cycles: 6, mode: Absolute },
+    0xff_u8 => OPCode { code: Code::ISB_U, bytes: 3, cycles: 7, mode: Absolute_X },
+    0xfb_u8 => OPCode { code: Code::ISB_U, bytes: 3, cycles: 7, mode: Absolute_Y },
+    0xe3_u8 => OPCode { code: Code::ISB_U, bytes: 2, cycles: 8, mode: Indirect_X },
+    0xf3_u8 => OPCode { code: Code::ISB_U, bytes: 2, cycles: 8, mode: Indirect_Y },
 
     0xbb_u8 => OPCode { code: Code::LAR_U, bytes: 3, cycles: 4, mode: Absolute_Y },
 

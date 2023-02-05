@@ -362,7 +362,7 @@ impl Cpu {
                 self.status.insert(Status::INTERDIS);
             }, 
 
-
+            /* Unofficial Opcodes */
             Code::AAC_U => { /* AAC */
                 let addr = addr.unwrap();
 
@@ -457,7 +457,7 @@ impl Cpu {
                 self.update_zero_and_negative_flag(self.accumulator.wrapping_sub(val));
             },
 
-            Code::ISC_U => { /* ISC */
+            Code::ISB_U => { /* ISC */
                 let addr = addr.unwrap();
 
                 let val = self.mem_read(addr).wrapping_add(1);
