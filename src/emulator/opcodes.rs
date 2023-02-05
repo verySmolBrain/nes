@@ -15,7 +15,21 @@ pub struct OPCode {
 
 impl Display for Code {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{:?}", self)
+        let s = format!("{:?}", self);
+        match *self {
+            Code::NOP_U | Code::KIL_U | Code::DOP_U => write!(f, "*NOP"),
+            Code::LAX_U => write!(f, "*LAX"),
+            Code::AAX_U => write!(f, "*SAX"),
+            Code::SBC_U => write!(f, "*SBC"),
+            Code::DCP_U => write!(f, "*DCP"),
+            Code::ISC_U => write!(f, "*ISB"),
+            Code::SLO_U => write!(f, "*SLO"),
+            Code::RLA_U => write!(f, "*RLA"),
+            Code::SRE_U => write!(f, "*SRE"),
+            Code::RRA_U => write!(f, "*RRA"),
+            Code::XAS_U => write!(f, "*XAS"),
+            _ => write!(f, " {}", s)
+        }
     }
 }
 
@@ -120,7 +134,9 @@ pub enum Code {
     NOP_U,
 
     /* ඞ */
-    XAA_U // XAA is amogus and shouldnt really be used
+    XAA_U, // XAA is amogus and shouldnt really be used
+
+    SBC_U,
 }
 
 pub static OPCODES: phf::Map<u8, OPCode> = phf_map! {
@@ -520,7 +536,7 @@ pub static OPCODES: phf::Map<u8, OPCode> = phf_map! {
         =======================
     */
 
-    0xeb_u8 => OPCode { code: Code::SBC, bytes: 2, cycles: 2, mode: Immediate },
+    0xeb_u8 => OPCode { code: Code::SBC_U, bytes: 2, cycles: 2, mode: Immediate },
 
     0x8b_u8 => OPCode { code: Code::XAA_U, bytes: 2, cycles: 2, mode: Immediate },
 };

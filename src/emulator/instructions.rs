@@ -63,7 +63,7 @@ impl Cpu {
                 self.accumulator = res;
                 self.update_zero_and_negative_flag(res);
             },
-            Code::SBC => { /* SBC */
+            Code::SBC | Code::SBC_U => { /* SBC */
                 let addr = addr.unwrap();
 
                 let res = self.addition(self.mem_read(addr).wrapping_neg().wrapping_sub(1) as u8);
@@ -381,7 +381,6 @@ impl Cpu {
                 let val = self.accumulator & self.register_x;
 
                 self.mem_write(addr, val);
-                self.update_zero_and_negative_flag(val);
             },
 
             Code::ARR_U => { /* ARR */
@@ -416,15 +415,7 @@ impl Cpu {
 
                 let val = self.mem_read(addr);
                 self.accumulator &= val;
-
-                if self.accumulator & 0b1 == 0 {
-                    self.status.remove(Status::CARRY);
-                } else {
-                    self.status.insert(Status::CARRY);
-                }
-
-                self.accumulator >>= 1;
-                self.update_zero_and_negative_flag(self.accumulator);
+                self.accumulator = self.lsr(self.accumulator);
             },
 
             Code::ATX_U => { /* ATX */
@@ -462,6 +453,8 @@ impl Cpu {
 
                 self.mem_write(addr, val);
                 self.update_carry_flag(self.accumulator, val);
+                // DCP is a CMP with the result of the subtraction
+                self.update_zero_and_negative_flag(self.accumulator.wrapping_sub(val));
             },
 
             Code::ISC_U => { /* ISC */
@@ -497,9 +490,7 @@ impl Cpu {
             Code::RLA_U => { /* RLA */
                 let addr = addr.unwrap();
 
-                let val = self.mem_read(addr);
-                self.status.set(Status::CARRY, val & 0b1000_0000 != 0);
-                let res = val << 1;
+                let res = self.rol(self.mem_read(addr));
                 self.mem_write(addr, res);
 
                 self.accumulator &= res;
@@ -509,9 +500,7 @@ impl Cpu {
             Code::RRA_U => { /* RRA */
                 let addr = addr.unwrap();
 
-                let val = self.mem_read(addr);
-                self.status.set(Status::CARRY, val & 0b1 != 0);
-                let res = val >> 1;
+                let res = self.ror(self.mem_read(addr));
                 self.mem_write(addr, res);
 
                 let res = self.addition(res);
@@ -522,9 +511,7 @@ impl Cpu {
             Code::SLO_U => { /* SLO */
                 let addr = addr.unwrap();
 
-                let val = self.mem_read(addr);
-                self.status.set(Status::CARRY, val & 0b1000_0000 != 0);
-                let res = val << 1;
+                let res = self.asl(self.mem_read(addr));
                 self.mem_write(addr, res);
 
                 self.accumulator |= res;
@@ -534,9 +521,7 @@ impl Cpu {
             Code::SRE_U => { /* SRE */
                 let addr = addr.unwrap();
 
-                let val = self.mem_read(addr);
-                self.status.set(Status::CARRY, val & 0b1 != 0);
-                let res = val >> 1;
+                let res = self.lsr(self.mem_read(addr));
                 self.mem_write(addr, res);
 
                 self.accumulator ^= res;

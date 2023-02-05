@@ -15,7 +15,7 @@ mod test {
 
         // +1 for nop then +1 for next instruction
         check(&mut cpu, expect![[r#"
-            0000  1A        NOP_U                           A:00 X:00 Y:00 P:24 SP:FD
+            0000  1A       *NOP                             A:00 X:00 Y:00 P:24 SP:FD
             0001  00        BRK                             A:00 X:00 Y:00 P:24 SP:FD"#]])
     }
 }
