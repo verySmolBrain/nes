@@ -118,7 +118,6 @@ pub enum Code {
     DOP_U,
     KIL_U,
     NOP_U,
-    TOP_U,
 
     /* ඞ */
     XAA_U

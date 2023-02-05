@@ -553,14 +553,22 @@ impl Cpu {
                 let addr = addr.unwrap();
                 let val = self.register_y & ((addr >> 8) as u8 + 1);
                 self.mem_write(addr, val);
-            }
+            },
+
+            Code::XAS_U => { /* XAS */
+                let addr = addr.unwrap();
+                
+                self.stack_pointer = self.register_a & self.register_x;
+                let val = self.stack_pointer & ((addr >> 8) as u8 + 1);
+                self.mem_write(addr, val);
+            },
 
             Code::BRK => { /* BRK */
                 self.status.insert(Status::BREAKONE);
                 return false; // Change later
             }, 
             
-            Code::NOP_U => (),
+            Code::NOP_U => (), /* NOP */
             Code::KIL_U => (), /* KIL */
             Code::DOP_U => (), /* DOP */
             Code::NOP => (), /* NOP */
