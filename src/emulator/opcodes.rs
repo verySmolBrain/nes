@@ -120,7 +120,7 @@ pub enum Code {
     NOP_U,
 
     /* ඞ */
-    XAA_U
+    XAA_U // XAA is amogus and shouldnt really be used
 }
 
 pub static OPCODES: phf::Map<u8, OPCode> = phf_map! {

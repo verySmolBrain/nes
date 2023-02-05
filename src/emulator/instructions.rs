@@ -563,6 +563,14 @@ impl Cpu {
                 self.mem_write(addr, val);
             },
 
+            Code::XAA_U => { /* XAA */
+                let addr = addr.unwrap();
+
+                let val = self.mem_read(addr);
+                self.register_a = self.register_x & val;
+                self.update_zero_and_negative_flag(self.register_a);
+            },
+
             Code::BRK => { /* BRK */
                 self.status.insert(Status::BREAKONE);
                 return false; // Change later
