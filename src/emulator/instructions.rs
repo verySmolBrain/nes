@@ -580,8 +580,6 @@ impl Cpu {
             Code::KIL_U => (), /* KIL */
             Code::DOP_U => (), /* DOP */
             Code::NOP => (), /* NOP */
-
-            _ => panic!(),
         }
 
         true // Change later
