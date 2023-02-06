@@ -130,7 +130,26 @@ so neither can access each other.
     ++++----- Upper nybble of mapper number
 ```
 
-##
+## PPU
+
+```
+    PPU Memory Map
+    _______________ $3FFF  _______________
+   | Palette RAM   |       |               |
+   |_______________| $3F00 |_______________|
+   | Mirrors       |       | Palette RAM   |
+   | $3F00-$3F1F   |       |               |
+   |_______________| $3F20 |_______________|
+   | Nametable RAM |       | Nametable RAM |
+   |_______________| $3000 |_______________|
+   | Mirrors       |       | Nametable RAM |
+   | $2000-$2FFF   |       |_______________|
+   |_______________| $2000 |_______________|
+   | Pattern Table |       | Pattern Table |
+   |_______________| $1000 |_______________|
+   | Pattern Table |       | Pattern Table |
+   |_ _ _ _ _ _ _ _| $0000 |_______________|
+```
 
 ## Important Notes
 - Address is stored in 2 bytes
