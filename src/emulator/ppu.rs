@@ -113,7 +113,7 @@ impl Ppu {
     }
 
     pub fn write_mask(&mut self, value: u8) {
-
+        self.mask = Mask::from_bits_truncate(value);
     }
 
     pub fn write_oam_addr(&mut self, value: u8) {
