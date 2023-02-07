@@ -4,8 +4,8 @@ use crate::emulator::bus::Bus;
 const RAM: u16 = 0x0000;
 const RAM_MIRRORS_END: u16 = 0x1FFF;
 
-// const PPU_REGISTERS: u16 = 0x2000;
-// const PPU_REGISTERS_MIRRORS_END: u16 = 0x3FFF;
+const PPU_REGISTERS_MIRRORS_START: u16 = 0x2008;
+const PPU_REGISTERS_MIRRORS_END: u16 = 0x3FFF;
 
 const ROM: u16 = 0x8000;
 const ROM_MIRRORS_END: u16 = 0xFFFF;
@@ -34,6 +34,9 @@ impl Mem for Bus {
             RAM ..= RAM_MIRRORS_END => {
                 self.cpu_vram[(addr & 0b111_11111111) as usize]
             },
+            PPU_REGISTERS_MIRRORS_START ..= PPU_REGISTERS_MIRRORS_END => {
+                self.mem_read(addr & 0b00100000_00000111) //addr % 0x2000
+            },
             ROM ..= ROM_MIRRORS_END => {
                 self.read_rom(addr)
             },
@@ -45,6 +48,9 @@ impl Mem for Bus {
         match addr {
             RAM ..= RAM_MIRRORS_END => {
                 self.cpu_vram[(addr & 0b111_11111111) as usize] = data;
+            },
+            PPU_REGISTERS_MIRRORS_START ..= PPU_REGISTERS_MIRRORS_END => {
+                self.mem_write(addr & 0b00100000_00000111, data) //addr % 0x2000
             },
             0x8000 ..= 0xFFFF => {
                 panic!("Attempted to write to ROM")

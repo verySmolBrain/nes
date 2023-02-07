@@ -1,51 +1,8 @@
 use crate::emulator::{ bus::Bus, memory::Mem, rom::Rom };
 use bitflags::bitflags;
 
-/*  _______________ $10000  _______________
-   | PRG-ROM       |       |               |
-   | Upper Bank    |       |               |
-   |_ _ _ _ _ _ _ _| $C000 | PRG-ROM       |
-   | PRG-ROM       |       |               |
-   | Lower Bank    |       |               |
-   |_______________| $8000 |_______________|
-   | SRAM          |       | SRAM          |
-   |_______________| $6000 |_______________|
-   | Expansion ROM |       | Expansion ROM |
-   |_______________| $4020 |_______________|
-   | I/O Registers |       |               |
-   |_ _ _ _ _ _ _ _| $4000 |               |
-   | Mirrors       |       | I/O Registers |
-   | $2000-$2007   |       |               |
-   |_ _ _ _ _ _ _ _| $2008 |               |
-   | I/O Registers |       |               |
-   |_______________| $2000 |_______________|
-   | Mirrors       |       |               |
-   | $0000-$07FF   |       |               |
-   |_ _ _ _ _ _ _ _| $0800 |               |
-   | RAM           |       | RAM           |
-   |_ _ _ _ _ _ _ _| $0200 |               |
-   | Stack         |       |               |
-   |_ _ _ _ _ _ _ _| $0100 |               |
-   | Zero Page     |       |               |
-   |_______________| $0000 |_______________|
-*/
-
 const RESET_VECTOR: usize = 0xFFFC;
 const STACK_RESET: u8 = 0xfd; // Push = store first then decrement. So 8 bit off for initial.
-
-/*
-7  bit  0
----- ----
-NVss DIZC
-|||| ||||
-|||| |||+- Carry
-|||| ||+-- Zero
-|||| |+--- Interrupt Disable
-|||| +---- Decimal
-||++------ No Cpu effect, see: the B flag
-|+-------- Overflow
-+--------- Negative
- */
 
 bitflags! {
     pub struct Status: u8 {

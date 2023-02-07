@@ -1,0 +1,7 @@
+struct Ppu {
+
+}
+
+impl Ppu {
+    
+}

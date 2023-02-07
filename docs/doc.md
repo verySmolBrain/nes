@@ -2,10 +2,39 @@
 
 ## CPU 
 
-- 16-bit for memory addressing
-- 6502 Processor without Decimal
+* 16-bit for memory addressing
+* 6502 Processor without Decimal
 
 ### CPU Memory Map
+```  _______________ $10000  _______________
+   | PRG-ROM       |       |               |
+   | Upper Bank    |       |               |
+   |_ _ _ _ _ _ _ _| $C000 | PRG-ROM       |
+   | PRG-ROM       |       |               |
+   | Lower Bank    |       |               |
+   |_______________| $8000 |_______________|
+   | SRAM          |       | SRAM          |
+   |_______________| $6000 |_______________|
+   | Expansion ROM |       | Expansion ROM |
+   |_______________| $4020 |_______________|
+   | I/O Registers |       |               |
+   |_ _ _ _ _ _ _ _| $4000 |               |
+   | Mirrors       |       | I/O Registers |
+   | $2000-$2007   |       |               |
+   |_ _ _ _ _ _ _ _| $2008 |               |
+   | I/O Registers |       |               |
+   |_______________| $2000 |_______________|
+   | Mirrors       |       |               |
+   | $0000-$07FF   |       |               |
+   |_ _ _ _ _ _ _ _| $0800 |               |
+   | RAM           |       | RAM           |
+   |_ _ _ _ _ _ _ _| $0200 |               |
+   | Stack         |       |               |
+   |_ _ _ _ _ _ _ _| $0100 |               |
+   | Zero Page     |       |               |
+   |_______________| $0000 |_______________|
+```
+
 - RAM - [0x0000 … 0x2000]
 - NES hardware modules: PPU, APU, GamePads - [0x2000 … 0x4020]
 - Mappers - [0x4020 .. 0x6000]
@@ -66,23 +95,18 @@ pointers or routines easier but is less performant)
 ### Bus
 
 * 8-bit Data Bus -> Byte being read or written
-* 1-bit Control But -> Read or write access
+* 1-bit Control Bus -> Read or write access
 * 16-bit Address Bus -> Address of required location
 
-Mirroring
+The CPU memory map is divided into 3 parts. The Zero Page [0000 .. 0100],
+the Stack [0100 .. 0200] and the rest of the RAM [0200 .. 0800]. This is
+mirrored in the address space [0x0000 .. 0x2000].
 
-* [0x000 .. 0x0800 ]
-* [0x800 .. 0x1000 ]
-* [0x1000 .. 0x1800 ]
-* [0x1800 .. 0x2000 ]
-
-* NES Motherboard has only 11 addressing tracks but the 
-addressing space reserved for RAM [0x0000 .. 0x2000 ] has 13 bits.
-So we effectively need to Zero out the 2 MSB if we receive a 
-request in the RAM address space.
-
-* This also applies to address space [ 0x2008 .. 0x4000 ] which mirrors 
-memory mappings for PPU registers [ 0x2000 .. 0x2008 ].
+The reason for the mirroring is that the CPU ram chip only has address space [0x0000 .. 0x0800] (11 bits) but the chip used to decode the address space only uses the first 13 bits.
+With the address bus possessing 16-bits, there are 13 bits left with an address space of
+only 11 bits. Decoding the address space requires extra logical resources so the NES
+Motherboard has only 11 addressing tracks and simply ignores the 2 MSB. This also
+applies to the PPU registers.
 
 ## ROM Catride Structure
 
@@ -91,7 +115,8 @@ PRG ROM for code & CHR ROM for graphics. PRG ROM gets
 connected to CPU and CHR ROM gets connected to PPU
 so neither can access each other. 
 
-* We deal with ROM dumps which are slightly different. The most popular is iNES.
+* We deal with ROM dumps which are slightly different. The most popular is iNES
+which follows the following format:
 
 ```
     Map for NES ROM header
@@ -150,6 +175,26 @@ so neither can access each other.
    | Pattern Table |       | Pattern Table |
    |_ _ _ _ _ _ _ _| $0000 |_______________|
 ```
+
+The PPU has its own set of registers. Namely:
+
+* Controller (0x2000) -> General logic flow
+* Mask (0x2001) -> Rendering method for sprites and background
+* Status (0x2002) -> PPU Status
+* OAM Address (0x2003) -> (Object Attribute Memory) -> Space for Sprites
+* OAM Data (0x2004) -> Data at OAM Address
+* Scroll (0x2005) -> Viewport
+* Address (0x2006) -> Address of PPU Memory
+* Data (0x2007) -> Data at PPU Memory
+* OAM DMA (0x2008) -> (Fast Copying of 256 bytes from CPU RAM to OAM) -> Direct Memory Access
+
+This is stored in the CPU in the address space `[0x2000 .. 0x2008]` Which is mirrored
+every 8 bytes in the address space `[0x2008 .. 0x4000]` (This is because an NES uses a cheap
+decoder chip which only has 11 address lines and it is easier and faster to simply decode
+the address incompletely).
+
+The PPU itself has its own address space as seen above which is accessed by the CPU through
+the PPU registers. The PPU can also notify the CPU through NMI interrupts.
 
 ## Important Notes
 - Address is stored in 2 bytes
