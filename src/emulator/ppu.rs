@@ -86,7 +86,7 @@ impl Ppu {
     }
 
     pub fn read_oam_data(&self) -> u8 {
-        0
+        self.oam_data[self.oam_addr as usize]
     }
 
     pub fn read_data(&mut self) -> u8 {
