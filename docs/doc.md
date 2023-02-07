@@ -266,6 +266,8 @@ PPU can represent the state of 2 screens. However the PPU memory map has range `
 enough to fit 4 screens. This means we still have to map another 2 screens. How this is mapped is 
 decided by the mirroring in the NES ROM Header. (This has to do with scrolling since you need another
 screen as a sort of 'placeholder' for when you scroll past the edge of the screen.)
+* Buffer -> As CHR ROM and VRAM are considered separate from PPU the PPU actually stores the result of the data
+it reads into a buffer. This means the PPU is perpetually one read behind the actual value.
 
 ## Important Notes
 - Address is stored in 2 bytes
