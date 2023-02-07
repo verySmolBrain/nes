@@ -29,7 +29,7 @@ bitflags! {
 
 bitflags! {
     pub struct Status: u8 {
-        const V_BLANK_STARTED = 0b1000_0000;
+        const VBLANK_STARTED  = 0b1000_0000;
         const SPRITE_0        = 0b0100_0000;
         const SPRITE_OVERFLOW = 0b0010_0000;
     }
@@ -81,8 +81,14 @@ impl Ppu {
         }
     }
 
-    pub fn read_status(&self) -> u8 {
-        0
+    pub fn read_status(&mut self) -> u8 {
+        let status = self.status.bits();
+
+        self.status.remove(Status::VBLANK_STARTED);
+        self.scroll.latch = false;
+        self.address.latch = false;
+
+        status
     }
 
     pub fn read_oam_data(&self) -> u8 {
@@ -99,7 +105,11 @@ impl Ppu {
                 self.buffer = self.chr_rom[addr as usize];
                 value
             },
-            0x2000 ..= 0x3EFF => self.vram[addr as usize],
+            0x2000 ..= 0x3EFF => {
+                let value = self.buffer;
+                self.buffer = self.vram[self.mirror_vram(addr) as usize];
+                value
+            },
             0x3F00 ..= 0x3FFF => self.palette_table[(addr - 0x3f00) as usize],
             _ => panic!("Invalid PPU address: {:#X}", addr),
         }
@@ -140,5 +150,9 @@ impl Ppu {
 
     pub fn write_data(&mut self, value: u8) {
 
+    }
+
+    pub fn mirror_vram(&self, addr: u16) -> u16 {
+        0
     }
 }
