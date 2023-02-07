@@ -52,8 +52,15 @@ impl Address {
         u16::from_be_bytes([self.h, self.l]) & 0x3FFF
     }
 
-    pub fn next(&self) {
+    pub fn next(&mut self, controller: Controller) {
+        let inc = if controller.contains(Controller::VRAM_ADDR_INC) { 
+            32 
+        } else { 1 };
 
+        if self.l > self.l.wrapping_add(inc) {
+            self.h = self.h.wrapping_add(1);
+        }
+        self.l = self.l.wrapping_add(inc);
     }
 }
 
@@ -129,7 +136,7 @@ impl Ppu {
             _ => panic!("Invalid PPU address: {:#X}", addr),
         }
 
-        self.address.next();
+        self.address.next(self.controller);
         value
     }
 
@@ -188,11 +195,13 @@ impl Ppu {
             _ => panic!("Invalid PPU address: {:#X}", addr),
         }
 
-        self.address.next();
+        self.address.next(self.controller);
     }
 
-    pub fn write_oam_dma(&mut self, value: u8) {
-
+    pub fn write_oam_dma(&mut self, oam: &[u8; 256]) {
+        oam.iter().for_each(|&byte|
+            self.write_oam_data(byte)
+        );
     }
 
     pub fn mirror_vram(&self, addr: u16) -> u16 {
