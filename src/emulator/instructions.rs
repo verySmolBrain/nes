@@ -58,15 +58,17 @@ impl Cpu {
 
             Code::ADC => { /* ADC */
                 let addr = addr.unwrap();
+                let val = self.mem_read(addr);
                 
-                let res = self.addition(self.mem_read(addr));
+                let res = self.addition(val);
                 self.accumulator = res;
                 self.update_zero_and_negative_flag(res);
             },
             Code::SBC | Code::SBC_U => { /* SBC */
                 let addr = addr.unwrap();
+                let val = self.mem_read(addr);
 
-                let res = self.addition(self.mem_read(addr).wrapping_neg().wrapping_sub(1) as u8);
+                let res = self.addition(val.wrapping_neg().wrapping_sub(1) as u8);
                 self.accumulator = res;
                 self.update_zero_and_negative_flag(res);
             },
@@ -246,8 +248,9 @@ impl Cpu {
                     self.accumulator = val;
                 } else {
                     let addr = addr.unwrap();
+                    let val = self.mem_read(addr);
 
-                    let val = self.lsr(self.mem_read(addr));
+                    let val = self.lsr(val);
                     self.mem_write(addr, val);
                 }
             },
@@ -257,8 +260,9 @@ impl Cpu {
                     self.accumulator = val;
                 } else {
                     let addr = addr.unwrap();
+                    let val = self.mem_read(addr);
 
-                    let val = self.rol(self.mem_read(addr));
+                    let val = self.rol(val);
                     self.mem_write(addr, val);
                 }
             },
@@ -268,8 +272,9 @@ impl Cpu {
                     self.accumulator = val;
                 } else {
                     let addr = addr.unwrap();
+                    let val = self.mem_read(addr);
 
-                    let val = self.ror(self.mem_read(addr));
+                    let val = self.ror(val);
                     self.mem_write(addr, val);
                 }
             },
@@ -489,8 +494,9 @@ impl Cpu {
 
             Code::RLA_U => { /* RLA */
                 let addr = addr.unwrap();
+                let val = self.mem_read(addr);
 
-                let res = self.rol(self.mem_read(addr));
+                let res = self.rol(val);
                 self.mem_write(addr, res);
 
                 self.accumulator &= res;
@@ -499,8 +505,9 @@ impl Cpu {
 
             Code::RRA_U => { /* RRA */
                 let addr = addr.unwrap();
+                let val = self.mem_read(addr);
 
-                let res = self.ror(self.mem_read(addr));
+                let res = self.ror(val);
                 self.mem_write(addr, res);
 
                 let res = self.addition(res);
@@ -510,8 +517,9 @@ impl Cpu {
 
             Code::SLO_U => { /* SLO */
                 let addr = addr.unwrap();
+                let val = self.mem_read(addr);
 
-                let res = self.asl(self.mem_read(addr));
+                let res = self.asl(val);
                 self.mem_write(addr, res);
 
                 self.accumulator |= res;
@@ -520,8 +528,9 @@ impl Cpu {
 
             Code::SRE_U => { /* SRE */
                 let addr = addr.unwrap();
+                let val = self.mem_read(addr);
 
-                let res = self.lsr(self.mem_read(addr));
+                let res = self.lsr(val);
                 self.mem_write(addr, res);
 
                 self.accumulator ^= res;

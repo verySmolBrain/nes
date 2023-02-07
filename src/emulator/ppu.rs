@@ -87,12 +87,20 @@ impl Ppu {
         0
     }
 
-    pub fn read_data(&self) -> u8 {
-        0
+    pub fn read_data(&mut self) -> u8 {
+        let addr = self.address.value;
+        self.address.value += if self.controller.contains(Controller::VRAM_ADDR_INC) { 32 } else { 1 };
+
+        match addr {
+            0 ..= 0x1FFF => self.chr_rom[addr as usize],
+            0x2000 ..= 0x3EFF => self.vram[addr as usize],
+            0x3F00 ..= 0x3FFF => self.palette_table[addr as usize],
+            _ => panic!("Invalid PPU address: {:#X}", addr),
+        }
     }
 
     pub fn write_controller(&mut self, value: u8) {
-
+        self.controller = Controller::from_bits_truncate(value);
     }
 
     pub fn write_mask(&mut self, value: u8) {

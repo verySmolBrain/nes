@@ -20,10 +20,10 @@ const PPU_ADDRESS: u16 = 0x2006;
 const PPU_DATA: u16 = 0x2007;
 
 pub trait Mem {
-    fn mem_read(&self, addr: u16) -> u8;
+    fn mem_read(&mut self, addr: u16) -> u8;
     fn mem_write(&mut self, addr: u16, value: u8);
 
-    fn mem_read_u16(&self, addr: u16) -> u16 {
+    fn mem_read_u16(&mut self, addr: u16) -> u16 {
         u16::from_le_bytes([ // LE
             self.mem_read(addr),
             self.mem_read(addr + 1)
@@ -38,7 +38,7 @@ pub trait Mem {
 }
 
 impl Mem for Bus {
-    fn mem_read(&self, addr: u16) -> u8 {
+    fn mem_read(&mut self, addr: u16) -> u8 {
         match addr {
             RAM ..= RAM_MIRRORS_END => {
                 self.cpu_vram[(addr & 0b111_11111111) as usize]
@@ -84,7 +84,7 @@ impl Mem for Bus {
 }
 
 impl Mem for Cpu {
-    fn mem_read(&self, addr: u16) -> u8 {
+    fn mem_read(&mut self, addr: u16) -> u8 {
         self.bus.mem_read(addr)
     }
 
@@ -92,7 +92,7 @@ impl Mem for Cpu {
         self.bus.mem_write(addr, data)
     }
 
-    fn mem_read_u16(&self, pos: u16) -> u16 {
+    fn mem_read_u16(&mut self, pos: u16) -> u16 {
         self.bus.mem_read_u16(pos)
     }
 
