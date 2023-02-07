@@ -51,6 +51,7 @@ pub struct Ppu {
     pub mirroring: Mirroring,
     pub palette_table: [u8; 32],
     pub vram: [u8; 2048],
+    pub buffer: u8,
 
     pub controller: Controller,
     pub mask: Mask,
@@ -68,6 +69,7 @@ impl Ppu {
             mirroring,
             palette_table: [0; 32],
             vram: [0; 2048],
+            buffer: 0,
 
             controller: Controller::empty(),
             mask: Mask::empty(),
@@ -92,14 +94,21 @@ impl Ppu {
         self.address.value += if self.controller.contains(Controller::VRAM_ADDR_INC) { 32 } else { 1 };
 
         match addr {
-            0 ..= 0x1FFF => self.chr_rom[addr as usize],
+            0 ..= 0x1FFF => {
+                let value = self.buffer;
+                self.buffer = self.chr_rom[addr as usize];
+                value
+            },
             0x2000 ..= 0x3EFF => self.vram[addr as usize],
-            0x3F00 ..= 0x3FFF => self.palette_table[addr as usize],
+            0x3F00 ..= 0x3FFF => self.palette_table[(addr - 0x3f00) as usize],
             _ => panic!("Invalid PPU address: {:#X}", addr),
         }
     }
 
     pub fn write_controller(&mut self, value: u8) {
+        if self.controller.contains(Controller::NMI_INTERRUPT) {
+            todo!("NMI Interrupt");
+        }
         self.controller = Controller::from_bits_truncate(value);
     }
 
