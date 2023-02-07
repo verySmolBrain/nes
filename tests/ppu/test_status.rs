@@ -7,7 +7,7 @@ mod test {
     use expect_test::expect;
 
     #[test]
-    fn test_read_status() {
+    fn test_read_status_reset() {
         let mut ppu = default_ppu(Mirroring::HORIZONTAL);
 
         ppu.status.insert(Status::VBLANK_STARTED);
