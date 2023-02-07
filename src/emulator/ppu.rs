@@ -117,7 +117,7 @@ impl Ppu {
     }
 
     pub fn write_oam_addr(&mut self, value: u8) {
-
+        self.oam_addr = value;
     }
 
     pub fn write_oam_data(&mut self, value: u8) {
