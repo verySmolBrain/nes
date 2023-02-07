@@ -3,14 +3,14 @@ use bitflags::bitflags;
 
 bitflags! {
     pub struct Controller: u8 {
-        const NMI_INTERRUPT = 0b1000_0000;
-        const MASTER_SLAVE  = 0b0100_0000;
-        const SPRITE_SIZE   = 0b0010_0000;
-        const BACKGROUND    = 0b0001_0000;
-        const SPRITES_ADDR  = 0b0000_1000;
-        const VRAM_ADDR_INC = 0b0000_0100;
-        const NAME_TABLE_0  = 0b0000_0010;
-        const NAME_TABLE_1  = 0b0000_0001;
+        const NMI_INTERRUPT  = 0b1000_0000;
+        const MASTER_SLAVE   = 0b0100_0000;
+        const SPRITE_SIZE    = 0b0010_0000;
+        const BACKGROUND     = 0b0001_0000;
+        const SPRITES_ADDR   = 0b0000_1000;
+        const VRAM_INCREMENT = 0b0000_0100;
+        const NAME_TABLE_0   = 0b0000_0010;
+        const NAME_TABLE_1   = 0b0000_0001;
     }
 }
 
@@ -53,8 +53,8 @@ impl Address {
     }
 
     pub fn next(&mut self, controller: Controller) {
-        let inc = if controller.contains(Controller::VRAM_ADDR_INC) { 
-            32 
+        let inc = if controller.contains(Controller::VRAM_INCREMENT) { 
+            0x20 
         } else { 1 };
 
         if self.l > self.l.wrapping_add(inc) {
