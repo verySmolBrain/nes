@@ -10,6 +10,15 @@ const PPU_REGISTERS_MIRRORS_END: u16 = 0x3FFF;
 const ROM: u16 = 0x8000;
 const ROM_MIRRORS_END: u16 = 0xFFFF;
 
+const PPU_CONTROLLER: u16 = 0x2000;
+const PPU_MASK: u16 = 0x2001;
+const PPU_STATUS: u16 = 0x2002;
+const PPU_OAM_ADDR: u16 = 0x2003;
+const PPU_OAM_DATA: u16 = 0x2004;
+const PPU_SCROLL: u16 = 0x2005;
+const PPU_ADDRESS: u16 = 0x2006;
+const PPU_DATA: u16 = 0x2007;
+
 pub trait Mem {
     fn mem_read(&self, addr: u16) -> u8;
     fn mem_write(&mut self, addr: u16, value: u8);
@@ -34,6 +43,11 @@ impl Mem for Bus {
             RAM ..= RAM_MIRRORS_END => {
                 self.cpu_vram[(addr & 0b111_11111111) as usize]
             },
+            
+            PPU_STATUS => self.ppu.read_status(),
+            PPU_OAM_DATA => self.ppu.read_oam_data(),
+            PPU_DATA => self.ppu.read_data(),
+
             PPU_REGISTERS_MIRRORS_START ..= PPU_REGISTERS_MIRRORS_END => {
                 self.mem_read(addr & 0b00100000_00000111) //addr % 0x2000
             },
@@ -49,6 +63,15 @@ impl Mem for Bus {
             RAM ..= RAM_MIRRORS_END => {
                 self.cpu_vram[(addr & 0b111_11111111) as usize] = data;
             },
+
+            PPU_CONTROLLER => self.ppu.write_controller(data),
+            PPU_MASK => self.ppu.write_mask(data),
+            PPU_OAM_ADDR => self.ppu.write_oam_addr(data),
+            PPU_OAM_DATA => self.ppu.write_oam_data(data),
+            PPU_SCROLL => self.ppu.write_scroll(data),
+            PPU_ADDRESS => self.ppu.write_address(data),
+            PPU_DATA => self.ppu.write_data(data),
+
             PPU_REGISTERS_MIRRORS_START ..= PPU_REGISTERS_MIRRORS_END => {
                 self.mem_write(addr & 0b00100000_00000111, data) //addr % 0x2000
             },

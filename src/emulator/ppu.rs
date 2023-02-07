@@ -46,7 +46,7 @@ pub struct Address {
     pub latch: bool,
 }
 
-struct Ppu {
+pub struct Ppu {
     pub chr_rom: Vec<u8>,
     pub mirroring: Mirroring,
     pub palette_table: [u8; 32],
@@ -77,5 +77,45 @@ impl Ppu {
             scroll: Scroll { x: 0, y: 0, latch: false },
             address: Address { value: 0, latch: false },
         }
+    }
+
+    pub fn read_status(&self) -> u8 {
+        0
+    }
+
+    pub fn read_oam_data(&self) -> u8 {
+        0
+    }
+
+    pub fn read_data(&self) -> u8 {
+        0
+    }
+
+    pub fn write_controller(&mut self, value: u8) {
+
+    }
+
+    pub fn write_mask(&mut self, value: u8) {
+
+    }
+
+    pub fn write_oam_addr(&mut self, value: u8) {
+
+    }
+
+    pub fn write_oam_data(&mut self, value: u8) {
+
+    }
+
+    pub fn write_scroll(&mut self, value: u8) {
+
+    }   
+
+    pub fn write_address(&mut self, value: u8) {
+
+    }
+
+    pub fn write_data(&mut self, value: u8) {
+
     }
 }
