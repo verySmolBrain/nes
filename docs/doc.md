@@ -261,6 +261,11 @@ the PPU registers. The address space is `[0x0000 .. 0x3FFF]` which is mirrored t
 Extras:
 
 * Latch -> Commonly used in chips for temporary storage. Both scroll and address take advantage of latches to temporarily store some type of data.
+* Mirroring -> Since the PPU has 2kb of VRAM and the NES uses 1kb of VRAM to represent a single screen, an NES
+PPU can represent the state of 2 screens. However the PPU memory map has range `[0x2000 .. 0x3F00]` which is
+enough to fit 4 screens. This means we still have to map another 2 screens. How this is mapped is 
+decided by the mirroring in the NES ROM Header. (This has to do with scrolling since you need another
+screen as a sort of 'placeholder' for when you scroll past the edge of the screen.)
 
 ## Important Notes
 - Address is stored in 2 bytes

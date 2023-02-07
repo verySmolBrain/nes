@@ -86,7 +86,7 @@ impl Ppu {
             chr_rom,
             mirroring,
             palette_table: [0; 32],
-            vram: [0; 2048],
+            vram: [0; 0x800],
             buffer: 0,
 
             controller: Controller::empty(),
@@ -204,7 +204,34 @@ impl Ppu {
         );
     }
 
+    /*
+        Grid Idx
+        +---+---+
+        | 0 | 1 |
+        +---+---+
+        | 2 | 3 |
+        +---+---+
+     */
     pub fn mirror_vram(&self, addr: u16) -> u16 {
-        0
+        let vram_idx = addr - 0x2000;
+        let grid_idx = vram_idx / 0x400;
+        match self.mirroring {
+            Mirroring::HORIZONTAL => {
+                match grid_idx {
+                    0 => vram_idx,
+                    1 | 2 => vram_idx - 0x400,
+                    3 => vram_idx - 0x800,
+                    _ => panic!("Invalid VRAM index: {:#X}", vram_idx),
+                }
+            },
+            Mirroring::VERTICAL => {
+                match grid_idx {
+                    0 | 1 => vram_idx,
+                    2 | 3 => vram_idx - 0x800,
+                    _ => panic!("Invalid VRAM index: {:#X}", vram_idx),
+                }
+            },
+            Mirroring::FOURSCREEN => panic!("Four screen mirroring not supported"),
+        }
     }
 }
