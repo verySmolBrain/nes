@@ -174,6 +174,9 @@ which follows the following format:
    |_______________| $1000 |_______________|
    | Pattern Table |       | Pattern Table |
    |_ _ _ _ _ _ _ _| $0000 |_______________|
+
+   Pattern Table -> CHR ROM
+   Name Tables -> VRAM
 ```
 
 The PPU has its own set of registers. Namely:
@@ -252,7 +255,8 @@ decoder chip which only has 11 address lines and it is easier and faster to simp
 the address incompletely).
 
 The PPU itself has its own address space as seen above which is accessed by the CPU through
-the PPU registers. The PPU can also notify the CPU through NMI interrupts.
+the PPU registers. The address space is `[0x0000 .. 0x3FFF]` which is mirrored throughout
+`[0x0000 .. 0xFFFF]`. The PPU can also notify the CPU through NMI interrupts.
 
 Extras:
 

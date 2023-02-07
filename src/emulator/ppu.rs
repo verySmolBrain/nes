@@ -42,8 +42,19 @@ pub struct Scroll {
 }
 
 pub struct Address {
-    pub value: u16,
+    pub h: u8,
+    pub l: u8,
     pub latch: bool,
+}
+
+impl Address {
+    pub fn value(&self) -> u16 {
+        u16::from_be_bytes([self.h, self.l]) & 0x3FFF
+    }
+
+    pub fn next(&self) {
+
+    }
 }
 
 pub struct Ppu {
@@ -76,8 +87,8 @@ impl Ppu {
             status: Status::empty(),
             oam_addr: 0,
             oam_data: [0; 256],
-            scroll: Scroll { x: 0, y: 0, latch: false },
-            address: Address { value: 0, latch: false },
+            scroll: Scroll   { x: 0, y: 0, latch: false },
+            address: Address { h: 0, l: 0, latch: false },
         }
     }
 
@@ -96,23 +107,30 @@ impl Ppu {
     }
 
     pub fn read_data(&mut self) -> u8 {
-        let addr = self.address.value;
-        self.address.value += if self.controller.contains(Controller::VRAM_ADDR_INC) { 32 } else { 1 };
+        let addr = self.address.value();
+        let value: u8;
 
         match addr {
             0 ..= 0x1FFF => {
-                let value = self.buffer;
+                value = self.buffer;
                 self.buffer = self.chr_rom[addr as usize];
-                value
             },
-            0x2000 ..= 0x3EFF => {
-                let value = self.buffer;
+            0x2000 ..= 0x2FFF => {
+                value = self.buffer;
                 self.buffer = self.vram[self.mirror_vram(addr) as usize];
-                value
             },
-            0x3F00 ..= 0x3FFF => self.palette_table[(addr - 0x3f00) as usize],
+            /* https://www.nesdev.org/wiki/PPU_palettes */
+            0x3F10 | 0x3F14 | 0x3F18 | 0x3F1C => {
+                value = self.palette_table[(addr - 0x3f10) as usize];
+            },
+            0x3F00 ..= 0x3FFF => {
+                value = self.palette_table[(addr - 0x3f00) as usize];
+            },
             _ => panic!("Invalid PPU address: {:#X}", addr),
         }
+
+        self.address.next();
+        value
     }
 
     pub fn write_controller(&mut self, value: u8) {
@@ -145,10 +163,35 @@ impl Ppu {
     }   
 
     pub fn write_address(&mut self, value: u8) {
-
+        if self.address.latch { 
+            self.address.l = value;
+        } else { // Write BE so MSB first
+            self.address.h = value;
+        }
+        self.address.latch = !self.address.latch;
     }
 
     pub fn write_data(&mut self, value: u8) {
+        let addr = self.address.value();
+
+        match addr {
+            0x2000 ..= 0x2FFF => {
+                self.vram[self.mirror_vram(addr) as usize] = value;
+            },
+            /* https://www.nesdev.org/wiki/PPU_palettes */
+            0x3F10 | 0x3F14 | 0x3F18 | 0x3F1C => {
+                self.palette_table[(addr - 0x3f10) as usize] = value;
+            },
+            0x3F00 ..= 0x3FFF => {
+                self.palette_table[(addr - 0x3f00) as usize] = value;
+            },
+            _ => panic!("Invalid PPU address: {:#X}", addr),
+        }
+
+        self.address.next();
+    }
+
+    pub fn write_oam_dma(&mut self, value: u8) {
 
     }
 
