@@ -215,6 +215,7 @@ impl Ppu {
     pub fn mirror_vram(&self, addr: u16) -> u16 {
         let vram_idx = addr - 0x2000;
         let grid_idx = vram_idx / 0x400;
+
         match self.mirroring {
             Mirroring::HORIZONTAL => {
                 match grid_idx {
