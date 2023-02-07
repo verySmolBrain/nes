@@ -121,11 +121,17 @@ impl Ppu {
     }
 
     pub fn write_oam_data(&mut self, value: u8) {
-
+        self.oam_data[self.oam_addr as usize] = value;
+        self.oam_addr = self.oam_addr.wrapping_add(1);
     }
 
     pub fn write_scroll(&mut self, value: u8) {
-
+        if self.scroll.latch {
+            self.scroll.y = value;
+        } else {
+            self.scroll.x = value;
+        }
+        self.scroll.latch = !self.scroll.latch;
     }   
 
     pub fn write_address(&mut self, value: u8) {
