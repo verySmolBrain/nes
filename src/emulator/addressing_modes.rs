@@ -83,7 +83,7 @@ impl Cpu {
             AddressingMode::Relative => {
                 let relative = self.mem_read(self.program_counter) as i8;
                 let addr = self.program_counter
-                    .wrapping_add(relative as u16)
+                    .wrapping_add_signed(relative as i16)
                     .wrapping_add(1);
                 let crossed_page = (self.program_counter.wrapping_add(2) & 0xFF00) != (addr & 0xFF00);
 
