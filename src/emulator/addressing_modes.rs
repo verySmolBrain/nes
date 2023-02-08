@@ -85,7 +85,8 @@ impl Cpu {
                 let addr = self.program_counter
                     .wrapping_add(relative as u16)
                     .wrapping_add(1);
-                let crossed_page = (self.program_counter & 0xFF00) != (addr & 0xFF00);
+                let crossed_page = (self.program_counter.wrapping_add(2) & 0xFF00) != (addr & 0xFF00);
+
                 (Some(addr), 1, crossed_page)
             },
             AddressingMode::Accumulator => {

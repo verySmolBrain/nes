@@ -2,7 +2,6 @@
 
 mod test {
     use nes::emulator::rom::Mirroring;
-    use nes::emulator::ppu::Controller;
     use crate::helpers::{ default_ppu };
     use expect_test::expect;
 

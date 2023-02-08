@@ -586,25 +586,32 @@ impl Cpu {
             Code::NOP => (), /* NOP */
         }
 
-        /* 
+        
+        let mut cycle_inc: usize = code.cycles;
+        match code.code {
+            /* 
             STA, ROR, ROL, LSR, ASL, INC, DEC, DCP, ISC, RLA, RRA, SLO, SRE, SXA, SYA, XAS 
             don't care about page crossing (Due to LE) 
-        */
-        let mut cycle_inc: usize = code.cycles;
-        if match code.code {
+            */
             Code::STA | Code::ROR | Code::ROL | Code::LSR | Code::ASL | Code::INC 
             | Code::DEC | Code::DCP_U | Code::ISB_U | Code::RRA_U | Code::RLA_U 
-            | Code::SLO_U | Code::SRE_U | Code::SYA_U | Code::SXA_U | Code::XAS_U => false,
-            _ => true,
-        } {
-            if crossed_page {
-                cycle_inc += 1;
-            }
-            if branch_taken {
-                cycle_inc += 1;
-            }
-        }
+            | Code::SLO_U | Code::SRE_U | Code::SYA_U | Code::SXA_U | Code::XAS_U => (),
 
+            Code::BCC | Code::BCS | Code::BEQ | Code::BMI | Code::BNE 
+            | Code::BPL | Code::BVC | Code::BVS => {
+                if branch_taken && crossed_page {
+                    cycle_inc += 2;
+                } else if branch_taken {
+                    cycle_inc += 1;
+                }
+            },
+            _ => {
+                if crossed_page {
+                    cycle_inc += 1;
+                }
+            },
+        }
+        
         self.cycles += cycle_inc;
         self.bus.tick(cycle_inc);
 

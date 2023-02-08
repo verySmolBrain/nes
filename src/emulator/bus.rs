@@ -26,15 +26,7 @@ impl Bus {
         self.prg_rom[addr as usize]
     }
 
-    pub fn ppu_cycles(&self) -> u64 {
-        return self.ppu.cycles;
-    }
-
-    pub fn ppu_scanline(&self) -> u64 {
-        return self.ppu.scanline;
-    }
-
     pub fn tick(&mut self, cycles: usize) {
-        self.ppu.tick(cycles);
+        self.ppu.tick(cycles * 3);
     }
 }

@@ -79,8 +79,8 @@ pub struct Ppu {
     pub scroll: Scroll,
     pub address: Address,
 
-    pub cycles: u64,
-    pub scanline: u64,
+    pub cycles: usize,
+    pub scanline: usize,
 }
 
 impl Ppu {
@@ -147,10 +147,13 @@ impl Ppu {
     }
 
     pub fn write_controller(&mut self, value: u8) {
-        if self.controller.contains(Controller::NMI_INTERRUPT) {
-            todo!("NMI Interrupt");
-        }
+        let old_nmi = self.controller.contains(Controller::NMI_INTERRUPT);
         self.controller = Controller::from_bits_truncate(value);
+        let new_nmi = self.controller.contains(Controller::NMI_INTERRUPT);
+        
+        if !old_nmi && new_nmi && self.status.contains(Status::VBLANK_STARTED) {
+            //todo!("NMI Interrupt");
+        }
     }
 
     pub fn write_mask(&mut self, value: u8) {
@@ -242,7 +245,29 @@ impl Ppu {
         }
     }
 
+    const SCANLINE_DURATION: usize = 341;
+    const VBLANK_SET: usize = 241;
+    const SCANLINES_FRAME_SIZE: usize = 262;
+
     pub fn tick(&mut self, cycles: usize) {
-        
+        self.cycles += cycles;
+        if self.cycles >= Self::SCANLINE_DURATION {
+            self.cycles -= Self::SCANLINE_DURATION;
+            self.scanline += 1;
+
+            if self.scanline == Self::VBLANK_SET {
+                self.status.insert(Status::VBLANK_STARTED);
+                self.status.remove(Status::SPRITE_0); /* https://forums.nesdev.org/viewtopic.php?t=8832 */
+                if self.controller.contains(Controller::NMI_INTERRUPT) {
+                    //todo!("NMI Interrupt");
+                }
+            } 
+            if self.scanline >= Self::SCANLINES_FRAME_SIZE {
+                self.scanline = 0;
+                self.status.remove(Status::SPRITE_0);
+                self.status.remove(Status::VBLANK_STARTED);
+                //todo!("Remove NMI");
+            }
+        }
     }
 }

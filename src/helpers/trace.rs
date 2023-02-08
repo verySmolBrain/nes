@@ -139,7 +139,7 @@ pub fn trace(cpu: &mut Cpu) -> String {
         .collect::<Vec<String>>()
         .join(" ");
 
-    format!("{:04X}  {:<8} {:<31}  A:{:02X} X:{:02X} Y:{:02X} P:{:02X} SP:{:02X}",
+    format!("{:04X}  {:<8} {:<31}  A:{:02X} X:{:02X} Y:{:02X} P:{:02X} SP:{:02X} PPU:{:3},{:3} CYC:{}",
         pc, 
         hex_str,
         assembly_translation.unwrap_or("".to_string()),
@@ -147,6 +147,9 @@ pub fn trace(cpu: &mut Cpu) -> String {
         x,
         y,
         status,
-        sp
+        sp,
+        cpu.bus.ppu.scanline,
+        cpu.bus.ppu.cycles,
+        cpu.cycles
     )
 }

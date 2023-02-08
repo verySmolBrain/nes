@@ -269,6 +269,15 @@ screen as a sort of 'placeholder' for when you scroll past the edge of the scree
 * Buffer -> As CHR ROM and VRAM are considered separate from PPU the PPU actually stores the result of the data
 it reads into a buffer. This means the PPU is perpetually one read behind the actual value.
 
+PPU Rendering
+
+* The PPU renders 262 scanlines per frame. Each scanline lasts for 341 PPU clock cycles. There
+are 240 scanlines used for rendering and the rest (241 - 262) is used for vertical blanking.
+* Vertical Blanking is the period where the NES PPU is not drawing to the screen. This is the 
+time where the PPU can send an NMI Interrupt to the CPU to allow the CPU to do various other tasks.
+
+## Interrupts
+
 ## Important Notes
 - Address is stored in 2 bytes
 - [Little endian](https://stackoverflow.com/questions/4752715/why-are-both-little-and-big-endian-in-use) is used for addresses

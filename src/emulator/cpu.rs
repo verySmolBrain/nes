@@ -73,6 +73,8 @@ impl Cpu {
     where
         F: FnMut(&mut Cpu),
     {
+        self.cycles += 7; // Change this later
+        self.bus.tick(7); // Change this later
         loop {
             callback(self);
             if !self.step() {
