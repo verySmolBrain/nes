@@ -78,6 +78,9 @@ pub struct Ppu {
     pub oam_data: [u8; 256],
     pub scroll: Scroll,
     pub address: Address,
+
+    pub cycles: u64,
+    pub scanline: u64,
 }
 
 impl Ppu {
@@ -96,6 +99,9 @@ impl Ppu {
             oam_data: [0; 256],
             scroll: Scroll   { x: 0, y: 0, latch: false },
             address: Address { h: 0, l: 0, latch: false },
+
+            cycles: 0,
+            scanline: 0,
         }
     }
 
@@ -234,5 +240,9 @@ impl Ppu {
             },
             Mirroring::FOURSCREEN => panic!("Four screen mirroring not supported"),
         }
+    }
+
+    pub fn tick(&mut self, cycles: usize) {
+        
     }
 }

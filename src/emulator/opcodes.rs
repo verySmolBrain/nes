@@ -9,7 +9,7 @@ use phf::phf_map;
 pub struct OPCode {
     pub code: Code,
     pub bytes: u16,
-    pub cycles: u8,
+    pub cycles: usize,
     pub mode: AddressingMode,
 }
 

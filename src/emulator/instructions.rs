@@ -15,8 +15,10 @@ impl Cpu {
 
     pub fn step(&mut self) -> bool  {
         let code = OPCODES.get(&self.next()).expect("Invalid opcode");
-        let (addr, bytes_used) = self.get_operand_address(&code.mode);
+        let (addr, bytes_used, crossed_page) = self.get_operand_address(&code.mode);
         self.program_counter = self.program_counter.wrapping_add(bytes_used);
+        
+        let mut branch_taken = false;
 
         match code.code {
             Code::LDA => { /* LDA */
@@ -44,7 +46,7 @@ impl Cpu {
 
             Code::STA => { /* STA */
                 let addr = addr.unwrap();
-                self.mem_write(addr, self.accumulator)
+                self.mem_write(addr, self.accumulator);
             },
             Code::STX => { /* STX */
                 let addr = addr.unwrap();
@@ -139,6 +141,7 @@ impl Cpu {
                 let addr = addr.unwrap();
 
                 if self.status.contains(Status::CARRY) {
+                    branch_taken = true;
                     self.program_counter = addr;
                 }
             },
@@ -146,6 +149,7 @@ impl Cpu {
                 let addr = addr.unwrap();
 
                 if !self.status.contains(Status::CARRY) {
+                    branch_taken = true;
                     self.program_counter = addr;
                 }
             },
@@ -153,6 +157,7 @@ impl Cpu {
                 let addr = addr.unwrap();
 
                 if self.status.contains(Status::ZERO) {
+                    branch_taken = true;
                     self.program_counter = addr;
                 }
             },
@@ -160,6 +165,7 @@ impl Cpu {
                 let addr = addr.unwrap();
 
                 if !self.status.contains(Status::ZERO) {
+                    branch_taken = true;
                     self.program_counter = addr;
                 }
             },
@@ -167,6 +173,7 @@ impl Cpu {
                 let addr = addr.unwrap();
 
                 if self.status.contains(Status::NEGATIVE) {
+                    branch_taken = true;
                     self.program_counter = addr;
                 }
             },
@@ -174,6 +181,7 @@ impl Cpu {
                 let addr = addr.unwrap();
 
                 if !self.status.contains(Status::NEGATIVE) {
+                    branch_taken = true;
                     self.program_counter = addr;
                 }
             },
@@ -181,6 +189,7 @@ impl Cpu {
                 let addr = addr.unwrap();
 
                 if self.status.contains(Status::OVERFLOW) {
+                    branch_taken = true;
                     self.program_counter = addr;
                 }
             },
@@ -188,6 +197,7 @@ impl Cpu {
                 let addr = addr.unwrap();
 
                 if !self.status.contains(Status::OVERFLOW) {
+                    branch_taken = true;
                     self.program_counter = addr;
                 }
             },
@@ -575,6 +585,28 @@ impl Cpu {
             Code::DOP_U => (), /* DOP */
             Code::NOP => (), /* NOP */
         }
+
+        /* 
+            STA, ROR, ROL, LSR, ASL, INC, DEC, DCP, ISC, RLA, RRA, SLO, SRE, SXA, SYA, XAS 
+            don't care about page crossing (Due to LE) 
+        */
+        let mut cycle_inc: usize = code.cycles;
+        if match code.code {
+            Code::STA | Code::ROR | Code::ROL | Code::LSR | Code::ASL | Code::INC 
+            | Code::DEC | Code::DCP_U | Code::ISB_U | Code::RRA_U | Code::RLA_U 
+            | Code::SLO_U | Code::SRE_U | Code::SYA_U | Code::SXA_U | Code::XAS_U => false,
+            _ => true,
+        } {
+            if crossed_page {
+                cycle_inc += 1;
+            }
+            if branch_taken {
+                cycle_inc += 1;
+            }
+        }
+
+        self.cycles += cycle_inc;
+        self.bus.tick(cycle_inc);
 
         true // Change later
     }

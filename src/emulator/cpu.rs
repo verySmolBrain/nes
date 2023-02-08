@@ -30,7 +30,8 @@ pub struct Cpu {
     pub stack_pointer: u8,
     pub status: Status,
     pub program_counter: u16,
-    pub bus: Bus
+    pub bus: Bus,
+    pub cycles: usize,
 }
 
 impl Cpu {
@@ -42,7 +43,8 @@ impl Cpu {
             stack_pointer: STACK_RESET,
             status: Default::default(), 
             program_counter: 0,
-            bus
+            bus,
+            cycles: 0,
         }
     }
 
@@ -52,6 +54,7 @@ impl Cpu {
         self.register_y = 0;
         self.stack_pointer = STACK_RESET;
         self.status = Default::default();
+        self.cycles = 0;
 
         self.program_counter = self.mem_read_u16(RESET_VECTOR as u16);
     }
