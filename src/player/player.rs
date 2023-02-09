@@ -1,15 +1,44 @@
-use crate::cpu::Cpu;
-use crate::memory::Mem;
-use rand::Rng;
+use crate::emulator::ppu::{Ppu, Controller};
+use crate::emulator::{cpu::Cpu, rom::Rom};
+use crate::emulator::memory::Mem;
+use crate::helpers::trace::trace;
+use crate::player::palette;
+use sdl2::render::Texture;
 use sdl2::{
     event::Event,
     EventPump,
     keyboard::Keycode,
-    pixels::Color,
     pixels::PixelFormatEnum,
-    render::{ Canvas },
-    video::{ Window },
+    render::Canvas,
+    video::Window,
 };
+use std::time::Duration;
+use std::thread::sleep;
+
+pub struct Frame {
+    pub data: Vec<u8>,
+}
+ 
+impl Frame {
+    const WIDTH: usize = 256;
+    const HEIGHT: usize = 240;
+    const RGB_DATA_LEN: usize = 3;
+ 
+    pub fn new() -> Self {
+        Frame {
+            data: vec![0; Frame::WIDTH * Frame::HEIGHT * Frame::RGB_DATA_LEN],
+        }
+    }
+ 
+    pub fn update_pixel(&mut self, x: usize, y: usize, rgb: (u8, u8, u8)) {
+        let base = (y * Frame::RGB_DATA_LEN) * Frame::WIDTH + (x * Frame::RGB_DATA_LEN);
+        if base + 2 < self.data.len() {
+            self.data[base] = rgb.0;
+            self.data[base + 1] = rgb.1;
+            self.data[base + 2] = rgb.2;
+        }
+    }
+}
 
 pub struct Player {
     event_pump: EventPump,
@@ -38,17 +67,47 @@ impl Player {
         };
     }
 
-    fn colour(&self, byte: u8) -> Color {
-        match byte {
-            0 => sdl2::pixels::Color::BLACK,
-            1 => sdl2::pixels::Color::WHITE,
-            2 | 9 => sdl2::pixels::Color::GREY,
-            3 | 10 => sdl2::pixels::Color::RED,
-            4 | 11 => sdl2::pixels::Color::GREEN,
-            5 | 12 => sdl2::pixels::Color::BLUE,
-            6 | 13 => sdl2::pixels::Color::MAGENTA,
-            7 | 14 => sdl2::pixels::Color::YELLOW,
-            _ => sdl2::pixels::Color::CYAN,
+    pub fn render(&mut self, ppu: &Ppu, frame: &mut Frame, texture: &mut Texture) {
+        let bank = if !ppu.controller.contains(Controller::BACKGROUND) { 0 } else { 1 };
+        const FIRST_TABLE_END: usize = 0x03c0;
+
+        for i in 0..FIRST_TABLE_END {
+            let tile_n = ppu.vram[i];
+            self.render_tile(&ppu.chr_rom, bank, tile_n as usize, frame, i % 32, i / 32);
+        }
+
+        texture.update(None, &frame.data, Frame::WIDTH * Frame::RGB_DATA_LEN).unwrap();
+        self.canvas.copy(&texture, None, None).unwrap();
+        self.canvas.present();
+    }
+
+    fn render_tile(&self, chr_rom: &Vec<u8>, bank: usize, tile_n: usize, frame: &mut Frame, x: usize, y: usize) {
+        const LEFT_BANK_START: usize = 0x0000;
+        const RIGHT_BANK_START: usize = 0x1000;
+        const TILE_LEN: usize = 16;
+
+        let bank_start = if bank == 0 { LEFT_BANK_START } else { RIGHT_BANK_START };
+        let tile_start = bank_start + tile_n * TILE_LEN;
+
+        let tile = &chr_rom[
+            tile_start .. tile_start + TILE_LEN
+        ];
+     
+        for i in 0..8 {
+            let mut upper = tile[i];
+            let mut lower = tile[i + 8];
+     
+            for j in (0..8).rev() { // Initial frame is right -> left
+                upper >>= 1;
+                lower >>= 1;
+                let rgb = match (upper & 1 == 1, lower & 1 == 1) {
+                    (false, false) => palette::DEFAULT_PALLETE[0x01],
+                    (false, true) => palette::DEFAULT_PALLETE[0x23],
+                    (true, false) => palette::DEFAULT_PALLETE[0x27],
+                    (true, true) => palette::DEFAULT_PALLETE[0x30],
+                };
+                frame.update_pixel(x * 8 + i, y * 8 + j, rgb)
+            }
         }
     }
 
@@ -75,42 +134,20 @@ impl Player {
         }
     }
 
-    fn read_screen_state(&mut self, cpu: &mut Cpu, frame: &mut [u8; 32 * 3 * 32]) -> bool {
-        let mut frame_idx = 0;
-        let mut update = false;
-        for i in 0x0200..0x600 {
-            let colour_idx = cpu.mem_read(i);
-            let (b1, b2, b3) = self.colour(colour_idx).rgb();
-            if frame[frame_idx] != b1 || frame[frame_idx + 1] != b2 || frame[frame_idx + 2] != b3 {
-                frame[frame_idx] = b1;
-                frame[frame_idx + 1] = b2;
-                frame[frame_idx + 2] = b3;
-                update = true;
-            }
-            frame_idx += 3;
-        }
-
-        update
-    }
-
     pub fn run(&mut self, mut cpu: Cpu) {
-        let mut screen_state = [0 as u8; 32 * 3 * 32];
-        let mut rng = rand::thread_rng();
-
+        let mut frame = Frame::new();
         let creator = self.canvas.texture_creator();
         let mut texture = creator.create_texture_target(PixelFormatEnum::RGB24, 32, 32).unwrap();
 
         cpu.run_with_callback(move |cpu| {
-            self.handle_user_input(cpu);
-            cpu.mem_write(0xfe, rng.gen_range(1..16));
-    
-            if self.read_screen_state(cpu, &mut screen_state) {
-                texture.update(None, &screen_state, 32 * 3).unwrap();
-                self.canvas.copy(&texture, None, None).unwrap();
-                self.canvas.present();
+            println!("{}", trace(cpu));
+
+            let ppu = cpu.ppu_ready();
+            if ppu.is_some() {
+                self.render(ppu.unwrap(), &mut frame, &mut texture);
             }
-    
-            ::std::thread::sleep(std::time::Duration::new(0, 70_000));
-        });
+            self.handle_user_input(cpu);
+            sleep(Duration::new(0, 70_000));
+        })
     }
 }

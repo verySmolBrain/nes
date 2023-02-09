@@ -612,7 +612,7 @@ impl Cpu {
             },
         }
         
-        self.cycles += cycle_inc;
+        self.cycles = self.cycles.wrapping_add(cycle_inc);
         self.bus.tick(cycle_inc);
 
         true // Change later

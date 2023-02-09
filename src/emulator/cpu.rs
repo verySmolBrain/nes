@@ -1,4 +1,4 @@
-use crate::emulator::{ bus::Bus, memory::Mem, rom::Rom };
+use crate::emulator::{ bus::Bus, memory::Mem, rom::Rom, ppu::Ppu };
 use bitflags::bitflags;
 
 const RESET_VECTOR: usize = 0xFFFC;
@@ -67,6 +67,10 @@ impl Cpu {
         self.reset();
 
         Ok(())
+    }
+
+    pub fn ppu_ready(&self) -> Option<&Ppu> {
+        None
     }
 
     pub fn run_with_callback<F>(&mut self, mut callback: F)

@@ -159,24 +159,30 @@ which follows the following format:
 
 ```
     PPU Memory Map
-    _______________ $3FFF  _______________
-   | Palette RAM   |       |               |
-   |_______________| $3F00 |_______________|
-   | Mirrors       |       | Palette RAM   |
-   | $3F00-$3F1F   |       |               |
-   |_______________| $3F20 |_______________|
-   | Nametable RAM |       | Nametable RAM |
-   |_______________| $3000 |_______________|
-   | Mirrors       |       | Nametable RAM |
-   | $2000-$2FFF   |       |_______________|
-   |_______________| $2000 |_______________|
-   | Pattern Table |       | Pattern Table |
-   |_______________| $1000 |_______________|
-   | Pattern Table |       | Pattern Table |
-   |_ _ _ _ _ _ _ _| $0000 |_______________|
+     _________________  $3FFF  ________________
+    | Palette RAM IDX |       | Palette        |
+    | Mirrors         |       |                |
+    | _ _ _ _ _ _ _ _ | $3F1F |                |
+    | Palette RAM IDX |       |                |
+    | _ _ _ _ _ _ _ _ | $3F00 | ______________ |
+    | Nametable Mirr  |       | Nametable      |
+    | _ _ _ _ _ _ _ _ | $2FFF |                |
+    | Nametable 3     |       |                |
+    | _______________ | $2C00 |                |
+    | Nametable 2     |       |                |
+    | _______________ | $2800 |                |
+    | Nametable 1     |       |                |
+    | _______________ | $2400 |                |
+    | Nametable 0     |       |                |
+    | _______________ | $2000 | ______________ |
+    | Pattern table 1 |       | Pattern table  | Sprite
+    | _______________ | $1000 |                |
+    | Pattern table 0 |       |                |
+    | _______________ | $0000 | ______________ | BG
 
-   Pattern Table -> CHR ROM
-   Name Tables -> VRAM
+    Pattern Table -> CHR ROM
+    Name Tables -> VRAM
+    Palette -> RAM
 ```
 
 The PPU has its own set of registers. Namely:
@@ -277,6 +283,35 @@ are 240 scanlines used for rendering and the rest (241 - 262) is used for vertic
 time where the PPU can send an NMI Interrupt to the CPU to allow the CPU to do various other tasks.
 
 ## Interrupts
+
+## Rendering
+
+NES renders tiles in 8x8 pixel chunks. Each tile can have 4 different colours
+stored using 2 bits (Colour index in the palette). A tile requires 128 bits (8 x 8 x 2). 
+As the CHR ROM has address space 0x2000 this means there are 512 tiles in an 
+NES cartridge which is divided into 2 pages called left and right.
+
+Each row is encoded with 8 bytes between each other. This means to get the colour,
+you have to read the bits of 0x0000 and 0x0008. To get the 2 bits to
+represent the colour.
+
+If we look back to PPU scanline rendering, we note that we have 341 PPU cycles
+for each scanline and 262 scanlines per frame. Each PPU cycle translates to 1 frame.
+This gets us a resolution of 341 x 262 pixels. However due to TV hardware at the time
+which used overscans to accomodate component tolerances in CRTs, the NES actually 
+only used 256 x 240 pixels with the rest dedicated to overscanning.
+
+Rendering is split into 2 parts.
+
+1. Background Rendering
+
+* Pattern Table -> One of 2 blank tiles from CHR ROM
+* Nametable -> The state of a screen stored in VRAM
+* Palette Table -> The colouring of the pixels stored in PPU RAM
+
+The background is composed of 960 tiles with each byte corresponding to
+a byte in the Nametable.
+
 
 ## Important Notes
 - Address is stored in 2 bytes
