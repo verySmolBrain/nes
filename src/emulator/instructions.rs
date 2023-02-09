@@ -6,6 +6,8 @@ use crate::emulator::opcodes::OPCODES;
 use crate::emulator::opcodes::Code;
 use crate::emulator::addressing_modes::AddressingMode;
 
+use super::interrupts::Interrupt;
+
 impl Cpu {
     fn next(&mut self) -> u8 {
         let value = self.mem_read(self.program_counter);
@@ -14,6 +16,10 @@ impl Cpu {
     }
 
     pub fn step(&mut self) -> bool  {
+        if self.bus.ppu.interrupt.is_some() {
+            self.interrupt(Interrupt::new_nmi());
+        }
+        
         let code = OPCODES.get(&self.next()).expect("Invalid opcode");
         let (addr, bytes_used, crossed_page) = self.get_operand_address(&code.mode);
         self.program_counter = self.program_counter.wrapping_add(bytes_used);

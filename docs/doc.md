@@ -322,3 +322,9 @@ a byte in the Nametable.
 1. You don't want to conflict with `RAM` space
 2. `NES ROM` cartridges are probably not going to be big enough to cover the
 address space anyways so the top of `ROM` is good place for instructions
+
+## Credits
+
+* https://bugzmanov.github.io/
+* https://www.nesdev.org/
+* https://gist.github.com/wkjagt/9043907

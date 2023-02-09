@@ -1,4 +1,5 @@
 use crate::emulator::rom::Mirroring;
+use crate::emulator::interrupts::Interrupt;
 use bitflags::bitflags;
 
 bitflags! {
@@ -81,6 +82,8 @@ pub struct Ppu {
 
     pub cycles: usize,
     pub scanline: usize,
+
+    pub interrupt: Option<Interrupt>,
 }
 
 impl Ppu {
@@ -102,6 +105,8 @@ impl Ppu {
 
             cycles: 0,
             scanline: 0,
+
+            interrupt: None,
         }
     }
 
@@ -152,7 +157,7 @@ impl Ppu {
         let new_nmi = self.controller.contains(Controller::NMI_INTERRUPT);
         
         if !old_nmi && new_nmi && self.status.contains(Status::VBLANK_STARTED) {
-            //todo!("NMI Interrupt");
+            self.interrupt = Some(Interrupt::new_nmi());
         }
     }
 
@@ -259,15 +264,19 @@ impl Ppu {
                 self.status.insert(Status::VBLANK_STARTED);
                 self.status.remove(Status::SPRITE_0); /* https://forums.nesdev.org/viewtopic.php?t=8832 */
                 if self.controller.contains(Controller::NMI_INTERRUPT) {
-                    //todo!("NMI Interrupt");
+                    self.interrupt = Some(Interrupt::new_nmi());
                 }
             } 
             if self.scanline >= Self::SCANLINES_FRAME_SIZE {
                 self.scanline = 0;
                 self.status.remove(Status::SPRITE_0);
                 self.status.remove(Status::VBLANK_STARTED);
-                //todo!("Remove NMI");
+                self.interrupt = None;
             }
         }
+    }
+
+    pub fn handled_interrupt(&mut self) {
+        self.interrupt = None;
     }
 }

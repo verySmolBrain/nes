@@ -1,4 +1,5 @@
 use crate::emulator::{ bus::Bus, memory::Mem, rom::Rom, ppu::Ppu };
+use crate::emulator::interrupts::Interrupt;
 use bitflags::bitflags;
 
 const RESET_VECTOR: usize = 0xFFFC;
@@ -27,11 +28,16 @@ pub struct Cpu {
     pub accumulator: u8, 
     pub register_x: u8,
     pub register_y: u8,
+
     pub stack_pointer: u8,
-    pub status: Status,
     pub program_counter: u16,
-    pub bus: Bus,
+
+    pub status: Status,
     pub cycles: usize,
+    
+    pub bus: Bus,
+    
+    pub interrupt: Option<Interrupt>,
 }
 
 impl Cpu {
@@ -45,6 +51,7 @@ impl Cpu {
             program_counter: 0,
             bus,
             cycles: 0,
+            interrupt: None,
         }
     }
 
@@ -55,6 +62,9 @@ impl Cpu {
         self.stack_pointer = STACK_RESET;
         self.status = Default::default();
         self.cycles = 0;
+
+        self.cycles += 7; // 7 cycles for reset
+        self.bus.tick(7);
 
         self.program_counter = self.mem_read_u16(RESET_VECTOR as u16);
     }
@@ -69,16 +79,20 @@ impl Cpu {
         Ok(())
     }
 
-    pub fn ppu_ready(&self) -> Option<&Ppu> {
-        None
+    pub fn ppu_ready(&mut self) -> Option<&Ppu> {
+        if self.interrupt.is_some() {
+            self.return_from_interrupt();
+            self.bus.ppu.handled_interrupt();
+            Some(&self.bus.ppu)
+        } else {
+            None
+        }
     }
 
     pub fn run_with_callback<F>(&mut self, mut callback: F)
     where
         F: FnMut(&mut Cpu),
     {
-        self.cycles += 7; // Change this later
-        self.bus.tick(7); // Change this later
         loop {
             callback(self);
             if !self.step() {

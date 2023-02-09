@@ -1,5 +1,5 @@
 use crate::emulator::ppu::{Ppu, Controller};
-use crate::emulator::{cpu::Cpu, rom::Rom};
+use crate::emulator::cpu::Cpu;
 use crate::emulator::memory::Mem;
 use crate::helpers::trace::trace;
 use crate::player::palette;
@@ -12,8 +12,6 @@ use sdl2::{
     render::Canvas,
     video::Window,
 };
-use std::time::Duration;
-use std::thread::sleep;
 
 pub struct Frame {
     pub data: Vec<u8>,
@@ -51,13 +49,13 @@ impl Player {
 
         let video_subsystem = sdl_context.video().unwrap();
         let window = video_subsystem
-            .window("NES Emulator", (32.0 * 10.0) as u32, (32.0 * 10.0) as u32)
+            .window("NES Emulator", (256.0 * 3.0) as u32, (240.0 * 3.0) as u32)
             .position_centered()
             .build()
             .unwrap();
         
         let mut canvas = window.into_canvas().present_vsync().build().unwrap();
-        canvas.set_scale(10.0, 10.0).unwrap();
+        canvas.set_scale(3.0, 3.0).unwrap();
 
         let event_pump = sdl_context.event_pump().unwrap();
 
@@ -97,16 +95,16 @@ impl Player {
             let mut upper = tile[i];
             let mut lower = tile[i + 8];
      
-            for j in (0..8).rev() { // Initial frame is right -> left
-                upper >>= 1;
-                lower >>= 1;
+            for j in (0..8).rev() { // Initial frame is right -> left + LE
                 let rgb = match (upper & 1 == 1, lower & 1 == 1) {
                     (false, false) => palette::DEFAULT_PALLETE[0x01],
-                    (false, true) => palette::DEFAULT_PALLETE[0x23],
-                    (true, false) => palette::DEFAULT_PALLETE[0x27],
+                    (true, false) => palette::DEFAULT_PALLETE[0x23],
+                    (false, true) => palette::DEFAULT_PALLETE[0x27],
                     (true, true) => palette::DEFAULT_PALLETE[0x30],
                 };
-                frame.update_pixel(x * 8 + i, y * 8 + j, rgb)
+                upper >>= 1;
+                lower >>= 1;
+                frame.update_pixel(x * 8 + j, y * 8 + i, rgb)
             }
         }
     }
@@ -137,7 +135,7 @@ impl Player {
     pub fn run(&mut self, mut cpu: Cpu) {
         let mut frame = Frame::new();
         let creator = self.canvas.texture_creator();
-        let mut texture = creator.create_texture_target(PixelFormatEnum::RGB24, 32, 32).unwrap();
+        let mut texture = creator.create_texture_target(PixelFormatEnum::RGB24, 256, 240).unwrap();
 
         cpu.run_with_callback(move |cpu| {
             println!("{}", trace(cpu));
@@ -146,8 +144,8 @@ impl Player {
             if ppu.is_some() {
                 self.render(ppu.unwrap(), &mut frame, &mut texture);
             }
+            
             self.handle_user_input(cpu);
-            sleep(Duration::new(0, 70_000));
         })
     }
 }

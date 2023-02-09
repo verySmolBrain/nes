@@ -18,6 +18,7 @@ const PPU_OAM_DATA: u16 = 0x2004;
 const PPU_SCROLL: u16 = 0x2005;
 const PPU_ADDRESS: u16 = 0x2006;
 const PPU_DATA: u16 = 0x2007;
+const OAM_DMA: u16 = 0x4014;
 
 pub trait Mem {
     fn mem_read(&mut self, addr: u16) -> u8;
@@ -75,6 +76,17 @@ impl Mem for Bus {
             PPU_REGISTERS_MIRRORS_START ..= PPU_REGISTERS_MIRRORS_END => {
                 self.mem_write(addr & 0b00100000_00000111, data) //addr % 0x2000
             },
+
+            OAM_DMA => {
+                let mut buffer = [0u8; 256];
+                let hi: u16 = (data as u16) << 8;
+                for i in 0..256 {
+                    buffer[i] = self.mem_read(hi + i as u16);
+                }
+
+                self.ppu.write_oam_dma(&buffer);
+            }
+
             0x8000 ..= 0xFFFF => {
                 panic!("Attempted to write to ROM")
             },
