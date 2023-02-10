@@ -1,11 +1,13 @@
-use crate::emulator::{ bus::Bus, memory::Mem, rom::Rom, ppu::Ppu };
+use crate::emulator::{ bus::Bus, memory::Mem, rom::Rom, ppu::Ppu, joypad::Joypad };
 use crate::emulator::interrupts::Interrupt;
 use bitflags::bitflags;
 
 const RESET_VECTOR: usize = 0xFFFC;
-const STACK_RESET: u8 = 0xfd; // Push = store first then decrement. So 8 bit off for initial.
+/* https://www.reddit.com/r/EmuDev/comments/g663hk/nestestlog_stack_pointer_starting_at_fd_and_sbc/ */
+const STACK_RESET: u8 = 0xfd;
 
 bitflags! {
+    #[derive(Clone)]
     pub struct Status: u8 {
         const NEGATIVE = 0b1000_0000;
         const OVERFLOW = 0b0100_0000;
@@ -71,7 +73,7 @@ impl Cpu {
 
     pub fn load_cartridge(&mut self, program: Vec<u8>) -> Result<(), String> {
         let cartridge = Rom::new(program)?;
-        let new_bus = Bus::new(cartridge);
+        let new_bus = Bus::new(cartridge, Joypad::new());
 
         self.bus = new_bus;
         self.reset();

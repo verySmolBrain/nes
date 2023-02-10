@@ -20,6 +20,8 @@ pub const PPU_ADDRESS: u16 = 0x2006;
 pub const PPU_DATA: u16 = 0x2007;
 pub const OAM_DMA: u16 = 0x4014;
 
+pub const JOYPAD_1: u16 = 0x4016;
+
 pub trait Mem {
     fn mem_read(&mut self, addr: u16) -> u8;
     fn mem_write(&mut self, addr: u16, value: u8);
@@ -44,6 +46,7 @@ impl Mem for Bus {
             RAM ..= RAM_MIRRORS_END => {
                 self.cpu_vram[(addr & 0b111_11111111) as usize]
             },
+            JOYPAD_1 => self.joypad.read(),
             
             PPU_STATUS => self.ppu.read_status(),
             PPU_OAM_DATA => self.ppu.read_oam_data(),
@@ -64,6 +67,7 @@ impl Mem for Bus {
             RAM ..= RAM_MIRRORS_END => {
                 self.cpu_vram[(addr & 0b111_11111111) as usize] = data;
             },
+            JOYPAD_1 => self.joypad.write(data),
 
             PPU_CONTROLLER => self.ppu.write_controller(data),
             PPU_MASK => self.ppu.write_mask(data),

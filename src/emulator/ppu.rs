@@ -3,6 +3,7 @@ use crate::emulator::interrupts::Interrupt;
 use bitflags::bitflags;
 
 bitflags! {
+    #[derive(Clone, Copy)]
     pub struct Controller: u8 {
         const NMI_INTERRUPT  = 0b1000_0000;
         const MASTER_SLAVE   = 0b0100_0000;

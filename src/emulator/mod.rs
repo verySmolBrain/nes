@@ -7,3 +7,4 @@ pub mod instructions;
 pub mod addressing_modes;
 pub mod ppu;
 pub mod interrupts;
+pub mod joypad;

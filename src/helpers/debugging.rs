@@ -1,9 +1,10 @@
 use crate::emulator::cpu::Cpu;
 use crate::emulator::ppu::Ppu;
 use crate::emulator::bus::Bus;
+use crate::emulator::joypad::Joypad;
 use crate::emulator::memory::{ RAM, RAM_MIRRORS_END, 
     PPU_REGISTERS_MIRRORS_START, PPU_REGISTERS_MIRRORS_END, ROM, 
-    ROM_MIRRORS_END, PPU_STATUS, PPU_OAM_DATA, PPU_DATA };
+    ROM_MIRRORS_END, PPU_STATUS, PPU_OAM_DATA, PPU_DATA, JOYPAD_1 };
 
 impl Cpu {
     pub fn mem_read_debugging(&self, addr: u16) -> u8 {
@@ -24,6 +25,7 @@ impl Bus {
             RAM ..= RAM_MIRRORS_END => {
                 self.cpu_vram[(addr & 0b111_11111111) as usize]
             },
+            JOYPAD_1 => self.joypad.read_debugging(),
             
             PPU_STATUS => self.ppu.read_status_debugging(),
             PPU_OAM_DATA => self.ppu.read_oam_data(),
@@ -64,5 +66,11 @@ impl Ppu {
             },
             _ => panic!("Invalid PPU address: {:#X}", addr),
         }
+    }
+}
+
+impl Joypad {
+    pub fn read_debugging(&self) -> u8 {
+        self.buffer
     }
 }

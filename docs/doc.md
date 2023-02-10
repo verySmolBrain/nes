@@ -359,6 +359,15 @@ at the end of the name table the tile is on. A byte represents a 4 x 4 tile area
 with each 2 bits in the byte corresponding to a palette for a 2 x 2 area eg.
 (0x00 = BG Palette 0, 0x01 = BG Palette 1, 0x10 = BG Palette 2, 0x11 = BG Palette 3).
 
+## JoyPad
+
+A -> B -> Select -> Start -> Up -> Down -> Left -> Right
+
+* The NES allows 2 joypads which map to 0x4016 and 0x4017 respectively.
+* Reading from the address reads the state of the buttons from left to right,
+incrementing which each subsequent read. Reads after all buttons always
+return 1.
+* This can be reset by writing 0x01 to the address.
 
 ## Important Notes
 - Address is stored in 2 bytes

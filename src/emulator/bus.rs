@@ -1,5 +1,6 @@
 use crate::emulator::rom::Rom;
 use crate::emulator::ppu::Ppu;
+use crate::emulator::joypad::Joypad;
 
 const BUS_ADDRESS_SPACE: usize = 0x800;
 
@@ -7,14 +8,16 @@ pub struct Bus {
     pub cpu_vram: [u8; BUS_ADDRESS_SPACE],
     pub prg_rom: Vec<u8>,
     pub ppu: Ppu,
+    pub joypad: Joypad,
 }
 
 impl Bus {
-    pub fn new(rom: Rom) -> Self {
+    pub fn new(rom: Rom, joypad: Joypad) -> Self {
         Bus {
             cpu_vram: [0; BUS_ADDRESS_SPACE],
             ppu: Ppu::new(rom.chr_rom, rom.screen_mirroring),
             prg_rom: rom.prg_rom,
+            joypad,
         }
     }
 
