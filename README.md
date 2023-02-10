@@ -7,7 +7,7 @@ but the biggest parts are mostly finished.
 
 ![Alt Text](resources/nestest.gif)
 
-![Alt Text](resources/dk.gif)
+![Alt Text](resources/dk2.gif)
 
 ## Build
 
