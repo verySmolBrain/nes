@@ -12,12 +12,12 @@ pub struct Bus {
 }
 
 impl Bus {
-    pub fn new(rom: Rom, joypad: Joypad) -> Self {
+    pub fn new(rom: Rom) -> Self {
         Bus {
             cpu_vram: [0; BUS_ADDRESS_SPACE],
             ppu: Ppu::new(rom.chr_rom, rom.screen_mirroring),
             prg_rom: rom.prg_rom,
-            joypad,
+            joypad: Joypad::new(),
         }
     }
 

@@ -1,4 +1,4 @@
-use crate::emulator::{ bus::Bus, memory::Mem, rom::Rom, ppu::Ppu, joypad::Joypad };
+use crate::emulator::{ bus::Bus, memory::Mem, rom::Rom, ppu::Ppu };
 use crate::emulator::interrupts::Interrupt;
 use bitflags::bitflags;
 
@@ -73,7 +73,7 @@ impl Cpu {
 
     pub fn load_cartridge(&mut self, program: Vec<u8>) -> Result<(), String> {
         let cartridge = Rom::new(program)?;
-        let new_bus = Bus::new(cartridge, Joypad::new());
+        let new_bus = Bus::new(cartridge);
 
         self.bus = new_bus;
         self.reset();

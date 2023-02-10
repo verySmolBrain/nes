@@ -1,8 +1,9 @@
 use crate::emulator::ppu::{Ppu, Controller};
 use crate::emulator::cpu::Cpu;
-use crate::emulator::memory::Mem;
 use crate::helpers::trace::trace;
 use crate::player::palette;
+use crate::player::controls::CONTROLS;
+use std::process::exit;
 use sdl2::render::Texture;
 use sdl2::{
     event::Event,
@@ -164,20 +165,18 @@ impl Player {
         for event in self.event_pump.poll_iter() {
             match event {
                 Event::Quit { .. } | Event::KeyDown { keycode: Some(Keycode::Escape), .. } => {
-                    std::process::exit(0);
+                    exit(0);
                 },
-                Event::KeyDown { keycode: Some(Keycode::W), .. } => {
-                    cpu.mem_write(0xff, 0x77);
+                Event::KeyDown { keycode, .. } => {
+                    if let Some(key) = CONTROLS.get(&keycode.unwrap_or(Keycode::Asterisk)) {
+                        cpu.bus.joypad.press(*key);
+                    }
                 },
-                Event::KeyDown { keycode: Some(Keycode::S), .. } => {
-                    cpu.mem_write(0xff, 0x73);
+                Event::KeyUp { keycode, .. } => {
+                    if let Some(key) = CONTROLS.get(&keycode.unwrap_or(Keycode::Asterisk)) {
+                        cpu.bus.joypad.release(*key);
+                    }
                 },
-                Event::KeyDown { keycode: Some(Keycode::A), .. } => {
-                    cpu.mem_write(0xff, 0x61);
-                },
-                Event::KeyDown { keycode: Some(Keycode::D), .. } => {
-                    cpu.mem_write(0xff, 0x64);
-                }
                 _ => {}
             }
         }
@@ -189,7 +188,7 @@ impl Player {
         let mut texture = creator.create_texture_target(PixelFormatEnum::RGB24, 256, 240).unwrap();
 
         cpu.run_with_callback(move |cpu| {
-            // println!("{}", trace(cpu));
+            println!("{}", trace(cpu));
 
             let ppu = cpu.ppu_ready();
             if ppu.is_some() {

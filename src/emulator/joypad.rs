@@ -1,13 +1,14 @@
 use bitflags::bitflags;
 
 bitflags! {
+    #[derive(Clone, Copy)]
     pub struct Buttons: u8 {
-        const RIGHT  = 0b1000_0000;
-        const LEFT   = 0b0100_0000;
-        const DOWN   = 0b0010_0000;
-        const UP     = 0b0001_0000;
-        const START  = 0b0000_1000;
-        const SELECT = 0b0000_0100;
+        const Right  = 0b1000_0000;
+        const Left   = 0b0100_0000;
+        const Down   = 0b0010_0000;
+        const Up     = 0b0001_0000;
+        const Start  = 0b0000_1000;
+        const Select = 0b0000_0100;
         const B      = 0b0000_0010;
         const A      = 0b0000_0001;
     }
@@ -45,6 +46,14 @@ impl Joypad {
             }   
         }
         current_state
+    }
+
+    pub fn press(&mut self, button: Buttons) {
+        self.state.insert(button);
+    }
+
+    pub fn release(&mut self, button: Buttons) {
+        self.state.remove(button);
     }
 
     pub fn next(&mut self) -> u8 {
