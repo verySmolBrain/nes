@@ -17,8 +17,8 @@ mod test {
         assert!(cpu.status.contains(Status::CARRY));
 
         check(&mut cpu, expect![[r#"
-            0000  90 05     BCC $07                         A:00 X:00 Y:00 P:25 SP:FD
-            0002  00        BRK                             A:00 X:00 Y:00 P:25 SP:FD"#]])
+            0000  90 05     BCC $07                         A:00 X:00 Y:00 P:25 SP:FD PPU:  0,  0 CYC:0
+            0002  00        BRK                             A:00 X:00 Y:00 P:25 SP:FD PPU:  0,  6 CYC:2"#]])
     }
 
     #[test]
@@ -32,7 +32,7 @@ mod test {
         assert!(!cpu.status.contains(Status::CARRY));
 
         check(&mut cpu, expect![[r#"
-            0000  90 05     BCC $07                         A:00 X:00 Y:00 P:24 SP:FD
-            0007  00        BRK                             A:00 X:00 Y:00 P:24 SP:FD"#]])
+            0000  90 05     BCC $07                         A:00 X:00 Y:00 P:24 SP:FD PPU:  0,  0 CYC:0
+            0007  00        BRK                             A:00 X:00 Y:00 P:24 SP:FD PPU:  0,  9 CYC:3"#]])
     }
 }

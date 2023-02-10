@@ -17,7 +17,7 @@ mod test {
         cpu.accumulator = 5;
 
         check(&mut cpu, expect![[r#"
-            0000  E7 A1    *ISB $A1 = 01                    A:05 X:00 Y:00 P:24 SP:FD
-            0002  00        BRK                             A:02 X:00 Y:00 P:25 SP:FD"#]]);
+            0000  E7 A1    *ISB $A1 = 01                    A:05 X:00 Y:00 P:24 SP:FD PPU:  0,  0 CYC:0
+            0002  00        BRK                             A:02 X:00 Y:00 P:25 SP:FD PPU:  0, 15 CYC:5"#]]);
     }
 }

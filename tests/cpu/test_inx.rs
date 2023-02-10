@@ -15,8 +15,8 @@ mod test {
         cpu.register_x = 0xff;
         
         check(&mut cpu, expect![[r#"
-            0000  E8        INX                             A:00 X:FF Y:00 P:24 SP:FD
-            0001  00        BRK                             A:00 X:00 Y:00 P:26 SP:FD"#]])
+            0000  E8        INX                             A:00 X:FF Y:00 P:24 SP:FD PPU:  0,  0 CYC:0
+            0001  00        BRK                             A:00 X:00 Y:00 P:26 SP:FD PPU:  0,  6 CYC:2"#]])
     }
 
     #[test]
@@ -29,7 +29,7 @@ mod test {
         cpu.register_x = 0;
         
         check(&mut cpu, expect![[r#"
-            0000  E8        INX                             A:00 X:00 Y:00 P:24 SP:FD
-            0001  00        BRK                             A:00 X:01 Y:00 P:24 SP:FD"#]])
+            0000  E8        INX                             A:00 X:00 Y:00 P:24 SP:FD PPU:  0,  0 CYC:0
+            0001  00        BRK                             A:00 X:01 Y:00 P:24 SP:FD PPU:  0,  6 CYC:2"#]])
     }
 }

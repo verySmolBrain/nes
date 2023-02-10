@@ -21,8 +21,8 @@ mod test {
         
 
         check(&mut cpu, expect![[r#"
-            0000  24 A1     BIT $A1 = F0                    A:0F X:00 Y:00 P:24 SP:FD
-            0002  00        BRK                             A:0F X:00 Y:00 P:E6 SP:FD"#]])
+            0000  24 A1     BIT $A1 = F0                    A:0F X:00 Y:00 P:24 SP:FD PPU:  0,  0 CYC:0
+            0002  00        BRK                             A:0F X:00 Y:00 P:E6 SP:FD PPU:  0,  9 CYC:3"#]])
     }
 
     #[test]
@@ -36,8 +36,8 @@ mod test {
         cpu.accumulator = 0b0000_1111;
 
         check(&mut cpu, expect![[r#"
-            0000  24 A1     BIT $A1 = FF                    A:0F X:00 Y:00 P:24 SP:FD
-            0002  00        BRK                             A:0F X:00 Y:00 P:E4 SP:FD"#]])
+            0000  24 A1     BIT $A1 = FF                    A:0F X:00 Y:00 P:24 SP:FD PPU:  0,  0 CYC:0
+            0002  00        BRK                             A:0F X:00 Y:00 P:E4 SP:FD PPU:  0,  9 CYC:3"#]])
     }
 
     #[test]
@@ -52,7 +52,7 @@ mod test {
         cpu.accumulator = 0b1100_0000;
 
         check(&mut cpu, expect![[r#"
-            0000  24 A1     BIT $A1 = C0                    A:C0 X:00 Y:00 P:24 SP:FD
-            0002  00        BRK                             A:C0 X:00 Y:00 P:E4 SP:FD"#]])
+            0000  24 A1     BIT $A1 = C0                    A:C0 X:00 Y:00 P:24 SP:FD PPU:  0,  0 CYC:0
+            0002  00        BRK                             A:C0 X:00 Y:00 P:E4 SP:FD PPU:  0,  9 CYC:3"#]])
     }
 }

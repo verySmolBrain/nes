@@ -17,8 +17,8 @@ mod test {
         cpu.accumulator = 0b0000_0001;
         
         check(&mut cpu, expect![[r#"
-            0000  4A        LSR A                           A:01 X:00 Y:00 P:24 SP:FD
-            0001  00        BRK                             A:00 X:00 Y:00 P:27 SP:FD"#]])
+            0000  4A        LSR A                           A:01 X:00 Y:00 P:24 SP:FD PPU:  0,  0 CYC:0
+            0001  00        BRK                             A:00 X:00 Y:00 P:27 SP:FD PPU:  0,  6 CYC:2"#]])
     }
 
     #[test]
@@ -32,8 +32,8 @@ mod test {
         cpu.status.insert(Status::CARRY);
         
         check(&mut cpu, expect![[r#"
-            0000  4A        LSR A                           A:00 X:00 Y:00 P:25 SP:FD
-            0001  00        BRK                             A:00 X:00 Y:00 P:26 SP:FD"#]])
+            0000  4A        LSR A                           A:00 X:00 Y:00 P:25 SP:FD PPU:  0,  0 CYC:0
+            0001  00        BRK                             A:00 X:00 Y:00 P:26 SP:FD PPU:  0,  6 CYC:2"#]])
     }
 
     #[test]
@@ -47,8 +47,8 @@ mod test {
         cpu.status.remove(Status::CARRY);
         
         check(&mut cpu, expect![[r#"
-            0000  4A        LSR A                           A:1F X:00 Y:00 P:24 SP:FD
-            0001  00        BRK                             A:0F X:00 Y:00 P:25 SP:FD"#]])
+            0000  4A        LSR A                           A:1F X:00 Y:00 P:24 SP:FD PPU:  0,  0 CYC:0
+            0001  00        BRK                             A:0F X:00 Y:00 P:25 SP:FD PPU:  0,  6 CYC:2"#]])
     }
 
     #[test]
@@ -61,7 +61,7 @@ mod test {
         cpu.program_counter = 0x0000;
 
         check(&mut cpu, expect![[r#"
-            0000  46 A1     LSR $A1 = 01                    A:00 X:00 Y:00 P:24 SP:FD
-            0002  00        BRK                             A:00 X:00 Y:00 P:27 SP:FD"#]])
+            0000  46 A1     LSR $A1 = 01                    A:00 X:00 Y:00 P:24 SP:FD PPU:  0,  0 CYC:0
+            0002  00        BRK                             A:00 X:00 Y:00 P:27 SP:FD PPU:  0, 15 CYC:5"#]])
     }
 }

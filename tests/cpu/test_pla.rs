@@ -16,7 +16,7 @@ mod test {
         cpu.stack_push_u8(0x05);
         
         check(&mut cpu, expect![[r#"
-            0000  68        PLA                             A:00 X:00 Y:00 P:24 SP:FC
-            0001  00        BRK                             A:05 X:00 Y:00 P:24 SP:FD"#]])
+            0000  68        PLA                             A:00 X:00 Y:00 P:24 SP:FC PPU:  0,  0 CYC:0
+            0001  00        BRK                             A:05 X:00 Y:00 P:24 SP:FD PPU:  0, 12 CYC:4"#]])
     }
 }

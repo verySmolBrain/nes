@@ -15,8 +15,8 @@ mod test {
         cpu.accumulator = 0b1111_1111;
 
         check(&mut cpu, expect![[r#"
-            0000  6B 06     ARR_U #$06                      A:FF X:00 Y:00 P:24 SP:FD
-            0002  00        BRK                             A:03 X:00 Y:00 P:65 SP:FD"#]]);
+            0000  6B 06     ARR_U #$06                      A:FF X:00 Y:00 P:24 SP:FD PPU:  0,  0 CYC:0
+            0002  00        BRK                             A:03 X:00 Y:00 P:65 SP:FD PPU:  0,  6 CYC:2"#]]);
     }
 
     #[test]
@@ -29,8 +29,8 @@ mod test {
         cpu.accumulator = 0b1111_1111;
 
         check(&mut cpu, expect![[r#"
-            0000  6B 04     ARR_U #$04                      A:FF X:00 Y:00 P:24 SP:FD
-            0002  00        BRK                             A:02 X:00 Y:00 P:65 SP:FD"#]]);
+            0000  6B 04     ARR_U #$04                      A:FF X:00 Y:00 P:24 SP:FD PPU:  0,  0 CYC:0
+            0002  00        BRK                             A:02 X:00 Y:00 P:65 SP:FD PPU:  0,  6 CYC:2"#]]);
     }
 
     #[test]
@@ -43,8 +43,8 @@ mod test {
         cpu.accumulator = 0b1111_1111;
 
         check(&mut cpu, expect![[r#"
-            0000  6B 02     ARR_U #$02                      A:FF X:00 Y:00 P:24 SP:FD
-            0002  00        BRK                             A:01 X:00 Y:00 P:24 SP:FD"#]]);
+            0000  6B 02     ARR_U #$02                      A:FF X:00 Y:00 P:24 SP:FD PPU:  0,  0 CYC:0
+            0002  00        BRK                             A:01 X:00 Y:00 P:24 SP:FD PPU:  0,  6 CYC:2"#]]);
     }
 
     #[test]
@@ -57,7 +57,7 @@ mod test {
         cpu.accumulator = 0b1111_1111;
 
         check(&mut cpu, expect![[r#"
-            0000  6B 00     ARR_U #$00                      A:FF X:00 Y:00 P:24 SP:FD
-            0002  00        BRK                             A:00 X:00 Y:00 P:26 SP:FD"#]]);
+            0000  6B 00     ARR_U #$00                      A:FF X:00 Y:00 P:24 SP:FD PPU:  0,  0 CYC:0
+            0002  00        BRK                             A:00 X:00 Y:00 P:26 SP:FD PPU:  0,  6 CYC:2"#]]);
     }
 }

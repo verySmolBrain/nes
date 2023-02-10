@@ -17,7 +17,7 @@ mod test {
         cpu.stack_pointer = 0b0001_1111;
 
         check(&mut cpu, expect![[r#"
-            0000  BB A1 00  LAR_U $00A1,Y @ 00A1 = F8       A:00 X:00 Y:00 P:24 SP:1F
-            0003  00        BRK                             A:18 X:18 Y:00 P:24 SP:18"#]]);
+            0000  BB A1 00  LAR_U $00A1,Y @ 00A1 = F8       A:00 X:00 Y:00 P:24 SP:1F PPU:  0,  0 CYC:0
+            0003  00        BRK                             A:18 X:18 Y:00 P:24 SP:18 PPU:  0, 12 CYC:4"#]]);
     }
 }

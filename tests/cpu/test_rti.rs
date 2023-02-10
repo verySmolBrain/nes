@@ -25,7 +25,7 @@ mod test {
         cpu.stack_push_u8(new_status.bits());
         
         check(&mut cpu, expect![[r#"
-            0000  40        RTI                             A:00 X:00 Y:00 P:24 SP:FA
-            4042  00        BRK                             A:00 X:00 Y:00 P:A3 SP:FD"#]])
+            0000  40        RTI                             A:00 X:00 Y:00 P:24 SP:FA PPU:  0,  0 CYC:0
+            4042  00        BRK                             A:00 X:00 Y:00 P:A3 SP:FD PPU:  0, 18 CYC:6"#]])
     }
 }

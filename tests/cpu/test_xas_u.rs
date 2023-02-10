@@ -19,8 +19,8 @@ mod test {
         cpu.register_y = 0;
         
         check(&mut cpu, expect![[r#"
-            0000  9B 00 03 *XAS $0300,Y @ 0300 = 00         A:0F X:FF Y:00 P:24 SP:01
-            0003  00        BRK                             A:0F X:FF Y:00 P:24 SP:0F"#]]);
+            0000  9B 00 03 *XAS $0300,Y @ 0300 = 00         A:0F X:FF Y:00 P:24 SP:01 PPU:  0,  0 CYC:0
+            0003  00        BRK                             A:0F X:FF Y:00 P:24 SP:0F PPU:  0, 15 CYC:5"#]]);
         
         let expected = expect!["00000100"];
         expected.assert_eq(format!("{:08b}", cpu.mem_read(0b11_0000_0000)).as_str());

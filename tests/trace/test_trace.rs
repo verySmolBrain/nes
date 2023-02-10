@@ -18,10 +18,10 @@ mod test {
         cpu.register_y = 3;
 
         check(&mut cpu, expect![[r#"
-            0000  A2 01     LDX #$01                        A:01 X:02 Y:03 P:24 SP:FD
-            0002  CA        DEX                             A:01 X:01 Y:03 P:24 SP:FD
-            0003  88        DEY                             A:01 X:00 Y:03 P:26 SP:FD
-            0004  00        BRK                             A:01 X:00 Y:02 P:24 SP:FD"#]])
+            0000  A2 01     LDX #$01                        A:01 X:02 Y:03 P:24 SP:FD PPU:  0,  0 CYC:0
+            0002  CA        DEX                             A:01 X:01 Y:03 P:24 SP:FD PPU:  0,  6 CYC:2
+            0003  88        DEY                             A:01 X:00 Y:03 P:26 SP:FD PPU:  0, 12 CYC:4
+            0004  00        BRK                             A:01 X:00 Y:02 P:24 SP:FD PPU:  0, 18 CYC:6"#]])
     }
 
     #[test]
@@ -38,7 +38,7 @@ mod test {
         cpu.register_y = 0;
 
         check(&mut cpu, expect![[r#"
-            0000  11 10     ORA ($10),Y = 0200 @ 0200 = AA  A:00 X:00 Y:00 P:24 SP:FD
-            0002  00        BRK                             A:AA X:00 Y:00 P:A4 SP:FD"#]])
+            0000  11 10     ORA ($10),Y = 0200 @ 0200 = AA  A:00 X:00 Y:00 P:24 SP:FD PPU:  0,  0 CYC:0
+            0002  00        BRK                             A:AA X:00 Y:00 P:A4 SP:FD PPU:  0, 15 CYC:5"#]])
     }
 }

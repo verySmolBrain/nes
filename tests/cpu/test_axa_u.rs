@@ -17,8 +17,8 @@ mod test {
         cpu.register_x = 0b0000_1111;
 
         check(&mut cpu, expect![[r#"
-            0000  9F 10 00  AXA_U $0010,Y @ 0010 = 00       A:FF X:0F Y:00 P:24 SP:FD
-            0003  00        BRK                             A:FF X:0F Y:00 P:24 SP:FD"#]]);
+            0000  9F 10 00  AXA_U $0010,Y @ 0010 = 00       A:FF X:0F Y:00 P:24 SP:FD PPU:  0,  0 CYC:0
+            0003  00        BRK                             A:FF X:0F Y:00 P:24 SP:FD PPU:  0, 15 CYC:5"#]]);
 
         let val = cpu.bus.mem_read(0x0010);
         let expected = expect!["00000111"];
