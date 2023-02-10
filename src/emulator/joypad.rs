@@ -44,7 +44,11 @@ impl Joypad {
         let current_state = self.buffer;
         if !self.strobe {
             if let Some(button) = self.buttons.next() {
-                self.buffer = button.bits() & self.state.bits();
+                self.buffer = if button.bits() & self.state.bits() != 0 {
+                    1
+                } else {
+                    0
+                };
             }   
         }
         current_state
