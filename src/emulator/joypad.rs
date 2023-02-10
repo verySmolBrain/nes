@@ -1,7 +1,7 @@
 use bitflags::bitflags;
 
 bitflags! {
-    #[derive(Clone, Copy)]
+    #[derive(Clone, Copy, Debug)]
     pub struct Buttons: u8 {
         const Right  = 0b1000_0000;
         const Left   = 0b0100_0000;

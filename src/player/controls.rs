@@ -6,14 +6,16 @@ use crate::emulator::joypad::Buttons;
 
 lazy_static! { /* phf map doesn't support enums as keys */
     pub static ref CONTROLS_MAP: Vec<(Keycode, Buttons)> = vec![
-        (Keycode::Down, Buttons::A),
-        (Keycode::X, Buttons::B),
-        (Keycode::Return, Buttons::Start),
-        (Keycode::Backspace, Buttons::Select),
-        (Keycode::Up, Buttons::Up),
         (Keycode::Down, Buttons::Down),
-        (Keycode::Left, Buttons::Left),
+        (Keycode::Up, Buttons::Up),
         (Keycode::Right, Buttons::Right),
+        (Keycode::Left, Buttons::Left),
+
+        (Keycode::Space, Buttons::Select),
+        (Keycode::Return, Buttons::Start),
+
+        (Keycode::B, Buttons::B),
+        (Keycode::A, Buttons::A),
     ];
 
     pub static ref CONTROLS: HashMap<Keycode, Buttons> = {
