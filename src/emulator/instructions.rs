@@ -6,8 +6,6 @@ use crate::emulator::opcodes::OPCODES;
 use crate::emulator::opcodes::Code;
 use crate::emulator::addressing_modes::AddressingMode;
 
-use super::interrupts::Interrupt;
-
 impl Cpu {
     fn next(&mut self) -> u8 {
         let value = self.mem_read(self.program_counter);
