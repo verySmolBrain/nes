@@ -1,6 +1,6 @@
 ## NES Emulator in Rust (WIP)
 
-An NES emulator written in Rust. Still WIP for the most part
+An NES emulator written in Rust. Still WIP
 but the biggest parts are mostly finished.
 
 ![Alt Text](resources/demo1.gif)
