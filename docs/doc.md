@@ -310,7 +310,54 @@ Rendering is split into 2 parts.
 * Palette Table -> The colouring of the pixels stored in PPU RAM
 
 The background is composed of 960 tiles with each byte corresponding to
-a byte in the Nametable.
+a byte in the Nametable. The dimensions are 32 tiles x 30 tiles.
+
+2. Sprite Rendering
+
+* Sprites are stored in the OAM (Object Attribute Memory) which is 256 bytes.
+Each sprite takes up 4 bytes. 2 bytes are reserved for X and Y coordinates.
+1 byte is used to select the tile from the CHR ROM pattern table and 1
+byte to specify how the object should be rendered.
+
+```
+Byte 0
+y Position
+
+Byte 1
+Tile index number.
+
+76543210
+||||||||
+|||||||+- Bank ($0000 or $1000) of tiles
++++++++-- Tile number of top of sprite (0 to 254; bottom half gets the next tile)
+
+Byte 2
+Attributes
+
+76543210
+||||||||
+||||||++- Palette (4 to 7) of sprite
+|||+++--- Unimplemented (read 0)
+||+------ Priority (0: in front of background; 1: behind background)
+|+------- Flip sprite horizontally
++-------- Flip sprite vertically
+
+Byte 3
+x Position
+```
+
+3. Palette
+
+* There are 8 palettes, 4 for background and 4 for sprites. Each palette contains
+3 colours plus a special one corresponding to 0b00 with each colour represented
+by a byte corresponding to the palette table (Dependent on the console).
+* Each tile is represented by 1 palette which means each tile can only have 3
+different colours plus an empty state.
+
+* Background tile palettes are decided by the attribute table which is the 64 bytes
+at the end of the name table the tile is on. A byte represents a 4 x 4 tile area
+with each 2 bits in the byte corresponding to a palette for a 2 x 2 area eg.
+(0x00 = BG Palette 0, 0x01 = BG Palette 1, 0x10 = BG Palette 2, 0x11 = BG Palette 3).
 
 
 ## Important Notes

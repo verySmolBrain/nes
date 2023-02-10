@@ -1,5 +1,17 @@
+use crate::emulator::ppu::Ppu;
+
+const BG_PALETTE_START: usize = 0x03c0; // Update when scroll is implemented
+const META_TILE_WIDTH: usize = 4;
+const TILE_HEIGHT: usize = 2;
+const NAME_TABLE_WIDTH: usize = 32;
+const META_TILE_HEIGHT: usize = NAME_TABLE_WIDTH / META_TILE_WIDTH;
+
+const SPRITE_PALETTE_START: usize = 0x11;
+
+const PALETTE_LENGTH: usize = 4;
+
 #[rustfmt::skip]
-pub static DEFAULT_PALLETE: [(u8,u8,u8); 64] = [
+pub static DEFAULT_PALETTE: [(u8,u8,u8); 64] = [
    (0x80, 0x80, 0x80), (0x00, 0x3D, 0xA6), (0x00, 0x12, 0xB0), (0x44, 0x00, 0x96), (0xA1, 0x00, 0x5E),
    (0xC7, 0x00, 0x28), (0xBA, 0x06, 0x00), (0x8C, 0x17, 0x00), (0x5C, 0x2F, 0x00), (0x10, 0x45, 0x00),
    (0x05, 0x4A, 0x00), (0x00, 0x47, 0x2E), (0x00, 0x41, 0x66), (0x00, 0x00, 0x00), (0x05, 0x05, 0x05),
@@ -14,3 +26,33 @@ pub static DEFAULT_PALLETE: [(u8,u8,u8); 64] = [
    (0xFF, 0xEF, 0xA6), (0xFF, 0xF7, 0x9C), (0xD7, 0xE8, 0x95), (0xA6, 0xED, 0xAF), (0xA2, 0xF2, 0xDA),
    (0x99, 0xFF, 0xFC), (0xDD, 0xDD, 0xDD), (0x11, 0x11, 0x11), (0x11, 0x11, 0x11)
 ];
+
+pub fn palette_bg(ppu: &Ppu, x: usize, y: usize) -> [(u8, u8, u8); 4] {
+    let attr_table_idx = x / META_TILE_WIDTH + y / META_TILE_WIDTH * META_TILE_HEIGHT;
+    let attr_byte = ppu.vram[BG_PALETTE_START + attr_table_idx];
+ 
+    let pallete_idx = match (x % META_TILE_WIDTH / TILE_HEIGHT == 1, y % META_TILE_WIDTH / TILE_HEIGHT == 1) {
+        (false, false) => attr_byte & 0b11,
+        (true, false) => (attr_byte >> 2) & 0b11,
+        (false, true) => (attr_byte >> 4) & 0b11,
+        (true, true) => (attr_byte >> 6) & 0b11,
+    };
+ 
+    let pallete_start: usize = 1 + (pallete_idx as usize) * PALETTE_LENGTH;
+    [
+        DEFAULT_PALETTE[ppu.palette_table[0] as usize], 
+        DEFAULT_PALETTE[ppu.palette_table[pallete_start] as usize],
+        DEFAULT_PALETTE[ppu.palette_table[pallete_start + 1] as usize], 
+        DEFAULT_PALETTE[ppu.palette_table[pallete_start + 2] as usize],
+    ]
+}
+
+pub fn palette_sprite(ppu: &Ppu, palette_idx: u8) -> [(u8, u8, u8); 4] {
+    let pallete_start: usize = SPRITE_PALETTE_START + (palette_idx as usize) * PALETTE_LENGTH;
+    [
+        (0, 0, 0),
+        DEFAULT_PALETTE[ppu.palette_table[pallete_start] as usize],
+        DEFAULT_PALETTE[ppu.palette_table[pallete_start + 1] as usize], 
+        DEFAULT_PALETTE[ppu.palette_table[pallete_start + 2] as usize],
+    ]
+}
