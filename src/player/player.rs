@@ -188,7 +188,7 @@ impl Player {
         let mut texture = creator.create_texture_target(PixelFormatEnum::RGB24, 256, 240).unwrap();
 
         cpu.run_with_callback(move |cpu| {
-            println!("{}", trace(cpu));
+            // println!("{}", trace(cpu));
 
             let ppu = cpu.ppu_ready();
             if ppu.is_some() {

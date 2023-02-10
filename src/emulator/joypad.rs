@@ -3,14 +3,14 @@ use bitflags::bitflags;
 bitflags! {
     #[derive(Clone, Copy, Debug)]
     pub struct Buttons: u8 {
-        const Right  = 0b1000_0000;
-        const Left   = 0b0100_0000;
-        const Down   = 0b0010_0000;
-        const Up     = 0b0001_0000;
-        const Start  = 0b0000_1000;
-        const Select = 0b0000_0100;
-        const B      = 0b0000_0010;
         const A      = 0b0000_0001;
+        const B      = 0b0000_0010;
+        const Select = 0b0000_0100;
+        const Start  = 0b0000_1000;
+        const Up     = 0b0001_0000;
+        const Down   = 0b0010_0000;
+        const Left   = 0b0100_0000;
+        const Right  = 0b1000_0000;
     }
 }
 
@@ -35,6 +35,8 @@ impl Joypad {
         self.strobe = value & 1 == 1;
         if self.strobe {
             self.buttons = Box::from(Buttons::all().iter());
+        } else {
+            self.buffer = self.next();
         }
     }
 
