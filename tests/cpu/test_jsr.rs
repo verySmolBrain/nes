@@ -15,8 +15,8 @@ mod test {
         cpu.program_counter = 0x0005;
 
         check(&mut cpu, expect![[r#"
-            0005  20 00 00  JSR $0000                       A:00 X:00 Y:00 P:24 SP:FD
-            0000  00        BRK                             A:00 X:00 Y:00 P:24 SP:FB"#]]);
+            0005  20 00 00  JSR $0000                       A:00 X:00 Y:00 P:24 SP:FD PPU:  0,  0 CYC:0
+            0000  00        BRK                             A:00 X:00 Y:00 P:24 SP:FB PPU:  0, 18 CYC:6"#]]);
         
         let expected = expect!["7"];
         expected.assert_eq(&cpu.stack_pop_u16().to_string())

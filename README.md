@@ -1,9 +1,17 @@
 ## NES Emulator in Rust (WIP)
 
+An NES emulator written in Rust. Still WIP
+but the biggest parts are mostly finished.
+
 ![Alt Text](resources/demo1.gif)
 
-# Credits
+![Alt Text](resources/nestest.gif)
 
-* https://bugzmanov.github.io/
-* https://www.nesdev.org/
-* https://gist.github.com/wkjagt/9043907
+![Alt Text](resources/dk2.gif)
+
+## Build
+
+```
+$ cargo run --release ${ROM_PATH}
+```
+

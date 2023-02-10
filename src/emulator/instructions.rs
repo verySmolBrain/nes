@@ -15,8 +15,10 @@ impl Cpu {
 
     pub fn step(&mut self) -> bool  {
         let code = OPCODES.get(&self.next()).expect("Invalid opcode");
-        let (addr, bytes_used) = self.get_operand_address(&code.mode);
+        let (addr, bytes_used, crossed_page) = self.get_operand_address(&code.mode);
         self.program_counter = self.program_counter.wrapping_add(bytes_used);
+        
+        let mut branch_taken = false;
 
         match code.code {
             Code::LDA => { /* LDA */
@@ -44,7 +46,7 @@ impl Cpu {
 
             Code::STA => { /* STA */
                 let addr = addr.unwrap();
-                self.mem_write(addr, self.accumulator)
+                self.mem_write(addr, self.accumulator);
             },
             Code::STX => { /* STX */
                 let addr = addr.unwrap();
@@ -58,15 +60,17 @@ impl Cpu {
 
             Code::ADC => { /* ADC */
                 let addr = addr.unwrap();
+                let val = self.mem_read(addr);
                 
-                let res = self.addition(self.mem_read(addr));
+                let res = self.addition(val);
                 self.accumulator = res;
                 self.update_zero_and_negative_flag(res);
             },
             Code::SBC | Code::SBC_U => { /* SBC */
                 let addr = addr.unwrap();
+                let val = self.mem_read(addr);
 
-                let res = self.addition(self.mem_read(addr).wrapping_neg().wrapping_sub(1) as u8);
+                let res = self.addition(val.wrapping_neg().wrapping_sub(1) as u8);
                 self.accumulator = res;
                 self.update_zero_and_negative_flag(res);
             },
@@ -137,6 +141,7 @@ impl Cpu {
                 let addr = addr.unwrap();
 
                 if self.status.contains(Status::CARRY) {
+                    branch_taken = true;
                     self.program_counter = addr;
                 }
             },
@@ -144,6 +149,7 @@ impl Cpu {
                 let addr = addr.unwrap();
 
                 if !self.status.contains(Status::CARRY) {
+                    branch_taken = true;
                     self.program_counter = addr;
                 }
             },
@@ -151,6 +157,7 @@ impl Cpu {
                 let addr = addr.unwrap();
 
                 if self.status.contains(Status::ZERO) {
+                    branch_taken = true;
                     self.program_counter = addr;
                 }
             },
@@ -158,6 +165,7 @@ impl Cpu {
                 let addr = addr.unwrap();
 
                 if !self.status.contains(Status::ZERO) {
+                    branch_taken = true;
                     self.program_counter = addr;
                 }
             },
@@ -165,6 +173,7 @@ impl Cpu {
                 let addr = addr.unwrap();
 
                 if self.status.contains(Status::NEGATIVE) {
+                    branch_taken = true;
                     self.program_counter = addr;
                 }
             },
@@ -172,6 +181,7 @@ impl Cpu {
                 let addr = addr.unwrap();
 
                 if !self.status.contains(Status::NEGATIVE) {
+                    branch_taken = true;
                     self.program_counter = addr;
                 }
             },
@@ -179,6 +189,7 @@ impl Cpu {
                 let addr = addr.unwrap();
 
                 if self.status.contains(Status::OVERFLOW) {
+                    branch_taken = true;
                     self.program_counter = addr;
                 }
             },
@@ -186,6 +197,7 @@ impl Cpu {
                 let addr = addr.unwrap();
 
                 if !self.status.contains(Status::OVERFLOW) {
+                    branch_taken = true;
                     self.program_counter = addr;
                 }
             },
@@ -246,8 +258,9 @@ impl Cpu {
                     self.accumulator = val;
                 } else {
                     let addr = addr.unwrap();
+                    let val = self.mem_read(addr);
 
-                    let val = self.lsr(self.mem_read(addr));
+                    let val = self.lsr(val);
                     self.mem_write(addr, val);
                 }
             },
@@ -257,8 +270,9 @@ impl Cpu {
                     self.accumulator = val;
                 } else {
                     let addr = addr.unwrap();
+                    let val = self.mem_read(addr);
 
-                    let val = self.rol(self.mem_read(addr));
+                    let val = self.rol(val);
                     self.mem_write(addr, val);
                 }
             },
@@ -268,8 +282,9 @@ impl Cpu {
                     self.accumulator = val;
                 } else {
                     let addr = addr.unwrap();
+                    let val = self.mem_read(addr);
 
-                    let val = self.ror(self.mem_read(addr));
+                    let val = self.ror(val);
                     self.mem_write(addr, val);
                 }
             },
@@ -489,8 +504,9 @@ impl Cpu {
 
             Code::RLA_U => { /* RLA */
                 let addr = addr.unwrap();
+                let val = self.mem_read(addr);
 
-                let res = self.rol(self.mem_read(addr));
+                let res = self.rol(val);
                 self.mem_write(addr, res);
 
                 self.accumulator &= res;
@@ -499,8 +515,9 @@ impl Cpu {
 
             Code::RRA_U => { /* RRA */
                 let addr = addr.unwrap();
+                let val = self.mem_read(addr);
 
-                let res = self.ror(self.mem_read(addr));
+                let res = self.ror(val);
                 self.mem_write(addr, res);
 
                 let res = self.addition(res);
@@ -510,8 +527,9 @@ impl Cpu {
 
             Code::SLO_U => { /* SLO */
                 let addr = addr.unwrap();
+                let val = self.mem_read(addr);
 
-                let res = self.asl(self.mem_read(addr));
+                let res = self.asl(val);
                 self.mem_write(addr, res);
 
                 self.accumulator |= res;
@@ -520,8 +538,9 @@ impl Cpu {
 
             Code::SRE_U => { /* SRE */
                 let addr = addr.unwrap();
+                let val = self.mem_read(addr);
 
-                let res = self.lsr(self.mem_read(addr));
+                let res = self.lsr(val);
                 self.mem_write(addr, res);
 
                 self.accumulator ^= res;
@@ -566,6 +585,35 @@ impl Cpu {
             Code::DOP_U => (), /* DOP */
             Code::NOP => (), /* NOP */
         }
+
+        
+        let mut cycle_inc: usize = code.cycles;
+        match code.code {
+            /* 
+            STA, ROR, ROL, LSR, ASL, INC, DEC, DCP, ISC, RLA, RRA, SLO, SRE, SXA, SYA, XAS 
+            don't care about page crossing (Due to LE) 
+            */
+            Code::STA | Code::ROR | Code::ROL | Code::LSR | Code::ASL | Code::INC 
+            | Code::DEC | Code::DCP_U | Code::ISB_U | Code::RRA_U | Code::RLA_U 
+            | Code::SLO_U | Code::SRE_U | Code::SYA_U | Code::SXA_U | Code::XAS_U => (),
+
+            Code::BCC | Code::BCS | Code::BEQ | Code::BMI | Code::BNE 
+            | Code::BPL | Code::BVC | Code::BVS => {
+                if branch_taken && crossed_page {
+                    cycle_inc += 2;
+                } else if branch_taken {
+                    cycle_inc += 1;
+                }
+            },
+            _ => {
+                if crossed_page {
+                    cycle_inc += 1;
+                }
+            },
+        }
+        
+        self.cycles = self.cycles.wrapping_add(cycle_inc);
+        self.bus.tick(cycle_inc);
 
         true // Change later
     }

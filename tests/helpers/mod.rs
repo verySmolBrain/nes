@@ -1,6 +1,7 @@
 use nes::emulator::cpu::Cpu;
 use nes::emulator::bus::Bus;
 use nes::emulator::memory::Mem;
+use nes::emulator::ppu::Ppu;
 use nes::emulator::rom::{ Rom, PRG_ROM_PAGE_SIZE, CHR_ROM_PAGE_SIZE, Mirroring };
 use expect_test::Expect;
 use nes::helpers::trace::trace;
@@ -75,3 +76,7 @@ impl TestRom {
     }
 }
 
+pub fn default_ppu(mirroring: Mirroring) -> Ppu {
+    let test_rom = TestRom::default_rom();
+    Ppu::new(test_rom.chr_rom, mirroring)
+}

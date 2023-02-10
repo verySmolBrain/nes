@@ -18,7 +18,7 @@ mod test {
         
         // 0x4042 + 1 for next
         check(&mut cpu, expect![[r#"
-            0000  60        RTS                             A:00 X:00 Y:00 P:24 SP:FB
-            4042  00        BRK                             A:00 X:00 Y:00 P:24 SP:FD"#]])
+            0000  60        RTS                             A:00 X:00 Y:00 P:24 SP:FB PPU:  0,  0 CYC:0
+            4042  00        BRK                             A:00 X:00 Y:00 P:24 SP:FD PPU:  0, 18 CYC:6"#]])
     }
 }

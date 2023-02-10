@@ -16,8 +16,8 @@ mod test {
         assert!(!cpu.status.contains(Status::ZERO));
 
         check(&mut cpu, expect![[r#"
-            0000  F0 05     BEQ $07                         A:00 X:00 Y:00 P:24 SP:FD
-            0002  00        BRK                             A:00 X:00 Y:00 P:24 SP:FD"#]])
+            0000  F0 05     BEQ $07                         A:00 X:00 Y:00 P:24 SP:FD PPU:  0,  0 CYC:0
+            0002  00        BRK                             A:00 X:00 Y:00 P:24 SP:FD PPU:  0,  6 CYC:2"#]])
     }
 
     #[test]
@@ -32,7 +32,7 @@ mod test {
 
         // 0x8001 + 0x05 (Relative) + 0x1 (Skip Label) + 0x1 (Next instruction)
         check(&mut cpu, expect![[r#"
-            0000  F0 05     BEQ $07                         A:00 X:00 Y:00 P:26 SP:FD
-            0007  00        BRK                             A:00 X:00 Y:00 P:26 SP:FD"#]])
+            0000  F0 05     BEQ $07                         A:00 X:00 Y:00 P:26 SP:FD PPU:  0,  0 CYC:0
+            0007  00        BRK                             A:00 X:00 Y:00 P:26 SP:FD PPU:  0,  9 CYC:3"#]])
     }
 }

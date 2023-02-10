@@ -16,8 +16,8 @@ mod test {
         cpu.program_counter = 0;
 
         check(&mut cpu, expect![[r#"
-            0000  C7 A1    *DCP $A1 = 02                    A:00 X:00 Y:00 P:24 SP:FD
-            0002  00        BRK                             A:00 X:00 Y:00 P:A4 SP:FD"#]]);
+            0000  C7 A1    *DCP $A1 = 02                    A:00 X:00 Y:00 P:24 SP:FD PPU:  0,  0 CYC:0
+            0002  00        BRK                             A:00 X:00 Y:00 P:A4 SP:FD PPU:  0, 15 CYC:5"#]]);
 
         let val = cpu.bus.mem_read(0x00a1);
         let expected = expect![[r#"

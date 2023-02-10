@@ -16,7 +16,7 @@ mod test {
         cpu.register_x = 0b0000_1010;
 
         check(&mut cpu, expect![[r#"
-            0000  CB 05     AXS_U #$05                      A:FF X:0A Y:00 P:24 SP:FD
-            0002  00        BRK                             A:FF X:05 Y:00 P:25 SP:FD"#]]);
+            0000  CB 05     AXS_U #$05                      A:FF X:0A Y:00 P:24 SP:FD PPU:  0,  0 CYC:0
+            0002  00        BRK                             A:FF X:05 Y:00 P:25 SP:FD PPU:  0,  6 CYC:2"#]]);
     }
 }

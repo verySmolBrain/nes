@@ -15,8 +15,8 @@ mod test {
         cpu.accumulator = 0;
 
         check(&mut cpu, expect![[r#"
-            0000  69 01     ADC #$01                        A:00 X:00 Y:00 P:24 SP:FD
-            0002  00        BRK                             A:01 X:00 Y:00 P:24 SP:FD"#]])
+            0000  69 01     ADC #$01                        A:00 X:00 Y:00 P:24 SP:FD PPU:  0,  0 CYC:0
+            0002  00        BRK                             A:01 X:00 Y:00 P:24 SP:FD PPU:  0,  6 CYC:2"#]])
     }
 
     #[test]
@@ -29,8 +29,8 @@ mod test {
         cpu.accumulator = 120;
 
         check(&mut cpu, expect![[r#"
-            0000  69 78     ADC #$78                        A:78 X:00 Y:00 P:24 SP:FD
-            0002  00        BRK                             A:F0 X:00 Y:00 P:E4 SP:FD"#]])
+            0000  69 78     ADC #$78                        A:78 X:00 Y:00 P:24 SP:FD PPU:  0,  0 CYC:0
+            0002  00        BRK                             A:F0 X:00 Y:00 P:E4 SP:FD PPU:  0,  6 CYC:2"#]])
     }
 
     #[test]
@@ -43,8 +43,8 @@ mod test {
         cpu.accumulator = 80;
         
         check(&mut cpu, expect![[r#"
-            0000  69 50     ADC #$50                        A:50 X:00 Y:00 P:24 SP:FD
-            0002  00        BRK                             A:A0 X:00 Y:00 P:E4 SP:FD"#]])
+            0000  69 50     ADC #$50                        A:50 X:00 Y:00 P:24 SP:FD PPU:  0,  0 CYC:0
+            0002  00        BRK                             A:A0 X:00 Y:00 P:E4 SP:FD PPU:  0,  6 CYC:2"#]])
     }
 
     #[test]
@@ -57,7 +57,7 @@ mod test {
         cpu.accumulator = 0xff;
 
         check(&mut cpu, expect![[r#"
-            0000  69 FF     ADC #$FF                        A:FF X:00 Y:00 P:24 SP:FD
-            0002  00        BRK                             A:FE X:00 Y:00 P:A5 SP:FD"#]])
+            0000  69 FF     ADC #$FF                        A:FF X:00 Y:00 P:24 SP:FD PPU:  0,  0 CYC:0
+            0002  00        BRK                             A:FE X:00 Y:00 P:A5 SP:FD PPU:  0,  6 CYC:2"#]])
     }
 }

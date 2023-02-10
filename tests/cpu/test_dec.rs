@@ -16,7 +16,7 @@ mod test {
         cpu.program_counter = 0x0000;
 
         check(&mut cpu, expect![[r#"
-            0000  C6 A1     DEC $A1 = 01                    A:00 X:00 Y:00 P:24 SP:FD
-            0002  00        BRK                             A:00 X:00 Y:00 P:26 SP:FD"#]])
+            0000  C6 A1     DEC $A1 = 01                    A:00 X:00 Y:00 P:24 SP:FD PPU:  0,  0 CYC:0
+            0002  00        BRK                             A:00 X:00 Y:00 P:26 SP:FD PPU:  0, 15 CYC:5"#]])
     }
 }

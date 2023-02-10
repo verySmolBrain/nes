@@ -17,7 +17,7 @@ mod test {
         assert!(cpu.status.contains(Status::INTERDIS));
         
         check(&mut cpu, expect![[r#"
-            0000  58        CLI                             A:00 X:00 Y:00 P:24 SP:FD
-            0001  00        BRK                             A:00 X:00 Y:00 P:20 SP:FD"#]])
+            0000  58        CLI                             A:00 X:00 Y:00 P:24 SP:FD PPU:  0,  0 CYC:0
+            0001  00        BRK                             A:00 X:00 Y:00 P:20 SP:FD PPU:  0,  6 CYC:2"#]])
     }
 }

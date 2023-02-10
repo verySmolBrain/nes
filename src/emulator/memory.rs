@@ -1,20 +1,32 @@
 use crate::emulator::cpu::Cpu;
 use crate::emulator::bus::Bus;
 
-const RAM: u16 = 0x0000;
-const RAM_MIRRORS_END: u16 = 0x1FFF;
+pub const RAM: u16 = 0x0000;
+pub const RAM_MIRRORS_END: u16 = 0x1FFF;
 
-// const PPU_REGISTERS: u16 = 0x2000;
-// const PPU_REGISTERS_MIRRORS_END: u16 = 0x3FFF;
+pub const PPU_REGISTERS_MIRRORS_START: u16 = 0x2008;
+pub const PPU_REGISTERS_MIRRORS_END: u16 = 0x3FFF;
 
-const ROM: u16 = 0x8000;
-const ROM_MIRRORS_END: u16 = 0xFFFF;
+pub const ROM: u16 = 0x8000;
+pub const ROM_MIRRORS_END: u16 = 0xFFFF;
+
+pub const PPU_CONTROLLER: u16 = 0x2000;
+pub const PPU_MASK: u16 = 0x2001;
+pub const PPU_STATUS: u16 = 0x2002;
+pub const PPU_OAM_ADDR: u16 = 0x2003;
+pub const PPU_OAM_DATA: u16 = 0x2004;
+pub const PPU_SCROLL: u16 = 0x2005;
+pub const PPU_ADDRESS: u16 = 0x2006;
+pub const PPU_DATA: u16 = 0x2007;
+pub const OAM_DMA: u16 = 0x4014;
+
+pub const JOYPAD_1: u16 = 0x4016;
 
 pub trait Mem {
-    fn mem_read(&self, addr: u16) -> u8;
+    fn mem_read(&mut self, addr: u16) -> u8;
     fn mem_write(&mut self, addr: u16, value: u8);
 
-    fn mem_read_u16(&self, addr: u16) -> u16 {
+    fn mem_read_u16(&mut self, addr: u16) -> u16 {
         u16::from_le_bytes([ // LE
             self.mem_read(addr),
             self.mem_read(addr + 1)
@@ -29,10 +41,19 @@ pub trait Mem {
 }
 
 impl Mem for Bus {
-    fn mem_read(&self, addr: u16) -> u8 {
+    fn mem_read(&mut self, addr: u16) -> u8 {
         match addr {
             RAM ..= RAM_MIRRORS_END => {
                 self.cpu_vram[(addr & 0b111_11111111) as usize]
+            },
+            JOYPAD_1 => self.joypad.read(),
+            
+            PPU_STATUS => self.ppu.read_status(),
+            PPU_OAM_DATA => self.ppu.read_oam_data(),
+            PPU_DATA => self.ppu.read_data(),
+
+            PPU_REGISTERS_MIRRORS_START ..= PPU_REGISTERS_MIRRORS_END => {
+                self.mem_read(addr & 0b00100000_00000111) //addr % 0x2000
             },
             ROM ..= ROM_MIRRORS_END => {
                 self.read_rom(addr)
@@ -46,6 +67,30 @@ impl Mem for Bus {
             RAM ..= RAM_MIRRORS_END => {
                 self.cpu_vram[(addr & 0b111_11111111) as usize] = data;
             },
+            JOYPAD_1 => self.joypad.write(data),
+
+            PPU_CONTROLLER => self.ppu.write_controller(data),
+            PPU_MASK => self.ppu.write_mask(data),
+            PPU_OAM_ADDR => self.ppu.write_oam_addr(data),
+            PPU_OAM_DATA => self.ppu.write_oam_data(data),
+            PPU_SCROLL => self.ppu.write_scroll(data),
+            PPU_ADDRESS => self.ppu.write_address(data),
+            PPU_DATA => self.ppu.write_data(data),
+
+            PPU_REGISTERS_MIRRORS_START ..= PPU_REGISTERS_MIRRORS_END => {
+                self.mem_write(addr & 0b00100000_00000111, data) //addr % 0x2000
+            },
+
+            OAM_DMA => {
+                let mut buffer = [0u8; 256];
+                let hi: u16 = (data as u16) << 8;
+                for i in 0..256 {
+                    buffer[i] = self.mem_read(hi + i as u16);
+                }
+
+                self.ppu.write_oam_dma(&buffer);
+            }
+
             0x8000 ..= 0xFFFF => {
                 panic!("Attempted to write to ROM")
             },
@@ -55,7 +100,7 @@ impl Mem for Bus {
 }
 
 impl Mem for Cpu {
-    fn mem_read(&self, addr: u16) -> u8 {
+    fn mem_read(&mut self, addr: u16) -> u8 {
         self.bus.mem_read(addr)
     }
 
@@ -63,7 +108,7 @@ impl Mem for Cpu {
         self.bus.mem_write(addr, data)
     }
 
-    fn mem_read_u16(&self, pos: u16) -> u16 {
+    fn mem_read_u16(&mut self, pos: u16) -> u16 {
         self.bus.mem_read_u16(pos)
     }
 

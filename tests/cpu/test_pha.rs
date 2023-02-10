@@ -15,8 +15,8 @@ mod test {
         cpu.accumulator = 0x05;
 
         check(&mut cpu, expect![[r#"
-            0000  48        PHA                             A:05 X:00 Y:00 P:24 SP:FD
-            0001  68        PLA                             A:05 X:00 Y:00 P:24 SP:FC
-            0002  00        BRK                             A:05 X:00 Y:00 P:24 SP:FD"#]])
+            0000  48        PHA                             A:05 X:00 Y:00 P:24 SP:FD PPU:  0,  0 CYC:0
+            0001  68        PLA                             A:05 X:00 Y:00 P:24 SP:FC PPU:  0,  9 CYC:3
+            0002  00        BRK                             A:05 X:00 Y:00 P:24 SP:FD PPU:  0, 21 CYC:7"#]])
     }
 }

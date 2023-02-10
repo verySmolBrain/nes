@@ -15,7 +15,7 @@ mod test {
         cpu.stack_pointer = 0x05;
         
         check(&mut cpu, expect![[r#"
-            0000  BA        TSX                             A:00 X:00 Y:00 P:24 SP:05
-            0001  00        BRK                             A:00 X:05 Y:00 P:24 SP:05"#]])
+            0000  BA        TSX                             A:00 X:00 Y:00 P:24 SP:05 PPU:  0,  0 CYC:0
+            0001  00        BRK                             A:00 X:05 Y:00 P:24 SP:05 PPU:  0,  6 CYC:2"#]])
     }
 }

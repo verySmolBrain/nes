@@ -17,7 +17,7 @@ mod test {
         assert!(cpu.status.contains(Status::DECIMAL));
         
         check(&mut cpu, expect![[r#"
-            0000  D8        CLD                             A:00 X:00 Y:00 P:2C SP:FD
-            0001  00        BRK                             A:00 X:00 Y:00 P:24 SP:FD"#]])
+            0000  D8        CLD                             A:00 X:00 Y:00 P:2C SP:FD PPU:  0,  0 CYC:0
+            0001  00        BRK                             A:00 X:00 Y:00 P:24 SP:FD PPU:  0,  6 CYC:2"#]])
     }
 }

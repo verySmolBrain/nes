@@ -15,8 +15,8 @@ mod test {
         cpu.accumulator = 0b1111_1100;
 
         check(&mut cpu, expect![[r#"
-            0000  0B 8F     AAC_U #$8F                      A:FC X:00 Y:00 P:24 SP:FD
-            0002  00        BRK                             A:8C X:00 Y:00 P:A5 SP:FD"#]])
+            0000  0B 8F     AAC_U #$8F                      A:FC X:00 Y:00 P:24 SP:FD PPU:  0,  0 CYC:0
+            0002  00        BRK                             A:8C X:00 Y:00 P:A5 SP:FD PPU:  0,  6 CYC:2"#]])
     }
 
     #[test]
@@ -29,7 +29,7 @@ mod test {
         cpu.accumulator = 0b1111_1100;
 
         check(&mut cpu, expect![[r#"
-            0000  0B 0F     AAC_U #$0F                      A:FC X:00 Y:00 P:24 SP:FD
-            0002  00        BRK                             A:0C X:00 Y:00 P:24 SP:FD"#]])
+            0000  0B 0F     AAC_U #$0F                      A:FC X:00 Y:00 P:24 SP:FD PPU:  0,  0 CYC:0
+            0002  00        BRK                             A:0C X:00 Y:00 P:24 SP:FD PPU:  0,  6 CYC:2"#]])
     }
 }

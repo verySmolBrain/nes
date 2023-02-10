@@ -1,53 +1,13 @@
-use crate::emulator::{ bus::Bus, memory::Mem, rom::Rom };
+use crate::emulator::{ bus::Bus, memory::Mem, rom::Rom, ppu::Ppu };
+use crate::emulator::interrupts::Interrupt;
 use bitflags::bitflags;
 
-/*  _______________ $10000  _______________
-   | PRG-ROM       |       |               |
-   | Upper Bank    |       |               |
-   |_ _ _ _ _ _ _ _| $C000 | PRG-ROM       |
-   | PRG-ROM       |       |               |
-   | Lower Bank    |       |               |
-   |_______________| $8000 |_______________|
-   | SRAM          |       | SRAM          |
-   |_______________| $6000 |_______________|
-   | Expansion ROM |       | Expansion ROM |
-   |_______________| $4020 |_______________|
-   | I/O Registers |       |               |
-   |_ _ _ _ _ _ _ _| $4000 |               |
-   | Mirrors       |       | I/O Registers |
-   | $2000-$2007   |       |               |
-   |_ _ _ _ _ _ _ _| $2008 |               |
-   | I/O Registers |       |               |
-   |_______________| $2000 |_______________|
-   | Mirrors       |       |               |
-   | $0000-$07FF   |       |               |
-   |_ _ _ _ _ _ _ _| $0800 |               |
-   | RAM           |       | RAM           |
-   |_ _ _ _ _ _ _ _| $0200 |               |
-   | Stack         |       |               |
-   |_ _ _ _ _ _ _ _| $0100 |               |
-   | Zero Page     |       |               |
-   |_______________| $0000 |_______________|
-*/
-
 const RESET_VECTOR: usize = 0xFFFC;
-const STACK_RESET: u8 = 0xfd; // Push = store first then decrement. So 8 bit off for initial.
-
-/*
-7  bit  0
----- ----
-NVss DIZC
-|||| ||||
-|||| |||+- Carry
-|||| ||+-- Zero
-|||| |+--- Interrupt Disable
-|||| +---- Decimal
-||++------ No Cpu effect, see: the B flag
-|+-------- Overflow
-+--------- Negative
- */
+/* https://www.reddit.com/r/EmuDev/comments/g663hk/nestestlog_stack_pointer_starting_at_fd_and_sbc/ */
+const STACK_RESET: u8 = 0xfd;
 
 bitflags! {
+    #[derive(Clone)]
     pub struct Status: u8 {
         const NEGATIVE = 0b1000_0000;
         const OVERFLOW = 0b0100_0000;
@@ -70,10 +30,16 @@ pub struct Cpu {
     pub accumulator: u8, 
     pub register_x: u8,
     pub register_y: u8,
+
     pub stack_pointer: u8,
-    pub status: Status,
     pub program_counter: u16,
-    pub bus: Bus
+
+    pub status: Status,
+    pub cycles: usize,
+    
+    pub bus: Bus,
+    
+    pub interrupt: Option<Interrupt>,
 }
 
 impl Cpu {
@@ -85,7 +51,9 @@ impl Cpu {
             stack_pointer: STACK_RESET,
             status: Default::default(), 
             program_counter: 0,
-            bus
+            bus,
+            cycles: 0,
+            interrupt: None,
         }
     }
 
@@ -95,6 +63,10 @@ impl Cpu {
         self.register_y = 0;
         self.stack_pointer = STACK_RESET;
         self.status = Default::default();
+        self.cycles = 0;
+
+        self.cycles += 7; // 7 cycles for reset
+        self.bus.tick(7);
 
         self.program_counter = self.mem_read_u16(RESET_VECTOR as u16);
     }
@@ -109,12 +81,27 @@ impl Cpu {
         Ok(())
     }
 
+    pub fn ppu_ready(&mut self) -> Option<&Ppu> {
+        if self.interrupt.is_some() {
+            self.return_from_interrupt();
+            self.bus.ppu.handled_interrupt();
+            Some(&self.bus.ppu)
+        } else {
+            None
+        }
+    }
+
     pub fn run_with_callback<F>(&mut self, mut callback: F)
     where
         F: FnMut(&mut Cpu),
     {
         loop {
             callback(self);
+
+            if self.bus.ppu.interrupt.is_some() {
+                self.interrupt(Interrupt::new_nmi());
+            }
+            
             if !self.step() {
                 return // Change later to check for flag instead of interrupt
             }

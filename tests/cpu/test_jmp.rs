@@ -16,8 +16,8 @@ mod test {
 
         // addr: 0x8005 + 1 to reach break
         check(&mut cpu, expect![[r#"
-            0000  4C 05 00  JMP $0005                       A:00 X:00 Y:00 P:24 SP:FD
-            0005  00        BRK                             A:00 X:00 Y:00 P:24 SP:FD"#]])
+            0000  4C 05 00  JMP $0005                       A:00 X:00 Y:00 P:24 SP:FD PPU:  0,  0 CYC:0
+            0005  00        BRK                             A:00 X:00 Y:00 P:24 SP:FD PPU:  0,  9 CYC:3"#]])
     }
 
     #[test]
@@ -42,7 +42,7 @@ mod test {
 
         // addr: 0x7677 + 1 to reach break
         check(&mut cpu, expect![[r#"
-            0000  11 FF     ORA ($FF),Y = 1110 @ 1110 = 00  A:00 X:00 Y:00 P:24 SP:FD
-            0002  00        BRK                             A:00 X:00 Y:00 P:26 SP:FD"#]])
+            0000  11 FF     ORA ($FF),Y = 1110 @ 1110 = 00  A:00 X:00 Y:00 P:24 SP:FD PPU:  0,  0 CYC:0
+            0002  00        BRK                             A:00 X:00 Y:00 P:26 SP:FD PPU:  0, 15 CYC:5"#]])
     }
 }

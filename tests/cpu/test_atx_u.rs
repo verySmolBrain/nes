@@ -15,7 +15,7 @@ mod test {
         cpu.accumulator = 0b1111_1100;
 
         check(&mut cpu, expect![[r#"
-            0000  AB 8F     ATX_U #$8F                      A:FC X:00 Y:00 P:24 SP:FD
-            0002  00        BRK                             A:8C X:8C Y:00 P:A4 SP:FD"#]])
+            0000  AB 8F     ATX_U #$8F                      A:FC X:00 Y:00 P:24 SP:FD PPU:  0,  0 CYC:0
+            0002  00        BRK                             A:8C X:8C Y:00 P:A4 SP:FD PPU:  0,  6 CYC:2"#]])
     }
 }

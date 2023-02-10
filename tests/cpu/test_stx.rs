@@ -15,7 +15,7 @@ mod test {
         cpu.register_x = 5;
         
         check(&mut cpu, expect![[r#"
-            0000  86 A1     STX $A1 = 00                    A:00 X:05 Y:00 P:24 SP:FD
-            0002  00        BRK                             A:00 X:05 Y:00 P:24 SP:FD"#]])
+            0000  86 A1     STX $A1 = 00                    A:00 X:05 Y:00 P:24 SP:FD PPU:  0,  0 CYC:0
+            0002  00        BRK                             A:00 X:05 Y:00 P:24 SP:FD PPU:  0,  9 CYC:3"#]])
     }
 }
