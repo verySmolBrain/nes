@@ -95,6 +95,11 @@ impl Cpu {
     {
         loop {
             callback(self);
+
+            if self.bus.ppu.interrupt.is_some() {
+                self.interrupt(Interrupt::new_nmi());
+            }
+            
             if !self.step() {
                 return // Change later to check for flag instead of interrupt
             }

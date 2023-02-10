@@ -1,24 +1,24 @@
 use crate::emulator::cpu::Cpu;
 use crate::emulator::bus::Bus;
 
-const RAM: u16 = 0x0000;
-const RAM_MIRRORS_END: u16 = 0x1FFF;
+pub const RAM: u16 = 0x0000;
+pub const RAM_MIRRORS_END: u16 = 0x1FFF;
 
-const PPU_REGISTERS_MIRRORS_START: u16 = 0x2008;
-const PPU_REGISTERS_MIRRORS_END: u16 = 0x3FFF;
+pub const PPU_REGISTERS_MIRRORS_START: u16 = 0x2008;
+pub const PPU_REGISTERS_MIRRORS_END: u16 = 0x3FFF;
 
-const ROM: u16 = 0x8000;
-const ROM_MIRRORS_END: u16 = 0xFFFF;
+pub const ROM: u16 = 0x8000;
+pub const ROM_MIRRORS_END: u16 = 0xFFFF;
 
-const PPU_CONTROLLER: u16 = 0x2000;
-const PPU_MASK: u16 = 0x2001;
-const PPU_STATUS: u16 = 0x2002;
-const PPU_OAM_ADDR: u16 = 0x2003;
-const PPU_OAM_DATA: u16 = 0x2004;
-const PPU_SCROLL: u16 = 0x2005;
-const PPU_ADDRESS: u16 = 0x2006;
-const PPU_DATA: u16 = 0x2007;
-const OAM_DMA: u16 = 0x4014;
+pub const PPU_CONTROLLER: u16 = 0x2000;
+pub const PPU_MASK: u16 = 0x2001;
+pub const PPU_STATUS: u16 = 0x2002;
+pub const PPU_OAM_ADDR: u16 = 0x2003;
+pub const PPU_OAM_DATA: u16 = 0x2004;
+pub const PPU_SCROLL: u16 = 0x2005;
+pub const PPU_ADDRESS: u16 = 0x2006;
+pub const PPU_DATA: u16 = 0x2007;
+pub const OAM_DMA: u16 = 0x4014;
 
 pub trait Mem {
     fn mem_read(&mut self, addr: u16) -> u8;

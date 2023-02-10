@@ -16,10 +16,6 @@ impl Cpu {
     }
 
     pub fn step(&mut self) -> bool  {
-        if self.bus.ppu.interrupt.is_some() {
-            self.interrupt(Interrupt::new_nmi());
-        }
-        
         let code = OPCODES.get(&self.next()).expect("Invalid opcode");
         let (addr, bytes_used, crossed_page) = self.get_operand_address(&code.mode);
         self.program_counter = self.program_counter.wrapping_add(bytes_used);
