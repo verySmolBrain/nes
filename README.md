@@ -3,11 +3,11 @@
 An NES emulator written in Rust. Still WIP
 but the biggest parts are mostly finished.
 
-![Alt Text](resources/demo1.gif)
+## Screenshots
 
 ![Alt Text](resources/nestest.gif)
 
-![Alt Text](resources/dk2.gif)
+<img src = "resources/dk2.gif" width = "100%"/>
 
 ## Build
 
