@@ -1,10 +1,12 @@
+use crate::emulator::interrupts::Interrupt;
 use crate::emulator::ppu::{Ppu, Controller};
 use crate::emulator::cpu::Cpu;
 use crate::helpers::trace::trace;
 use crate::player::palette;
 use crate::player::controls::CONTROLS;
 use std::process::exit;
-use sdl2::render::Texture;
+use sdl2::render::{Texture, TextureCreator};
+use sdl2::video::WindowContext;
 use sdl2::{
     event::Event,
     EventPump,
@@ -42,10 +44,12 @@ impl Frame {
 pub struct Player {
     event_pump: EventPump,
     canvas: Canvas<Window>,
+    cpu: Cpu,
+    frame: Frame,
 }
 
 impl Player {
-    pub fn new() -> Player {
+    pub fn new(cpu: Cpu) -> Player {
         let sdl_context = sdl2::init().unwrap();
 
         let video_subsystem = sdl_context.video().unwrap();
@@ -60,19 +64,23 @@ impl Player {
 
         let event_pump = sdl_context.event_pump().unwrap();
 
+        let frame = Frame::new();
+
         return Player {
             event_pump,
             canvas,
+            cpu,
+            frame,
         };
     }
 
-    pub fn render(&mut self, ppu: &Ppu, frame: &mut Frame, texture: &mut Texture) {
+    pub fn render(&mut self, ppu: &Ppu, texture: &mut Texture) {
         let bank_bg = if !ppu.controller.contains(Controller::BACKGROUND) { 0 } else { 1 };
         const FIRST_TABLE_END: usize = 0x03c0;
 
         for i in 0..FIRST_TABLE_END {
             let tile_n = ppu.vram[i];
-            self.render_tile(ppu, bank_bg, tile_n as usize, frame, i % 32, i / 32);
+            self.render_tile(ppu, bank_bg, tile_n as usize, i % 32, i / 32);
         }
 
         let bank_sprite = if !ppu.controller.contains(Controller::SPRITES_ADDR) { 0 } else { 1 };
@@ -82,15 +90,16 @@ impl Player {
             let tile_n = ppu.oam_data[i + 1] as usize;
             let attributes = ppu.oam_data[i + 2];
 
-            self.render_sprite(ppu, bank_sprite, tile_n, frame, x, y, attributes);
+            self.render_sprite(ppu, bank_sprite, tile_n,x, y, attributes);
         }
 
-        texture.update(None, &frame.data, Frame::WIDTH * Frame::RGB_DATA_LEN).unwrap();
+        texture.update(None, &self.frame.data, Frame::WIDTH * Frame::RGB_DATA_LEN).unwrap();
+        println!("Updated One {:?}", texture.raw());
         self.canvas.copy(&texture, None, None).unwrap();
         self.canvas.present();
     }
 
-    fn render_sprite(&self, ppu: &Ppu, bank: usize, tile_n: usize, frame: &mut Frame, x: usize, y: usize, attributes: u8) {
+    fn render_sprite(&mut self, ppu: &Ppu, bank: usize, tile_n: usize, x: usize, y: usize, attributes: u8) {
         const LEFT_BANK_START: usize = 0x0000;
         const RIGHT_BANK_START: usize = 0x1000;
         const TILE_LEN: usize = 16;    
@@ -125,12 +134,12 @@ impl Player {
                 let frame_x = if flip_horizontal { x + 7 - j } else { x + j };
                 let frame_y = if flip_vertical { y + 7 - i } else { y + i };
 
-                frame.update_pixel(frame_x, frame_y, rgb);
+                self.frame.update_pixel(frame_x, frame_y, rgb);
             }
         }
     }
 
-    fn render_tile(&self, ppu: &Ppu, bank: usize, tile_n: usize, frame: &mut Frame, x: usize, y: usize) {
+    fn render_tile(&mut self, ppu: &Ppu, bank: usize, tile_n: usize, x: usize, y: usize) {
         const LEFT_BANK_START: usize = 0x0000;
         const RIGHT_BANK_START: usize = 0x1000;
         const TILE_LEN: usize = 16;
@@ -156,12 +165,12 @@ impl Player {
                 };
                 upper >>= 1;
                 lower >>= 1;
-                frame.update_pixel(x * 8 + j, y * 8 + i, rgb)
+                self.frame.update_pixel(x * 8 + j, y * 8 + i, rgb)
             }
         }
     }
 
-    fn handle_user_input(&mut self, cpu: &mut Cpu) {
+    fn handle_user_input(&mut self) {
         for event in self.event_pump.poll_iter() {
             match event {
                 Event::Quit { .. } | Event::KeyDown { keycode: Some(Keycode::Escape), .. } => {
@@ -169,12 +178,12 @@ impl Player {
                 },
                 Event::KeyDown { keycode, .. } => {
                     if let Some(key) = CONTROLS.get(&keycode.unwrap_or(Keycode::Asterisk)) {
-                        cpu.bus.joypad.press(*key);
+                        self.cpu.bus.joypad.press(*key);
                     }
                 },
                 Event::KeyUp { keycode, .. } => {
                     if let Some(key) = CONTROLS.get(&keycode.unwrap_or(Keycode::Asterisk)) {
-                        cpu.bus.joypad.release(*key);
+                        self.cpu.bus.joypad.release(*key);
                     }
                 },
                 _ => {}
@@ -182,20 +191,40 @@ impl Player {
         }
     }
 
-    pub fn run(&mut self, mut cpu: Cpu) {
-        let mut frame = Frame::new();
+    pub fn run(&mut self) {
         let creator = self.canvas.texture_creator();
         let mut texture = creator.create_texture_target(PixelFormatEnum::RGB24, 256, 240).unwrap();
 
-        cpu.run_with_callback(move |cpu| {
-            println!("{}", trace(cpu));
+        println!("Initialised canvas");
+        let mut main_loop = || {
+            println!("{}", trace(&mut self.cpu));
 
-            let ppu = cpu.ppu_ready();
+            let ppu = self.cpu.ppu_ready();
             if ppu.is_some() {
-                self.render(ppu.unwrap(), &mut frame, &mut texture);
+                self.render(&ppu.unwrap(), &mut texture);
+                println!("Main Run{:?}", texture.raw());
+            } else {
+                println!("PPU not ready")
             }
             
-            self.handle_user_input(cpu);
-        })
+            self.handle_user_input();
+
+            if self.cpu.bus.ppu.interrupt.is_some() {
+                self.cpu.interrupt(Interrupt::new_nmi());
+            }
+            
+            if !self.cpu.step() {
+                return // Change later to check for flag instead of interrupt
+            }
+        };
+
+        #[cfg(target_os = "emscripten")]
+        use crate::emscripten::{emscripten};
+
+        #[cfg(target_os = "emscripten")]
+        emscripten::set_main_loop_callback(main_loop);
+
+        #[cfg(not(target_os = "emscripten"))]
+        loop { main_loop(); }
     }
 }
