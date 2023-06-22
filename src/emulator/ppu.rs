@@ -1,7 +1,6 @@
 use crate::emulator::rom::Mirroring;
 use crate::emulator::interrupts::Interrupt;
 use bitflags::bitflags;
-use sdl2::libc::exit;
 
 bitflags! {
     #[derive(Clone, Copy)]

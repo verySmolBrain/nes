@@ -2,7 +2,7 @@ use nes::emulator::cpu::Cpu;
 use nes::emulator::rom::Rom;
 use nes::emulator::bus::Bus;
 use nes::player::player::Player;
-use std::env;
+// use std::env;
 
 fn main() {
     // let rom_path = env::args().nth(1).expect("No ROM path provided");

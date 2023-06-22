@@ -1,12 +1,11 @@
 use crate::emulator::interrupts::Interrupt;
 use crate::emulator::ppu::{Ppu, Controller};
 use crate::emulator::cpu::Cpu;
-use crate::helpers::trace::trace;
+// use crate::helpers::trace::trace;
 use crate::player::palette;
 use crate::player::controls::CONTROLS;
 use std::process::exit;
-use sdl2::render::{Texture, TextureCreator};
-use sdl2::video::WindowContext;
+use sdl2::render::Texture;
 use sdl2::{
     event::Event,
     EventPump,
@@ -90,7 +89,7 @@ impl Player {
             let tile_n = ppu.oam_data[i + 1] as usize;
             let attributes = ppu.oam_data[i + 2];
 
-            self.render_sprite(ppu, bank_sprite, tile_n,x, y, attributes);
+            self.render_sprite(ppu, bank_sprite, tile_n, x, y, attributes);
         }
 
         texture.update(None, &self.frame.data, Frame::WIDTH * Frame::RGB_DATA_LEN).unwrap();
@@ -103,8 +102,8 @@ impl Player {
         const RIGHT_BANK_START: usize = 0x1000;
         const TILE_LEN: usize = 16;    
     
-        let flip_vertical = attributes & 0b1000_0000 == 1;
-        let flip_horizontal = attributes & 0b0100_0000 == 1;
+        let flip_vertical = attributes & 0b1000_0000 != 0;
+        let flip_horizontal = attributes & 0b0100_0000 != 0;
         let palette_idx = attributes & 0b0000_0011;
 
         let bank_start = if bank == 0 { LEFT_BANK_START } else { RIGHT_BANK_START };
@@ -120,15 +119,16 @@ impl Player {
             let mut lower = tile[i + 8];
 
             for j in (0..8).rev() {
-                let rgb = match (upper & 1 == 1, lower & 1 == 1) {
-                    (false, false) => palette[0],
-                    (true, false) => palette[1],
-                    (false, true) => palette[2],
-                    (true, true) => palette[3],
+                let value = (1 & lower) << 1 | (1 & upper);
+                upper = upper >> 1;
+                lower = lower >> 1;
+                let rgb = match value {
+                    0 => continue, // skip coloring the pixel
+                    1 => palette[1],
+                    2 => palette[2],
+                    3 => palette[3],
+                    _ => panic!("can't be"),
                 };
-
-                upper >>= 1;
-                lower >>= 1;
 
                 let frame_x = if flip_horizontal { x + 7 - j } else { x + j };
                 let frame_y = if flip_vertical { y + 7 - i } else { y + i };
