@@ -94,7 +94,6 @@ impl Player {
         }
 
         texture.update(None, &self.frame.data, Frame::WIDTH * Frame::RGB_DATA_LEN).unwrap();
-        println!("Updated One {:?}", texture.raw());
         self.canvas.copy(&texture, None, None).unwrap();
         self.canvas.present();
     }
@@ -195,16 +194,12 @@ impl Player {
         let creator = self.canvas.texture_creator();
         let mut texture = creator.create_texture_target(PixelFormatEnum::RGB24, 256, 240).unwrap();
 
-        println!("Initialised canvas");
-        let mut main_loop = || {
-            println!("{}", trace(&mut self.cpu));
+        for _ in 0..1000 {
+            // println!("{}", trace(&mut self.cpu));
 
             let ppu = self.cpu.ppu_ready();
             if ppu.is_some() {
                 self.render(&ppu.unwrap(), &mut texture);
-                println!("Main Run{:?}", texture.raw());
-            } else {
-                println!("PPU not ready")
             }
             
             self.handle_user_input();
@@ -216,15 +211,6 @@ impl Player {
             if !self.cpu.step() {
                 return // Change later to check for flag instead of interrupt
             }
-        };
-
-        #[cfg(target_os = "emscripten")]
-        use crate::emscripten::{emscripten};
-
-        #[cfg(target_os = "emscripten")]
-        emscripten::set_main_loop_callback(main_loop);
-
-        #[cfg(not(target_os = "emscripten"))]
-        loop { main_loop(); }
+        }
     }
 }
