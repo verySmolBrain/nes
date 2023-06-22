@@ -123,11 +123,11 @@ impl Player {
                 upper = upper >> 1;
                 lower = lower >> 1;
                 let rgb = match value {
-                    0 => continue, // skip coloring the pixel
+                    0 => continue,
                     1 => palette[1],
                     2 => palette[2],
                     3 => palette[3],
-                    _ => panic!("can't be"),
+                    _ => panic!("Value can't be reached"),
                 };
 
                 let frame_x = if flip_horizontal { x + 7 - j } else { x + j };
@@ -194,7 +194,7 @@ impl Player {
         let creator = self.canvas.texture_creator();
         let mut texture = creator.create_texture_target(PixelFormatEnum::RGB24, 256, 240).unwrap();
 
-        for _ in 0..1000 {
+        loop {
             // println!("{}", trace(&mut self.cpu));
 
             let ppu = self.cpu.ppu_ready();
@@ -208,8 +208,10 @@ impl Player {
                 self.cpu.interrupt(Interrupt::new_nmi());
             }
             
-            if !self.cpu.step() {
-                return // Change later to check for flag instead of interrupt
+            self.cpu.step();
+
+            if self.cpu.bus.ppu.frame_ready() {
+                break;
             }
         }
     }

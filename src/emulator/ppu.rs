@@ -277,9 +277,18 @@ impl Ppu {
                 self.scanline = 0;
                 self.status.remove(Status::SPRITE_0);
                 self.status.remove(Status::VBLANK_STARTED);
-                self.interrupt = None;
+                self.interrupt = Some(Interrupt::new_frmfin());
             }
         }
+    }
+
+    pub fn frame_ready(&mut self) -> bool {
+        if self.interrupt == Some(Interrupt::new_frmfin()) {
+            self.interrupt = None;
+            return true;
+        }
+
+        return false;
     }
 
     pub fn handled_interrupt(&mut self) {
