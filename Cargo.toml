@@ -14,3 +14,4 @@ sdl2 = "0.35"
 rand = "0.8.5"
 
 expect-test = "1.4.0"
+emscripten_main_loop = "0.1.1"

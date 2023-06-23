@@ -17,6 +17,7 @@ bitflags! {
 }
 
 bitflags! {
+    #[derive(Clone)]
     pub struct Mask: u8 {
         const EMPHASIZE_BLUE  = 0b1000_0000;
         const EMPHASIZE_GREEN = 0b0100_0000;
@@ -30,6 +31,7 @@ bitflags! {
 }
 
 bitflags! {
+    #[derive(Clone)]
     pub struct Status: u8 {
         const VBLANK_STARTED  = 0b1000_0000;
         const SPRITE_0        = 0b0100_0000;
@@ -37,12 +39,14 @@ bitflags! {
     }
 }
 
+#[derive(Clone)]
 pub struct Scroll {
     pub x: u8,
     pub y: u8,
     pub latch: bool,
 }
 
+#[derive(Clone)]
 pub struct Address {
     pub h: u8,
     pub l: u8,
@@ -66,6 +70,7 @@ impl Address {
     }
 }
 
+#[derive(Clone)]
 pub struct Ppu {
     pub chr_rom: Vec<u8>,
     pub mirroring: Mirroring,
@@ -272,9 +277,18 @@ impl Ppu {
                 self.scanline = 0;
                 self.status.remove(Status::SPRITE_0);
                 self.status.remove(Status::VBLANK_STARTED);
-                self.interrupt = None;
+                self.interrupt = Some(Interrupt::new_frmfin());
             }
         }
+    }
+
+    pub fn frame_ready(&mut self) -> bool {
+        if self.interrupt == Some(Interrupt::new_frmfin()) {
+            self.interrupt = None;
+            return true;
+        }
+
+        return false;
     }
 
     pub fn handled_interrupt(&mut self) {

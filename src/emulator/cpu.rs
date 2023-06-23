@@ -81,11 +81,11 @@ impl Cpu {
         Ok(())
     }
 
-    pub fn ppu_ready(&mut self) -> Option<&Ppu> {
+    pub fn ppu_ready(&mut self) -> Option<Ppu> {
         if self.interrupt.is_some() {
             self.return_from_interrupt();
             self.bus.ppu.handled_interrupt();
-            Some(&self.bus.ppu)
+            Some(self.bus.ppu.clone())
         } else {
             None
         }
@@ -95,16 +95,14 @@ impl Cpu {
     where
         F: FnMut(&mut Cpu),
     {
-        loop {
-            callback(self);
+        callback(self);
 
-            if self.bus.ppu.interrupt.is_some() {
-                self.interrupt(Interrupt::new_nmi());
-            }
-            
-            if !self.step() {
-                return // Change later to check for flag instead of interrupt
-            }
+        if self.bus.ppu.interrupt.is_some() {
+            self.interrupt(Interrupt::new_nmi());
+        }
+        
+        if !self.step() {
+            return // Change later to check for flag instead of interrupt
         }
     }
 }

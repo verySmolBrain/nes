@@ -3,13 +3,14 @@ use crate::emulator::memory::Stack;
 use crate::emulator::memory::Mem;
 use crate::emulator::cpu::Status;
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Eq, PartialEq)]
 pub enum INTERRUPTS {
     NMI,
     IRQ,
+    FRMFIN,
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct Interrupt {
     pub interrupt: INTERRUPTS,
     pub addr: u16,
@@ -30,6 +31,14 @@ impl Interrupt {
             interrupt: INTERRUPTS::IRQ,
             addr: 0xFFFE,
             cycles: 2,
+        }
+    }
+
+    pub fn new_frmfin() -> Self {
+        Interrupt {
+            interrupt: INTERRUPTS::FRMFIN,
+            addr: 0xFFFC,
+            cycles: 7,
         }
     }
 }
