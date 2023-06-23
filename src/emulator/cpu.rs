@@ -95,14 +95,16 @@ impl Cpu {
     where
         F: FnMut(&mut Cpu),
     {
-        callback(self);
+        loop {
+            callback(self);
 
-        if self.bus.ppu.interrupt.is_some() {
-            self.interrupt(Interrupt::new_nmi());
-        }
-        
-        if !self.step() {
-            return // Change later to check for flag instead of interrupt
+            if self.bus.ppu.interrupt.is_some() {
+                self.interrupt(Interrupt::new_nmi());
+            }
+            
+            if !self.step() {
+                return // Change later to check for flag instead of interrupt
+            }
         }
     }
 }
